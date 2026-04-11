@@ -22,9 +22,6 @@ export default function Footer() {
             <Link href="/productos" className="footer__link">
               Productos
             </Link>
-            <Link href="/blog" className="footer__link">
-              Blog
-            </Link>
           </div>
 
           <div className="footer__col">
@@ -56,7 +53,7 @@ export default function Footer() {
       <div className="footer__bottom">
         <p>
           © {new Date().getFullYear()} Mkapu Import. Todos los derechos
-          reservados.
+          reservados.     |       Designed & Built by SolveGrades
         </p>
       </div>
 

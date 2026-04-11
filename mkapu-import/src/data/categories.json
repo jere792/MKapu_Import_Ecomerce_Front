@@ -133,5 +133,10 @@
     "id": "dispensador-agua",
     "name": "Dispensador de agua",
     "slug": "dispensador-agua"
+  },
+  {
+    "id": "ollas",
+    "name": "Ollas",
+    "slug": "ollas"
   }
 ]

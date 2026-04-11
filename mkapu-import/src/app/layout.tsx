@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartProvider } from "@/app/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MKapu Import",
   description: "Equipos de importación para tu negocio",
+  icons: {
+    icon: "https://res.cloudinary.com/dxuk9bogw/image/upload/w_32,h_32,c_fill,f_png/v1767836605/474716814_581641201299027_4444346315622797816_n_karlgu.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,15 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="es" suppressHydrationWarning>
+      <body suppressHydrationWarning style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         <CartProvider>
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main style={{ flex: 1 }}>{children}</main>
           <Footer />
+          <WhatsAppButton />
         </CartProvider>
       </body>
     </html>

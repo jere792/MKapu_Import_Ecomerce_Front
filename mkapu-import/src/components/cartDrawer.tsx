@@ -49,14 +49,24 @@ export default function CartDrawer({ open, onClose }: Props) {
             <ul className="cart-drawer__list">
               {items.map((item) => (
                 <li key={item.id} className="cart-item">
-                  <span className="cart-item__emoji">{item.emoji}</span>
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="cart-item__img"
+                    />
+                  ) : (
+                    <span className="cart-item__emoji">{item.emoji}</span>
+                  )}
+
                   <div className="cart-item__info">
                     <p className="cart-item__name">{item.name}</p>
                     <p className="cart-item__price">
                       S/ {item.price.toFixed(2)} c/u ·{" "}
-                      <strong>S/ {(item.price * item.qty).toFixed(2)}</strong>
+                      <strong>S/ {item.itemTotal.toFixed(2)}</strong>
                     </p>
                   </div>
+
                   <div className="cart-item__qty">
                     <button
                       className="cart-item__qty-btn"
@@ -74,6 +84,7 @@ export default function CartDrawer({ open, onClose }: Props) {
                       +
                     </button>
                   </div>
+
                   <button
                     className="cart-item__remove"
                     onClick={() => removeItem(item.id)}
@@ -103,6 +114,23 @@ export default function CartDrawer({ open, onClose }: Props) {
           </>
         )}
       </aside>
+
+      <style jsx>{`
+        .cart-item__img {
+          width: 44px;
+          height: 44px;
+          object-fit: cover;
+          border-radius: 8px;
+          flex-shrink: 0;
+          border: 1px solid #ede8e1;
+        }
+        .cart-item__emoji {
+          font-size: 1.6rem;
+          width: 44px;
+          text-align: center;
+          flex-shrink: 0;
+        }
+      `}</style>
     </>
   );
 }

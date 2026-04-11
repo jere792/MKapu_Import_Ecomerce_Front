@@ -10,12 +10,12 @@ interface Product {
   name: string;
   category: string;
   description: string;
-  price: number;           // precio por unidad
+  price: number;
   oldPrice?: number;
-  pricemCaja?: number;     // precio por caja completa
-  unidadcaja?: number;     // unidades por caja
-  priceMayorista?: number; // precio por mayor
-  unidadMayorista?: number;// mínimo unidades para mayorista
+  pricemCaja?: number;
+  unidadcaja?: number;
+  priceMayorista?: number;
+  unidadMayorista?: number;
   featured: boolean;
   imageUrl?: string;
 }
@@ -24,14 +24,47 @@ interface Props {
   product: Product;
 }
 
-type PriceTier = "unidad" | "mayorista" | "caja";
+// ── Precio unitario del tier activo ──
+function calcTier(qty: number, p: Product): { price: number; tier: "caja" | "mayorista" | "unidad" } {
+  const hasCaja      = !!p.pricemCaja && !!p.unidadcaja;
+  const hasMayorista = !!p.priceMayorista && !!p.unidadMayorista;
+
+  if (hasCaja && qty >= p.unidadcaja!)
+    return { price: p.pricemCaja! / p.unidadcaja!, tier: "caja" };
+  if (hasMayorista && qty >= p.unidadMayorista!)
+    return { price: p.priceMayorista!, tier: "mayorista" };
+  return { price: p.price, tier: "unidad" };
+}
+
+// ── Total real: cajas completas + unidades sueltas ──
+function calcTotal(qty: number, p: Product): number {
+  if (qty <= 0) return 0;
+
+  const hasCaja      = !!p.pricemCaja && !!p.unidadcaja;
+  const hasMayorista = !!p.priceMayorista && !!p.unidadMayorista;
+
+  if (hasCaja && qty >= p.unidadcaja!) {
+    const cajas   = Math.floor(qty / p.unidadcaja!);
+    const sueltas = qty % p.unidadcaja!;
+    const precioSueltas =
+      hasMayorista && qty >= p.unidadMayorista!
+        ? p.priceMayorista!
+        : p.price;
+    return cajas * p.pricemCaja! + sueltas * precioSueltas;
+  }
+
+  if (hasMayorista && qty >= p.unidadMayorista!) {
+    return qty * p.priceMayorista!;
+  }
+
+  return qty * p.price;
+}
 
 export default function ProductCard({ product }: Props) {
   const { addItem, items, updateQty, removeItem } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
   const [added, setAdded]           = useState(false);
   const [imgError, setImgError]     = useState(false);
-  const [tier, setTier]             = useState<PriceTier>("unidad");
 
   const cartItem = items.find((i) => i.id === String(product.id));
   const qty      = cartItem?.qty ?? 0;
@@ -41,220 +74,227 @@ export default function ProductCard({ product }: Props) {
   const hasMayorista = !!product.priceMayorista && !!product.unidadMayorista;
   const isConsult    = product.price === 0 && !hasCaja && !hasMayorista;
 
-  // precio activo según tier
-  const activePrice =
-    tier === "caja"       ? (product.pricemCaja ?? product.price) :
-    tier === "mayorista"  ? (product.priceMayorista ?? product.price) :
-    product.price;
+  const { price: activePriceCart, tier: activeTier } = calcTier(qty, product);
+  const { price: activePriceNext }                   = calcTier(qty + 1, product);
 
-  const activeQtyLabel =
-    tier === "caja"      ? `Caja × ${product.unidadcaja} und.` :
-    tier === "mayorista" ? `Desde ${product.unidadMayorista} und.` :
-    "Por unidad";
+  function handleUpdateQty(newQty: number) {
+    if (newQty <= 0) { removeItem(String(product.id)); return; }
+    updateQty(String(product.id), newQty); // el contexto recalcula internamente
+  }
 
   function handleAdd() {
+    const { price } = calcTier(1, product);
+    const itemTotal = calcTotal(1, product);
     addItem({
-      id:    String(product.id),
-      name:  `${product.name}${tier !== "unidad" ? ` (${activeQtyLabel})` : ""}`,
-      price: activePrice,
-      emoji: "📦",
+      id:       String(product.id),
+      name:     product.name,
+      price,
+      itemTotal,
+      imageUrl: product.imageUrl,
+      emoji:    "📦",
+      product: {                   // ← guardamos los datos de precio para recalcular
+        price:             product.price,
+        pricemCaja:        product.pricemCaja,
+        unidadcaja:        product.unidadcaja,
+        priceMayorista:    product.priceMayorista,
+        unidadMayorista:   product.unidadMayorista,
+      },
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 800);
   }
 
+  const tierLabel =
+    activeTier === "caja"      ? `Precio caja (×${product.unidadcaja} und.)` :
+    activeTier === "mayorista" ? `Precio mayorista (≥${product.unidadMayorista} und.)` :
+    "Precio por unidad";
+
   return (
     <article className={`pcard${added ? " pcard--pop" : ""}`}>
 
-      {/* ── MEDIA ── */}
+      {/* IMAGEN */}
       <div className="pcard__media">
         {hasImage ? (
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="pcard__img"
-            loading="lazy"
-            onError={() => setImgError(true)}
-          />
+          <img src={product.imageUrl} alt={product.name} className="pcard__img" loading="lazy" onError={() => setImgError(true)} />
         ) : (
-          <div className="pcard__no-img">
-            <ImageOff size={30} strokeWidth={1.5} />
-            <span>Sin imagen</span>
-          </div>
+          <div className="pcard__no-img"><ImageOff size={28} strokeWidth={1.5} /><span>Sin imagen</span></div>
         )}
-
-        <button
-          className={`pcard__wish${wishlisted ? " pcard__wish--active" : ""}`}
-          onClick={() => setWishlisted((v) => !v)}
-          aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
-        >
-          <Heart size={15} fill={wishlisted ? "currentColor" : "none"} />
+        <button className={`pcard__wish${wishlisted ? " pcard__wish--on" : ""}`} onClick={() => setWishlisted(v => !v)} aria-label="Favorito">
+          <Heart size={14} fill={wishlisted ? "currentColor" : "none"} />
         </button>
-
-        {qty > 0 && <span className="pcard__badge pcard__badge--qty">{qty}</span>}
+        {qty > 0 && (
+          <span className={`pcard__qty-badge pcard__qty-badge--${activeTier}`}>{qty}</span>
+        )}
       </div>
 
-      {/* ── BODY ── */}
+      {/* INFO */}
       <div className="pcard__body">
         <p className="pcard__cat">{product.category.replace(/-/g, " ")}</p>
         <h3 className="pcard__name">{product.name}</h3>
-        {product.description && <p className="pcard__desc">{product.description}</p>}
-
-        {/* ── PRICE TIERS ── */}
-        {!isConsult && (
-          <div className="pcard__tiers">
-
-            {/* Por unidad */}
-            <button
-              className={`pcard__tier${tier === "unidad" ? " pcard__tier--active" : ""}`}
-              onClick={() => setTier("unidad")}
-            >
-              <span className="pcard__tier-label">Por unidad</span>
-              <span className="pcard__tier-price">
-                {product.price > 0 ? `S/ ${product.price.toFixed(2)}` : "Consultar"}
-              </span>
-            </button>
-
-            {/* Mayorista */}
-            {hasMayorista && (
-              <button
-                className={`pcard__tier${tier === "mayorista" ? " pcard__tier--active" : ""}`}
-                onClick={() => setTier("mayorista")}
-              >
-                <span className="pcard__tier-label">
-                  Por mayor
-                  <em>desde {product.unidadMayorista} und.</em>
-                </span>
-                <span className="pcard__tier-price pcard__tier-price--better">
-                  S/ {product.priceMayorista!.toFixed(2)}
-                </span>
-              </button>
-            )}
-
-            {/* Caja */}
-            {hasCaja && (
-              <button
-                className={`pcard__tier${tier === "caja" ? " pcard__tier--active" : ""}`}
-                onClick={() => setTier("caja")}
-              >
-                <span className="pcard__tier-label">
-                  Caja
-                  <em>× {product.unidadcaja} und.</em>
-                </span>
-                <span className="pcard__tier-price pcard__tier-price--best">
-                  S/ {product.pricemCaja!.toFixed(2)}
-                </span>
-              </button>
-            )}
-          </div>
-        )}
-
-        {isConsult && (
-          <p className="pcard__consult-label">Precio a consultar</p>
-        )}
+        <p className="pcard__desc">{product.description || "\u00a0"}</p>
       </div>
 
-      {/* ── ACTIONS ── */}
+      {/* PRECIOS — 3 filas fijas */}
+      <div className="pcard__tiers">
+
+        {/* Unidad */}
+        <div className={`pcard__tier${activeTier === "unidad" && qty > 0 ? " pcard__tier--on" : ""}`}>
+          <span className="pcard__tier-lbl">Por unidad</span>
+          <span className="pcard__tier-price">
+            {isConsult ? "Consultar" : `S/ ${product.price.toFixed(2)}`}
+          </span>
+        </div>
+
+        {/* Mayorista */}
+        <div className={`pcard__tier${activeTier === "mayorista" && qty > 0 ? " pcard__tier--on pcard__tier--blue" : ""}${!hasMayorista ? " pcard__tier--ghost" : ""}`}>
+          <span className="pcard__tier-lbl">
+            Por mayor
+            {hasMayorista && <em>desde {product.unidadMayorista} und.</em>}
+          </span>
+          <span className="pcard__tier-price pcard__tier-price--blue">
+            {hasMayorista ? `S/ ${product.priceMayorista!.toFixed(2)}` : "—"}
+          </span>
+        </div>
+
+        {/* Caja */}
+        <div className={`pcard__tier${activeTier === "caja" && qty > 0 ? " pcard__tier--on pcard__tier--green" : ""}${!hasCaja ? " pcard__tier--ghost" : ""}`}>
+          <span className="pcard__tier-lbl">
+            Caja
+            {hasCaja && <em>× {product.unidadcaja} und.</em>}
+          </span>
+          <span className="pcard__tier-price pcard__tier-price--green">
+            {hasCaja ? `S/ ${product.pricemCaja!.toFixed(2)}` : "—"}
+          </span>
+        </div>
+      </div>
+
+      {/* BOTÓN / STEPPER */}
       <div className="pcard__actions">
         {qty === 0 ? (
-          <button
-            className={`pcard__btn${isConsult ? " pcard__btn--consult" : ""}`}
-            onClick={handleAdd}
-          >
+          <button className={`pcard__btn${isConsult ? " pcard__btn--wsp" : ""}`} onClick={handleAdd}>
             {isConsult
-              ? <><MessageCircle size={16} /> Agregar para consultar</>
-              : <><ShoppingCart size={16} /> Agregar — S/ {activePrice.toFixed(2)}</>
+              ? <><MessageCircle size={15} /> Agregar para consultar</>
+              : <><ShoppingCart size={15} /> Agregar — S/ {activePriceNext.toFixed(2)}</>
             }
           </button>
         ) : (
-          <div className="pcard__qty-row">
-            <button
-              className="pcard__qty-btn"
-              onClick={() => qty === 1 ? removeItem(String(product.id)) : updateQty(String(product.id), qty - 1)}
-            >−</button>
-            <span className="pcard__qty-val">{qty} en carrito</span>
-            <button
-              className="pcard__qty-btn"
-              onClick={() => updateQty(String(product.id), qty + 1)}
-            >+</button>
+          <div className="pcard__stepper">
+            <button className="pcard__step" onClick={() => handleUpdateQty(qty - 1)}>−</button>
+            <div className="pcard__step-info">
+              <span className="pcard__step-qty">{qty} und.</span>
+              <span className={`pcard__step-tier pcard__step-tier--${activeTier}`}>{tierLabel}</span>
+            </div>
+            <button className="pcard__step" onClick={() => handleUpdateQty(qty + 1)}>+</button>
           </div>
         )}
       </div>
 
+      {/* Aviso de próximo tier */}
+      {qty > 0 && activeTier !== "caja" && (hasMayorista || hasCaja) && (() => {
+        const nextThreshold = activeTier === "unidad" && hasMayorista
+          ? product.unidadMayorista! - qty
+          : hasCaja ? product.unidadcaja! - qty : null;
+        const nextPrice = activeTier === "unidad" && hasMayorista
+          ? product.priceMayorista!
+          : hasCaja ? product.pricemCaja! : null;
+        const nextName = activeTier === "unidad" && hasMayorista ? "mayorista" : "caja";
+        if (!nextThreshold || nextThreshold <= 0 || !nextPrice) return null;
+        return (
+          <div className={`pcard__hint pcard__hint--${nextName}`}>
+            +{nextThreshold} más → precio {nextName} S/ {nextPrice.toFixed(2)}
+          </div>
+        );
+      })()}
+
       <style jsx>{`
         .pcard {
-          --accent: #e05c2a; --accent-light: #fff1ec; --accent-hover: #c44d20;
-          --consult: #25d366; --consult-hover: #1da851;
-          --text: #1a1a1a; --muted: #888; --border: #ede8e1; --radius: 18px;
-          background: #fff;
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-          display: flex; flex-direction: column;
-          overflow: hidden;
-          transition: box-shadow 0.22s, transform 0.22s;
+          --accent:#e05c2a; --accent-h:#c44d20; --accent-bg:#fff1ec;
+          --wsp:#25d366; --wsp-h:#1da851;
+          --blue:#0891b2; --blue-bg:#e0f2fe;
+          --green:#16a34a; --green-bg:#dcfce7;
+          --text:#1a1a1a; --muted:#999; --border:#ede8e1;
+
+          display: grid;
+          grid-template-rows: 170px auto 126px 52px;
+          height: 100%;
+          background:#fff;
+          border:1px solid var(--border);
+          border-radius:16px;
+          box-shadow:0 2px 10px rgba(0,0,0,0.06);
+          overflow:hidden;
+          transition:box-shadow 0.22s, transform 0.22s;
+          position: relative;
         }
-        .pcard:hover { box-shadow: 0 10px 32px rgba(0,0,0,0.13); transform: translateY(-4px); }
-        .pcard--pop { animation: pop 0.32s cubic-bezier(.36,.07,.19,.97); }
-        @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 70%{transform:scale(0.97)} 100%{transform:scale(1)} }
+        .pcard:hover { box-shadow:0 10px 32px rgba(0,0,0,0.13); transform:translateY(-4px); }
+        .pcard--pop { animation:pop 0.3s cubic-bezier(.36,.07,.19,.97); }
+        @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 70%{transform:scale(.97)} 100%{transform:scale(1)} }
 
-        /* MEDIA */
-        .pcard__media { position:relative; height:180px; flex-shrink:0; background:#f5f2ee; overflow:hidden; }
-        .pcard__img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.5s ease; }
+        .pcard__media { position:relative; background:#f5f2ee; overflow:hidden; }
+        .pcard__img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.5s; }
         .pcard:hover .pcard__img { transform:scale(1.06); }
-        .pcard__no-img { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#ccc; font-size:0.72rem; }
+        .pcard__no-img { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#ccc; font-size:0.7rem; }
 
-        .pcard__wish { position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%; border:none; background:rgba(255,255,255,0.92); backdrop-filter:blur(4px); box-shadow:0 2px 8px rgba(0,0,0,0.12); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); transition:color 0.15s,transform 0.15s; z-index:1; }
+        .pcard__wish { position:absolute; top:9px; right:9px; width:30px; height:30px; border-radius:50%; border:none; background:rgba(255,255,255,0.9); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#bbb; transition:color 0.15s,transform 0.15s; z-index:1; }
         .pcard__wish:hover { transform:scale(1.15); }
-        .pcard__wish--active { color:#ef4444; }
+        .pcard__wish--on { color:#ef4444; }
 
-        .pcard__badge { position:absolute; font-size:0.62rem; font-weight:700; border-radius:99px; padding:3px 8px; border:2px solid #fff; z-index:1; }
-        .pcard__badge--qty { bottom:8px; right:10px; background:var(--accent); color:#fff; animation:badgeIn 0.2s ease; }
-        @keyframes badgeIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+        .pcard__qty-badge { position:absolute; bottom:7px; right:9px; font-size:0.6rem; font-weight:800; border-radius:99px; padding:2px 7px; border:2px solid #fff; z-index:1; animation:bdg .2s ease; }
+        .pcard__qty-badge--unidad    { background:var(--accent); color:#fff; }
+        .pcard__qty-badge--mayorista { background:var(--blue);   color:#fff; }
+        .pcard__qty-badge--caja      { background:var(--green);  color:#fff; }
+        @keyframes bdg { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
 
-        /* BODY */
-        .pcard__body { padding:0.9rem 0.9rem 0.5rem; flex:1; display:flex; flex-direction:column; gap:0.22rem; }
-        .pcard__cat  { font-size:0.63rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin:0; }
-        .pcard__name { font-size:0.88rem; font-weight:800; color:var(--text); margin:0; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-        .pcard__desc { font-size:0.72rem; color:var(--muted); margin:0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .pcard__body { padding:0.75rem 0.85rem 0.4rem; overflow:hidden; }
+        .pcard__cat  { font-size:0.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 3px; }
+        .pcard__name { font-size:0.86rem; font-weight:800; color:var(--text); margin:0 0 4px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .pcard__desc { font-size:0.71rem; color:var(--muted); margin:0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-        /* PRICE TIERS */
-        .pcard__tiers { display:flex; flex-direction:column; gap:5px; margin-top:6px; }
-
+        .pcard__tiers { display:flex; flex-direction:column; gap:0; border-top:1px solid var(--border); }
         .pcard__tier {
           display:flex; align-items:center; justify-content:space-between;
-          padding:6px 9px; border-radius:9px; border:1.5px solid #ede8e1;
-          background:#faf8f5; cursor:pointer; text-align:left;
-          transition:border-color 0.15s, background 0.15s;
-          gap:6px;
+          height:42px; padding:0 0.85rem;
+          border-bottom:1px solid var(--border);
+          background:#fafaf9;
+          gap:8px; transition:background 0.15s;
         }
-        .pcard__tier:hover { border-color:#e05c2a; background:#fff1ec; }
-        .pcard__tier--active { border-color:#e05c2a; background:#fff1ec; }
+        .pcard__tier:last-child { border-bottom:none; }
+        .pcard__tier--on         { background:var(--accent-bg); }
+        .pcard__tier--on.pcard__tier--blue  { background:var(--blue-bg); }
+        .pcard__tier--on.pcard__tier--green { background:var(--green-bg); }
+        .pcard__tier--ghost      { opacity:0.38; }
 
-        .pcard__tier-label {
-          display:flex; flex-direction:column; gap:1px;
-          font-size:0.72rem; font-weight:600; color:var(--text); line-height:1.2;
+        .pcard__tier-lbl { display:flex; flex-direction:column; gap:1px; font-size:0.71rem; font-weight:600; color:var(--text); line-height:1.2; }
+        .pcard__tier-lbl em { font-style:normal; font-size:0.62rem; color:var(--muted); font-weight:400; }
+        .pcard__tier-price { font-size:0.83rem; font-weight:900; color:var(--text); white-space:nowrap; }
+        .pcard__tier-price--blue  { color:var(--blue); }
+        .pcard__tier-price--green { color:var(--green); }
+
+        .pcard__actions { padding:7px 0.85rem; display:flex; align-items:center; }
+        .pcard__btn { width:100%; display:flex; align-items:center; justify-content:center; gap:6px; height:38px; border-radius:10px; border:none; font-size:0.82rem; font-weight:700; cursor:pointer; background:var(--accent); color:#fff; transition:background .15s,transform .12s,box-shadow .15s; }
+        .pcard__btn:hover { background:var(--accent-h); box-shadow:0 4px 12px rgba(224,92,42,.35); transform:translateY(-1px); }
+        .pcard__btn:active { transform:scale(.97); }
+        .pcard__btn--wsp { background:var(--wsp); }
+        .pcard__btn--wsp:hover { background:var(--wsp-h); }
+
+        .pcard__stepper { width:100%; display:flex; align-items:center; background:var(--accent-bg); border-radius:10px; overflow:hidden; height:38px; }
+        .pcard__step { background:transparent; border:none; color:var(--accent); font-size:1.3rem; font-weight:700; width:36px; height:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .15s; }
+        .pcard__step:hover { background:#fbd5c5; }
+        .pcard__step-info { flex:1; display:flex; flex-direction:column; align-items:center; gap:1px; }
+        .pcard__step-qty  { font-size:0.8rem; font-weight:800; color:var(--text); line-height:1; }
+        .pcard__step-tier { font-size:0.58rem; font-weight:600; line-height:1; }
+        .pcard__step-tier--unidad    { color:var(--accent); }
+        .pcard__step-tier--mayorista { color:var(--blue); }
+        .pcard__step-tier--caja      { color:var(--green); }
+
+        .pcard__hint {
+          position:absolute; bottom:52px; left:0; right:0;
+          text-align:center; font-size:0.62rem; font-weight:700;
+          padding:3px 8px; letter-spacing:0.02em;
+          animation:hintIn 0.2s ease;
         }
-        .pcard__tier-label em { font-style:normal; font-size:0.65rem; color:var(--muted); font-weight:400; }
-
-        .pcard__tier-price { font-size:0.85rem; font-weight:900; color:var(--text); white-space:nowrap; }
-        .pcard__tier-price--better { color:#0891b2; }
-        .pcard__tier-price--best   { color:#16a34a; }
-
-        .pcard__consult-label { font-size:0.8rem; font-weight:600; color:var(--muted); margin-top:6px; }
-
-        /* ACTIONS */
-        .pcard__actions { padding:0.65rem 0.9rem 0.9rem; }
-        .pcard__btn { width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:0.62rem 1rem; border-radius:12px; border:none; font-size:0.83rem; font-weight:700; cursor:pointer; background:var(--accent); color:#fff; transition:background 0.18s,transform 0.12s,box-shadow 0.18s; }
-        .pcard__btn:hover { background:var(--accent-hover); box-shadow:0 4px 14px rgba(224,92,42,0.35); transform:translateY(-1px); }
-        .pcard__btn:active { transform:scale(0.97); }
-        .pcard__btn--consult { background:var(--consult); }
-        .pcard__btn--consult:hover { background:var(--consult-hover); }
-
-        .pcard__qty-row { display:flex; align-items:center; background:var(--accent-light); border-radius:12px; overflow:hidden; }
-        .pcard__qty-btn { background:transparent; border:none; color:var(--accent); font-size:1.2rem; font-weight:700; width:38px; height:38px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; }
-        .pcard__qty-btn:hover { background:#fbd5c5; }
-        .pcard__qty-val { flex:1; text-align:center; font-size:0.78rem; font-weight:700; color:var(--text); white-space:nowrap; }
+        .pcard__hint--mayorista { background:var(--blue-bg);  color:var(--blue); }
+        .pcard__hint--caja      { background:var(--green-bg); color:var(--green); }
+        @keyframes hintIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
       `}</style>
     </article>
   );
