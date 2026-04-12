@@ -27,7 +27,7 @@ export default function Footer() {
           <div className="footer__col">
             <h4 className="footer__col-title">Contacto</h4>
             <a
-              href="https://wa.me/51999999999"
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
               className="footer__link footer__link--wsp"
