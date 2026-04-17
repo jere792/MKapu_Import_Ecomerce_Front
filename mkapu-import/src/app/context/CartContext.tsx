@@ -8,42 +8,42 @@ import {
   ReactNode,
 } from "react";
 
-// Subset del producto necesario para recalcular tiers
 export interface CartProduct {
   price: number;
-  price_caja?: number;       // ← was pricemCaja
-  unidad_caja?: number;      // ← was unidadcaja
-  price_mayorista?: number;  // ← was priceMayorista
-  unidad_mayorista?: number; // ← was unidadMayorista
+  price_caja?: number;
+  unidad_caja?: number;
+  price_mayorista?: number;
+  unidad_mayorista?: number;
 }
 
 export interface CartItem {
   id: number | string;
   name: string;
-  price: number;        // precio unitario del tier activo (para mostrar "S/ X c/u")
-  itemTotal: number;    // total real con lógica mixta cajas + sueltas
+  price: number;
+  itemTotal: number;
   emoji: string;
   qty: number;
   imageUrl?: string;
-  product: CartProduct; // guardado para recalcular al cambiar qty desde cualquier lugar
+  product: CartProduct;
 }
 
 interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "qty">) => void;
   removeItem: (id: number | string) => void;
-  updateQty: (id: number | string, qty: number) => void; // recalcula internamente
+  updateQty: (id: number | string, qty: number) => void;
   clearCart: () => void;
   total: number;
   count: number;
+  isOpen: boolean;
+  setIsOpen: (v: boolean) => void;
 }
 
-// ── Helpers de cálculo (viven aquí para que el contexto sea autónomo) ──
 function calcTier(qty: number, p: CartProduct): { price: number } {
   const hasCaja      = !!p.price_caja && !!p.unidad_caja;
   const hasMayorista = !!p.price_mayorista && !!p.unidad_mayorista;
 
-  if (hasCaja && qty >= p.unidad_caja!)      return { price: p.price_caja! / p.unidad_caja! };
+  if (hasCaja && qty >= p.unidad_caja!)           return { price: p.price_caja! / p.unidad_caja! };
   if (hasMayorista && qty >= p.unidad_mayorista!) return { price: p.price_mayorista! };
   return { price: p.price };
 }
@@ -68,11 +68,11 @@ function calcTotal(qty: number, p: CartProduct): number {
   return qty * p.price;
 }
 
-
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>([]);   // ← línea que faltaba
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -106,7 +106,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  // Recalcula price e itemTotal usando el producto guardado — sin necesidad de pasarlos desde fuera
   const updateQty = (id: number | string, qty: number) => {
     if (qty <= 0) return removeItem(id);
     setItems((prev) =>
@@ -126,7 +125,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQty, clearCart, total, count }}
+      value={{ items, addItem, removeItem, updateQty, clearCart, total, count, isOpen, setIsOpen }}
     >
       {children}
     </CartContext.Provider>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { sendToWhatsApp } from "@/app/lib/whatsapp";
 
@@ -9,7 +10,12 @@ interface Props {
 }
 
 export default function CartDrawer({ open, onClose }: Props) {
-  const { items, updateQty, removeItem, total, count } = useCart();
+  const { items, updateQty, removeItem, total, count, setIsOpen } = useCart();
+
+  // Sincroniza el estado del contexto con la prop open
+  useEffect(() => {
+    setIsOpen(open);
+  }, [open, setIsOpen]);
 
   return (
     <>

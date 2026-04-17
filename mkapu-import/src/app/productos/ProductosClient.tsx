@@ -224,6 +224,30 @@ export default function ProductosClient({
             )}
           </div>
 
+          {/* ── CHIP DE BÚSQUEDA ACTIVA ── */}
+          {search.trim() && (
+            <div className="productos-main__search-active">
+              <span className="productos-main__search-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                Buscando: <strong>&ldquo;{search.trim()}&rdquo;</strong>
+                <button
+                  className="productos-main__search-chip-close"
+                  onClick={() => setSearch("")}
+                  aria-label="Quitar búsqueda"
+                >
+                  ×
+                </button>
+              </span>
+              {cats.length > 0 && (
+                <span className="productos-main__search-hint">
+                  dentro de {cats.map((c) => c.replace(/-/g, " ")).join(", ")}
+                </span>
+              )}
+            </div>
+          )}
+          
           {filtered.length === 0 ? (
             <div className="productos-empty">
               <span>😕</span>
@@ -260,7 +284,51 @@ export default function ProductosClient({
           margin: 0 auto;
           padding: 1.5rem 1rem 4rem;
         }
+        .productos-main__search-active {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+        }
 
+        .productos-main__search-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #fff8f0;
+          border: 1.5px solid #f5a623;
+          color: #c47a00;
+          font-size: 0.82rem;
+          font-weight: 500;
+          border-radius: 99px;
+          padding: 4px 10px 4px 10px;
+        }
+
+        .productos-main__search-chip strong {
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .productos-main__search-chip-close {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 1rem;
+          line-height: 1;
+          color: #c47a00;
+          padding: 0 0 0 2px;
+          transition: color 0.15s;
+        }
+        .productos-main__search-chip-close:hover {
+          color: #e05c2a;
+        }
+
+        .productos-main__search-hint {
+          font-size: 0.78rem;
+          color: #aaa;
+          font-style: italic;
+        }
         .filter-toggle {
           display: none;
           align-items: center;
