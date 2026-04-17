@@ -2,23 +2,25 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/productCard";
-import rawProducts from "@/data/products.json";
+import type { Producto } from "@/lib/supabase";
 
-const productsData = rawProducts as any[];
+interface Props {
+  initialProducts: Producto[];
+  allCats: string[];
+}
 
-const ALL_CATS = Array.from(
-  new Set(productsData.map((p) => p.category as string)),
-);
-
-const allPrices = productsData
-  .map((p) => p.price as number | undefined)
-  .filter((p): p is number => typeof p === "number" && p > 0);
-
-const PRICE_MAX =
-  allPrices.length > 0 ? Math.ceil(Math.max(...allPrices) / 100) * 100 : 5000;
-
-export default function ProductosClient() {
+export default function ProductosClient({
+  initialProducts,
+  allCats: ALL_CATS,
+}: Props) {
   const searchParams = useSearchParams();
+
+  const allPrices = initialProducts
+    .map((p) => p.price)
+    .filter((p): p is number => typeof p === "number" && p > 0);
+
+  const PRICE_MAX =
+    allPrices.length > 0 ? Math.ceil(Math.max(...allPrices) / 100) * 100 : 5000;
 
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [cats, setCats] = useState<string[]>(
@@ -28,7 +30,6 @@ export default function ProductosClient() {
   const [onlyFeatured, setOnlyFeatured] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ── Reacciona a cambios de URL (?q= y ?cat=) ──
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
     const cat = searchParams.get("cat");
@@ -49,12 +50,33 @@ export default function ProductosClient() {
     setOnlyFeatured(false);
   }
 
+  const normalize = (s?: string | null) =>
+    (s ?? "")
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+
   const filtered = useMemo(() => {
-    let list = productsData;
-    if (cats.length > 0) list = list.filter((p) => cats.includes(p.category));
-    if (onlyFeatured) list = list.filter((p) => p.featured);
-    if (maxPrice < PRICE_MAX)
-      list = list.filter((p) => !p.price || p.price <= maxPrice);
+    let list = initialProducts;
+
+    if (cats.length > 0) {
+      const selected = new Set(cats.map(normalize));
+      list = list.filter((p) => selected.has(normalize(p.category)));
+    }
+
+    if (onlyFeatured) {
+      list = list.filter((p) => p.featured === true);
+    }
+
+    if (maxPrice < PRICE_MAX) {
+      list = list.filter((p) => {
+        const price = Number(p.price);
+        return Number.isFinite(price) && price <= maxPrice;
+      });
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -63,11 +85,16 @@ export default function ProductosClient() {
           p.description?.toLowerCase().includes(q),
       );
     }
+
     return list;
-  }, [cats, onlyFeatured, maxPrice, search]);
+  }, [cats, onlyFeatured, maxPrice, search, initialProducts, PRICE_MAX]);
 
   const activeFilters =
     cats.length + (onlyFeatured ? 1 : 0) + (maxPrice < PRICE_MAX ? 1 : 0);
+
+  console.log("cats seleccionadas:", cats);
+  console.log("categorías productos:", [...new Set(initialProducts.map(p => p.category))]);
+  console.log("productos totales:", initialProducts.length);
 
   return (
     <div className="productos-page">
@@ -142,7 +169,7 @@ export default function ProductosClient() {
               <span className="sidebar__price-val">
                 {maxPrice >= PRICE_MAX
                   ? "Sin límite"
-                  : `S/ ${maxPrice.toLocaleString()}`}
+                 : `S/ ${maxPrice.toLocaleString('es-PE')}`}
               </span>
             </label>
             <input
@@ -156,7 +183,7 @@ export default function ProductosClient() {
             />
             <div className="sidebar__range-labels">
               <span>S/ 0</span>
-              <span>S/ {PRICE_MAX.toLocaleString()}</span>
+              <span>S/ {PRICE_MAX.toLocaleString("es-PE")}</span>
             </div>
           </div>
 
@@ -208,7 +235,19 @@ export default function ProductosClient() {
           ) : (
             <div className="productos-grid">
               {filtered.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard
+                  key={p.id}
+                  product={{
+                    ...p,
+                    description: p.description ?? "",
+                    featured: p.featured ?? false,
+                    image_url: p.image_url ?? undefined,
+                    price_caja: p.price_caja ?? undefined,
+                    unidad_caja: p.unidad_caja ?? undefined,
+                    price_mayorista: p.price_mayorista ?? undefined,
+                    unidad_mayorista: p.unidad_mayorista ?? undefined,
+                  }}
+                />
               ))}
             </div>
           )}
@@ -239,11 +278,11 @@ export default function ProductosClient() {
           transition: border-color 0.15s;
         }
         .filter-toggle:hover {
-          border-color: #e05c2a;
-          color: #e05c2a;
+          border-color: #f5a623;
+          color: #f5a623;
         }
         .filter-toggle__badge {
-          background: #e05c2a;
+          background: #f5a623;
           color: #fff;
           font-size: 0.65rem;
           font-weight: 700;
@@ -333,21 +372,6 @@ export default function ProductosClient() {
           color: #e05c2a;
           text-transform: none;
           letter-spacing: 0;
-        }
-
-        .sidebar__search {
-          width: 100%;
-          box-sizing: border-box;
-          padding: 0.55rem 0.75rem;
-          border: 1.5px solid #e0d8d0;
-          border-radius: 10px;
-          font-size: 0.85rem;
-          outline: none;
-          transition: border-color 0.15s;
-          background: #faf8f5;
-        }
-        .sidebar__search:focus {
-          border-color: #e05c2a;
         }
 
         .sidebar__cats {

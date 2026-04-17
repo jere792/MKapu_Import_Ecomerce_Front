@@ -11,28 +11,27 @@ interface Product {
   category: string;
   description: string;
   price: number;
-  oldPrice?: number;
-  pricemCaja?: number;
-  unidadcaja?: number;
-  priceMayorista?: number;
-  unidadMayorista?: number;
+  old_price?: number;
+  price_caja?: number;
+  unidad_caja?: number;
+  price_mayorista?: number;
+  unidad_mayorista?: number;
   featured: boolean;
-  imageUrl?: string;
+  image_url?: string;
 }
-
 interface Props {
   product: Product;
 }
 
 // ── Precio unitario del tier activo ──
 function calcTier(qty: number, p: Product): { price: number; tier: "caja" | "mayorista" | "unidad" } {
-  const hasCaja      = !!p.pricemCaja && !!p.unidadcaja;
-  const hasMayorista = !!p.priceMayorista && !!p.unidadMayorista;
+  const hasCaja      = !!p.price_caja && !!p.unidad_caja;
+  const hasMayorista = !!p.price_mayorista && !!p.unidad_mayorista;
 
-  if (hasCaja && qty >= p.unidadcaja!)
-    return { price: p.pricemCaja! / p.unidadcaja!, tier: "caja" };
-  if (hasMayorista && qty >= p.unidadMayorista!)
-    return { price: p.priceMayorista!, tier: "mayorista" };
+  if (hasCaja && qty >= p.unidad_caja!)
+    return { price: p.price_caja! / p.unidad_caja!, tier: "caja" };
+  if (hasMayorista && qty >= p.unidad_mayorista!)
+    return { price: p.price_mayorista!, tier: "mayorista" };
   return { price: p.price, tier: "unidad" };
 }
 
@@ -40,21 +39,21 @@ function calcTier(qty: number, p: Product): { price: number; tier: "caja" | "may
 function calcTotal(qty: number, p: Product): number {
   if (qty <= 0) return 0;
 
-  const hasCaja      = !!p.pricemCaja && !!p.unidadcaja;
-  const hasMayorista = !!p.priceMayorista && !!p.unidadMayorista;
+  const hasCaja      = !!p.price_caja && !!p.unidad_caja;
+  const hasMayorista = !!p.price_mayorista && !!p.unidad_mayorista;
 
-  if (hasCaja && qty >= p.unidadcaja!) {
-    const cajas   = Math.floor(qty / p.unidadcaja!);
-    const sueltas = qty % p.unidadcaja!;
+  if (hasCaja && qty >= p.unidad_caja!) {
+    const cajas   = Math.floor(qty / p.unidad_caja!);
+    const sueltas = qty % p.unidad_caja!;
     const precioSueltas =
-      hasMayorista && qty >= p.unidadMayorista!
-        ? p.priceMayorista!
+      hasMayorista && qty >= p.unidad_mayorista!
+        ? p.price_mayorista!
         : p.price;
-    return cajas * p.pricemCaja! + sueltas * precioSueltas;
+    return cajas * p.price_caja! + sueltas * precioSueltas;
   }
 
-  if (hasMayorista && qty >= p.unidadMayorista!) {
-    return qty * p.priceMayorista!;
+  if (hasMayorista && qty >= p.unidad_mayorista!) {
+    return qty * p.price_mayorista!;
   }
 
   return qty * p.price;
@@ -68,10 +67,10 @@ export default function ProductCard({ product }: Props) {
 
   const cartItem = items.find((i) => i.id === String(product.id));
   const qty      = cartItem?.qty ?? 0;
-  const hasImage = !!product.imageUrl && !imgError;
+  const hasImage = !!product.image_url && !imgError;
 
-  const hasCaja      = !!product.pricemCaja && !!product.unidadcaja;
-  const hasMayorista = !!product.priceMayorista && !!product.unidadMayorista;
+  const hasCaja      = !!product.price_caja && !!product.unidad_caja;
+  const hasMayorista = !!product.price_mayorista && !!product.unidad_mayorista;
   const isConsult    = product.price === 0 && !hasCaja && !hasMayorista;
 
   const { price: activePriceCart, tier: activeTier } = calcTier(qty, product);
@@ -90,14 +89,14 @@ export default function ProductCard({ product }: Props) {
       name:     product.name,
       price,
       itemTotal,
-      imageUrl: product.imageUrl,
+      imageUrl: product.image_url,
       emoji:    "📦",
       product: {                   // ← guardamos los datos de precio para recalcular
-        price:             product.price,
-        pricemCaja:        product.pricemCaja,
-        unidadcaja:        product.unidadcaja,
-        priceMayorista:    product.priceMayorista,
-        unidadMayorista:   product.unidadMayorista,
+        price:              product.price,
+        price_caja:         product.price_caja,
+        unidad_caja:        product.unidad_caja,
+        price_mayorista:    product.price_mayorista,
+        unidad_mayorista:   product.unidad_mayorista,
       },
     });
     setAdded(true);
@@ -105,8 +104,8 @@ export default function ProductCard({ product }: Props) {
   }
 
   const tierLabel =
-    activeTier === "caja"      ? `Precio caja (×${product.unidadcaja} und.)` :
-    activeTier === "mayorista" ? `Precio mayorista (≥${product.unidadMayorista} und.)` :
+    activeTier === "caja"      ? `Precio caja (×${product.unidad_caja} und.)` :
+    activeTier === "mayorista" ? `Precio mayorista (≥${product.unidad_mayorista} und.)` :
     "Precio por unidad";
 
   return (
@@ -115,7 +114,7 @@ export default function ProductCard({ product }: Props) {
       {/* IMAGEN */}
       <div className="pcard__media">
         {hasImage ? (
-          <img src={product.imageUrl} alt={product.name} className="pcard__img" loading="lazy" onError={() => setImgError(true)} />
+          <img src={product.image_url} alt={product.name} className="pcard__img" loading="lazy" onError={() => setImgError(true)} />
         ) : (
           <div className="pcard__no-img"><ImageOff size={28} strokeWidth={1.5} /><span>Sin imagen</span></div>
         )}
@@ -149,10 +148,10 @@ export default function ProductCard({ product }: Props) {
         <div className={`pcard__tier${activeTier === "mayorista" && qty > 0 ? " pcard__tier--on pcard__tier--blue" : ""}${!hasMayorista ? " pcard__tier--ghost" : ""}`}>
           <span className="pcard__tier-lbl">
             Por mayor
-            {hasMayorista && <em>desde {product.unidadMayorista} und.</em>}
+            {hasMayorista && <em>desde {product.unidad_mayorista} und.</em>}
           </span>
           <span className="pcard__tier-price pcard__tier-price--blue">
-            {hasMayorista ? `S/ ${product.priceMayorista!.toFixed(2)}` : "—"}
+            {hasMayorista ? `S/ ${product.price_mayorista!.toFixed(2)}` : "—"}
           </span>
         </div>
 
@@ -160,10 +159,10 @@ export default function ProductCard({ product }: Props) {
         <div className={`pcard__tier${activeTier === "caja" && qty > 0 ? " pcard__tier--on pcard__tier--green" : ""}${!hasCaja ? " pcard__tier--ghost" : ""}`}>
           <span className="pcard__tier-lbl">
             Caja
-            {hasCaja && <em>× {product.unidadcaja} und.</em>}
+            {hasCaja && <em>× {product.unidad_caja} und.</em>}
           </span>
           <span className="pcard__tier-price pcard__tier-price--green">
-            {hasCaja ? `S/ ${product.pricemCaja!.toFixed(2)}` : "—"}
+            {hasCaja ? `S/ ${product.price_caja!.toFixed(2)}` : "—"}
           </span>
         </div>
       </div>
@@ -192,11 +191,11 @@ export default function ProductCard({ product }: Props) {
       {/* Aviso de próximo tier */}
       {qty > 0 && activeTier !== "caja" && (hasMayorista || hasCaja) && (() => {
         const nextThreshold = activeTier === "unidad" && hasMayorista
-          ? product.unidadMayorista! - qty
-          : hasCaja ? product.unidadcaja! - qty : null;
+          ? product.unidad_mayorista! - qty
+          : hasCaja ? product.unidad_caja! - qty : null;
         const nextPrice = activeTier === "unidad" && hasMayorista
-          ? product.priceMayorista!
-          : hasCaja ? product.pricemCaja! : null;
+          ? product.price_mayorista!
+          : hasCaja ? product.price_caja! : null;
         const nextName = activeTier === "unidad" && hasMayorista ? "mayorista" : "caja";
         if (!nextThreshold || nextThreshold <= 0 || !nextPrice) return null;
         return (

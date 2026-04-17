@@ -11,10 +11,10 @@ import {
 // Subset del producto necesario para recalcular tiers
 export interface CartProduct {
   price: number;
-  pricemCaja?: number;
-  unidadcaja?: number;
-  priceMayorista?: number;
-  unidadMayorista?: number;
+  price_caja?: number;       // ← was pricemCaja
+  unidad_caja?: number;      // ← was unidadcaja
+  price_mayorista?: number;  // ← was priceMayorista
+  unidad_mayorista?: number; // ← was unidadMayorista
 }
 
 export interface CartItem {
@@ -40,40 +40,34 @@ interface CartContextType {
 
 // ── Helpers de cálculo (viven aquí para que el contexto sea autónomo) ──
 function calcTier(qty: number, p: CartProduct): { price: number } {
-  const hasCaja      = !!p.pricemCaja && !!p.unidadcaja;
-  const hasMayorista = !!p.priceMayorista && !!p.unidadMayorista;
+  const hasCaja      = !!p.price_caja && !!p.unidad_caja;
+  const hasMayorista = !!p.price_mayorista && !!p.unidad_mayorista;
 
-  if (hasCaja && qty >= p.unidadcaja!)
-    return { price: p.pricemCaja! / p.unidadcaja! }; // precio por unidad dentro de la caja
-  if (hasMayorista && qty >= p.unidadMayorista!)
-    return { price: p.priceMayorista! };
+  if (hasCaja && qty >= p.unidad_caja!)      return { price: p.price_caja! / p.unidad_caja! };
+  if (hasMayorista && qty >= p.unidad_mayorista!) return { price: p.price_mayorista! };
   return { price: p.price };
 }
 
 function calcTotal(qty: number, p: CartProduct): number {
   if (qty <= 0) return 0;
 
-  const hasCaja      = !!p.pricemCaja && !!p.unidadcaja;
-  const hasMayorista = !!p.priceMayorista && !!p.unidadMayorista;
+  const hasCaja      = !!p.price_caja && !!p.unidad_caja;
+  const hasMayorista = !!p.price_mayorista && !!p.unidad_mayorista;
 
-  if (hasCaja && qty >= p.unidadcaja!) {
-    const cajas   = Math.floor(qty / p.unidadcaja!);
-    const sueltas = qty % p.unidadcaja!;
-    // Las sueltas van al precio mayorista si el total supera el umbral mayorista
-    // (ya compraste suficiente para calificar, no importa que sean "sueltas")
+  if (hasCaja && qty >= p.unidad_caja!) {
+    const cajas   = Math.floor(qty / p.unidad_caja!);
+    const sueltas = qty % p.unidad_caja!;
     const precioSueltas =
-      hasMayorista && qty >= p.unidadMayorista!
-        ? p.priceMayorista!
+      hasMayorista && qty >= p.unidad_mayorista!
+        ? p.price_mayorista!
         : p.price;
-    return cajas * p.pricemCaja! + sueltas * precioSueltas;
+    return cajas * p.price_caja! + sueltas * precioSueltas;
   }
 
-  if (hasMayorista && qty >= p.unidadMayorista!) {
-    return qty * p.priceMayorista!;
-  }
-
+  if (hasMayorista && qty >= p.unidad_mayorista!) return qty * p.price_mayorista!;
   return qty * p.price;
 }
+
 
 const CartContext = createContext<CartContextType | null>(null);
 

@@ -12,7 +12,7 @@
 
 :root {
   --brand: #f5a623;
-  --brand-dark: #d4880a;
+  --brand-dark: #f5a623;
   --brand-light: #fef3dc;
   --black: #1a1a1a;
   --gray: #888;
@@ -1373,7 +1373,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #e05c2a;
+  color: #e9ca1d;
   background: rgba(224, 92, 42, 0.12);
   border: 1px solid rgba(224, 92, 42, 0.25);
   border-radius: 99px;
@@ -1492,7 +1492,7 @@ button {
   position: absolute;
   inset: 0;
   border-radius: 18px;
-  border: 2px solid var(--panel-color, #e05c2a);
+  border: 2px solid var(--panel-color, #f5a623);
   opacity: 0.6;
   pointer-events: none;
 }
@@ -1517,7 +1517,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #e05c2a;
+  color: #f5a623;
   margin-bottom: 0.5rem;
 }
 .csec__title {
@@ -1547,13 +1547,13 @@ button {
 .csec__link {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #e05c2a;
+  color: #f5a623;
   text-decoration: none;
   border-bottom: 2px solid transparent;
   transition: border-color 0.15s;
 }
 .csec__link:hover {
-  border-color: #e05c2a;
+  border-color: #f5a623;
 }
 .why {
   background: #0d0d0d;
@@ -1572,7 +1572,7 @@ button {
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #e05c2a;
+  color: #f5a623;
   margin-bottom: 16px;
 }
 .why__title {
@@ -1584,7 +1584,7 @@ button {
 }
 .why__title em {
   font-style: normal;
-  color: #e05c2a;
+  color: #f5a623;
 }
 .why__grid {
   display: grid;
@@ -1643,7 +1643,7 @@ button {
 .why__icon-wrap svg {
   width: 28px;
   height: 28px;
-  stroke: #e05c2a;
+  stroke: #f5a623;
   fill: none;
   stroke-width: 1.5;
   stroke-linecap: round;
@@ -1892,7 +1892,7 @@ button {
 .sidebar__checkbox {
   width: 15px;
   height: 15px;
-  accent-color: #e05c2a;
+  accent-color: #f5a623;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -1904,7 +1904,7 @@ button {
 }
 .sidebar__range {
   width: 100%;
-  accent-color: #e05c2a;
+  accent-color: #f5a623;
   cursor: pointer;
 }
 .sidebar__range-labels {
@@ -1966,7 +1966,7 @@ button {
 }
 .productos-empty__btn {
   padding: 0.5rem 1.25rem;
-  background: #e05c2a;
+  background: #f5a623;
   color: #fff;
   border: none;
   border-radius: 99px;

@@ -195,7 +195,7 @@ export default function PoliticaDePrivacidad() {
 
         .legal-page__section {
           margin-bottom: 2rem;
-          border-left: 3px solid #e05c2a;
+          border-left: 3px solid #f5a623;
           padding-left: 1.25rem;
         }
 
@@ -220,7 +220,7 @@ export default function PoliticaDePrivacidad() {
         }
 
         .legal-page__section a {
-          color: #e05c2a;
+          color: #f5a623;
           text-decoration: none;
         }
 

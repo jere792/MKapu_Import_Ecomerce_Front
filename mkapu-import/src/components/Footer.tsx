@@ -57,7 +57,7 @@ export default function Footer() {
               Política de Privacidad
             </Link>
             <Link
-              href="/libro-de-reclamaciones"
+              href="/reclamaciones"
               className="footer__link footer__link--reclamos"
             >
               <img
@@ -111,7 +111,7 @@ export default function Footer() {
         .footer__logo-sub {
           font-size: 0.75rem;
           font-weight: 600;
-          color: #e05c2a;
+          color: #f5a623;
           text-transform: uppercase;
           letter-spacing: 0.12em;
           margin-top: -4px;
