@@ -1,5 +1,5 @@
 import { getProductoById } from "@/lib/queries";
-import ProductoDetailClient from "./ProductoDetailClient.tsx";
+import ProductoDetailClient from "./ProductoDetailClient";
 import { notFound } from "next/navigation";
 
 interface Props {
