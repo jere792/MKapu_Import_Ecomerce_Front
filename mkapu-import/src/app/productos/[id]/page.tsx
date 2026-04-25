@@ -1,6 +1,7 @@
 import { getProductoById } from "@/lib/queries";
 import ProductoDetailClient from "./ProductoDetailClient";
 import { notFound } from "next/navigation";
+export const runtime = 'edge';
 
 interface Props {
   params: Promise<{ id: string }>;
