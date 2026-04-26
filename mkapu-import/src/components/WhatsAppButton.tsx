@@ -5,7 +5,7 @@ import React from "react";
 export default function WhatsAppButton() {
   return (
     <a
-      href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Hola,%20necesito%20ayuda%20con%20mi%20pedido`}
+      href={`https://wa.me/${process.env.NEXT_PUBLIC_SUPORT_WHATSAPP_NUMBER}?text=Hola,%20necesito%20ayuda%20con%20mi%20pedido`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contactar por WhatsApp"

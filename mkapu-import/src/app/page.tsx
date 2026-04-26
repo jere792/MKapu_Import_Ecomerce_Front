@@ -12,7 +12,6 @@ function byCategory(products: AnyProduct[], cat: string) {
 function toCarouselProduct(p: AnyProduct) {
   return {
     ...p,
-    // mapeo snake_case -> camelCase para componentes viejos
     imageUrl: p.image_url ?? "",
     pricemCaja: p.price_caja ?? undefined,
     unidadcaja: p.unidad_caja ?? undefined,
@@ -186,11 +185,20 @@ export default async function HomePage() {
       <HeroAccordion />
 
       <CarouselSection
+        tag="Nuevo"
+        title="Recien Agregados"
+        subtitle="Los equipos más solicitados por restaurantes y hoteles de Lima."
+        products={featured.length > 0 ? featured : products.slice(0, 4)}
+        href="/productos"
+      />
+
+      <CarouselSection
         tag="Más vendidos"
         title="Productos destacados"
         subtitle="Los equipos más solicitados por restaurantes y hoteles de Lima."
         products={featured.length > 0 ? featured : products.slice(0, 10)}
         href="/productos"
+        dark
       />
 
       <CarouselSection
@@ -199,7 +207,6 @@ export default async function HomePage() {
         subtitle="Hornos eléctricos y a gas para cocinas profesionales."
         products={hornos}
         href="/productos?cat=horno"
-        dark
       />
 
       <CarouselSection
@@ -208,6 +215,7 @@ export default async function HomePage() {
         subtitle="Cocina saludable sin aceite. Todos nuestros productos con garantía de 60 días."
         products={freidorasAire}
         href="/productos?cat=freidora-aire"
+        dark
       />
 
       <CarouselSection
@@ -216,7 +224,6 @@ export default async function HomePage() {
         subtitle="Producción continua 24h, potencia industrial, fácil mantenimiento."
         products={maquinaHielo}
         href="/productos?cat=maquina-hielo"
-        dark
       />
 
       <CarouselSection
@@ -225,8 +232,10 @@ export default async function HomePage() {
         subtitle="Cámaras frías, vitrinas exhibidoras y equipos de conservación."
         products={refrigeracion}
         href="/productos?cat=refrigeracion"
+        dark
       />
 
+      {/* ── Por que elegirnos ── */}
       <section className="why">
         <div className="why__inner">
           <div className="why__head">
@@ -249,6 +258,38 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── VIDEO ── */}
+      <section className="section section--video ">
+        <div className="section__inner section__inner--narrow">
+          <div className="section__head">
+            <span className="section__tag">Conócenos</span>
+            <h2 className="section__title">Ve nuestros equipos en acción</h2>
+            <p className="section__sub">
+              Mira cómo nuestras máquinas funcionan en entornos reales de
+              trabajo.
+            </p>
+          </div>
+          <div className="videos-row">
+            <video
+              className="video-item"
+              src="https://res.cloudinary.com/dxuk9bogw/video/upload/v1775778735/sssstik_M0s7GjQOyM_2026-04-09-18-51-58_t7gim9.mp4"
+              controls
+              playsInline
+              preload="metadata"
+              aria-label="Video institucional 1"
+            />
+            <video
+              className="video-item"
+              src="https://res.cloudinary.com/dxuk9bogw/video/upload/v1775778675/sssstik_qTDitLuabJ_2026-04-09-18-50-56_ourt9k.mp4"
+              controls
+              playsInline
+              preload="metadata"
+              aria-label="Video institucional 2"
+            />
+          </div>
+        </div>
+          </section>
 
       <style>{`
         .home {
@@ -317,7 +358,7 @@ export default async function HomePage() {
         .why__icon-wrap :global(svg) {
           width: 28px;
           height: 28px;
-          stroke: #e05c2a;
+          stroke: #f5a623;
           fill: none;
           stroke-width: 1.5;
         }
@@ -351,6 +392,67 @@ export default async function HomePage() {
           .why__card {
             border-right: none;
           }
+        }
+        /* VIDEO */
+        .section--video {
+          padding: 4rem 1.5rem;
+          background: #faf8f5;
+        }
+        .section__inner--narrow {
+          max-width: 900px;
+          margin: 0 auto;
+        }
+        .section__head {
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+        .section__tag {
+          display: inline-block;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #f5a623;
+          margin-bottom: 0.5rem;
+        }
+        .section__title {
+          font-size: clamp(1.4rem, 3vw, 2rem);
+          font-weight: 900;
+          color: #1a1a1a;
+          margin: 0 0 0.5rem;
+        }
+        .section__sub {
+          font-size: 0.92rem;
+          color: #777;
+          max-width: 480px;
+          margin: 0 auto;
+          line-height: 1.6;
+        }
+        .videos-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          align-items: start;
+        }
+        .video-item {
+          width: 100%;
+          max-height: 480px;
+          border-radius: 16px;
+          display: block;
+          background: #000;
+          object-fit: cover;
+        }
+        @media (max-width: 600px) {
+          .videos-row {
+            grid-template-columns: 1fr;
+          }
+        }
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+          .hero { padding: 5rem 1rem 2.5rem; min-height: 75vh; }
+          .hero__stats { gap: 1.5rem; }
+          .hero__cta-row { flex-direction: column; align-items: center; }
+          .why-grid { grid-template-columns: 1fr 1fr; }
         }
       `}</style>
     </div>
