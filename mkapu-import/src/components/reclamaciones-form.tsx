@@ -99,17 +99,23 @@ export default function ReclamacionesForm() {
           }),
         });
 
-        const emailData = await emailRes.json();
+        const textData = await emailRes.text();
+        
+        let emailData;
+        try {
+          emailData = JSON.parse(textData);
+        } catch (parseError) {
+          console.error("❌ El servidor no devolvió un JSON. Respuesta cruda:", textData);
+        }
         
         if (!emailRes.ok) {
-          // AQUÍ VERÁS EL ERROR REAL EN LA CONSOLA DE TU NAVEGADOR
-          console.error("Respuesta fallida de la API:", emailData);
+          console.error("❌ Respuesta fallida de la API:", emailData || textData);
         } else {
-          console.log("Correo enviado con éxito:", emailData);
+          console.log("✅ Correo enviado con éxito:", emailData);
         }
 
       } catch (err) {
-        console.error("Error de red enviando email:", err);
+        console.error("❌ Error grave de red enviando email:", err);
       }
 
       setStatus("success");
