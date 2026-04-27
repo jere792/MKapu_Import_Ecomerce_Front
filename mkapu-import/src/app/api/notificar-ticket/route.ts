@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    const key = process.env.RESEND_API_KEY;
+    console.log("=== DEBUG RESEND KEY ===");
+    console.log("¿Existe?:", !!key);
+    console.log("Valor exacto leído:", key ? `${key.substring(0, 5)}... (Longitud: ${key.length})` : "VACÍO/UNDEFINED");
     const { nombre, email, telefono, asunto, mensaje } = await req.json();
 
     const htmlContent = `
