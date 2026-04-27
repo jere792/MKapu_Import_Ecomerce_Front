@@ -5,6 +5,7 @@ export default function ContactoPage() {
   const [form, setForm] = useState({ nombre: "", email: "", telefono: "", asunto: "", mensaje: "" });
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -13,9 +14,35 @@ export default function ContactoPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setEnviando(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setEnviando(false);
-    setEnviado(true);
+    setErrorMsg("");
+
+    try {
+      console.log("Enviando petición a /api/notificar-contacto...");
+      
+      const res = await fetch("/api/notificar-ticket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const textData = await res.text();
+      
+      if (!res.ok) {
+        console.error("Error del servidor:", textData);
+        setErrorMsg("Hubo un problema al enviar tu mensaje. Por favor, intenta de nuevo más tarde.");
+        setEnviando(false);
+        return;
+      }
+
+      console.log("Mensaje enviado exitosamente.");
+      setEnviando(false);
+      setEnviado(true);
+
+    } catch (err) {
+      console.error("Error de red o AdBlocker:", err);
+      setErrorMsg("No se pudo conectar con el servidor. Verifica tu conexión o desactiva tu bloqueador de anuncios.");
+      setEnviando(false);
+    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -190,7 +217,7 @@ export default function ContactoPage() {
                   ¡Mensaje enviado!
                 </h3>
                 <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: "1.5rem" }}>
-                  Gracias por contactarnos. Te responderemos pronto.
+                  Gracias por contactarnos. Te responderemos pronto a tu correo.
                 </p>
                 <button
                   onClick={() => { setEnviado(false); setForm({ nombre: "", email: "", telefono: "", asunto: "", mensaje: "" }); }}
@@ -213,6 +240,12 @@ export default function ContactoPage() {
                 <h2 style={{ fontSize: "1.15rem", fontWeight: 800, color: "#1a1a1a", margin: "0 0 0.25rem" }}>
                   Envíanos un mensaje
                 </h2>
+                
+                {errorMsg && (
+                  <div style={{ background: "#fee2e2", color: "#b91c1c", padding: "0.75rem", borderRadius: "8px", fontSize: "0.85rem", border: "1px solid #fca5a5" }}>
+                    {errorMsg}
+                  </div>
+                )}
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                   <div>
