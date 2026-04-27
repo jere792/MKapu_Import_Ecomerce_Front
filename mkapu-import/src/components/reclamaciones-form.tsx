@@ -87,7 +87,7 @@ export default function ReclamacionesForm() {
 
       const ticket = data?.[0]?.ticket;
       try {
-        await fetch("/api/send-reclamacion-email", {
+        const emailRes = await fetch("/api/send-reclamacion-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -98,8 +98,18 @@ export default function ReclamacionesForm() {
             ticket,
           }),
         });
+
+        const emailData = await emailRes.json();
+        
+        if (!emailRes.ok) {
+          // AQUÍ VERÁS EL ERROR REAL EN LA CONSOLA DE TU NAVEGADOR
+          console.error("Respuesta fallida de la API:", emailData);
+        } else {
+          console.log("Correo enviado con éxito:", emailData);
+        }
+
       } catch (err) {
-        console.error("Error enviando email:", err);
+        console.error("Error de red enviando email:", err);
       }
 
       setStatus("success");
