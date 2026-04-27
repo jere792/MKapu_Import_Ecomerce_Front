@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from 'resend';
 
 export async function POST(req: NextRequest) {
   try {
-    // 🚨 1. INICIALIZAMOS RESEND AQUÍ ADENTRO 🚨
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
     const { nombres, apellidos, email, tipo, ticket } = await req.json();
 
     const fechaRespuesta = new Date();
@@ -28,48 +24,35 @@ export async function POST(req: NextRequest) {
             <p style="margin: 8px 0;"><strong style="color: #333;">Fecha de recepción:</strong> ${new Date().toLocaleDateString("es-PE")}</p>
             <p style="margin: 8px 0;"><strong style="color: #333;">Respuesta antes de:</strong> ${fechaRespuesta.toLocaleDateString("es-PE")}</p>
           </div>
-
-          <div style="background: #fff9e6; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f5a623;">
-            <p style="color: #333; font-size: 13px; margin: 0;">
-              <strong>📋 Según la Ley de Protección al Consumidor Peruana:</strong><br/>
-              Nos comprometemos a responder tu ${tipo} dentro de <strong>30 días hábiles</strong>.
-            </p>
-          </div>
-
-          <p style="color: #666; font-size: 13px; margin-top: 20px;">
-            Si tienes preguntas, contáctanos a través de WhatsApp o nuestro sitio web.
-          </p>
-
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          
-          <p style="color: #999; font-size: 12px; text-align: center;">
-            Este es un correo automático. Por favor, no responder a esta dirección.
-          </p>
         </div>
       </div>
     `;
 
-    const { data, error } = await resend.emails.send({
-      from: 'Mkapu Import <onboarding@resend.dev>',
-      to: [email],
-      subject: `✅ Reclamación recibida - Ticket ${ticket}`,
-      html: htmlContent,
+    const resendReq = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'Mkapu Import <onboarding@resend.dev>',
+        to: [email],
+        subject: `✅ Reclamación recibida - Ticket ${ticket}`,
+        html: htmlContent
+      })
     });
 
-    if (error) {
-      console.error("Error de Resend:", error);
-      // 🚨 2. DEVOLVEMOS EL DETALLE DEL ERROR AL FRONTEND 🚨
-      return NextResponse.json({ error: "Error en el servicio de correo", detalle: error }, { status: 400 });
+    const resendData = await resendReq.json();
+
+    if (!resendReq.ok) {
+      console.error("Fallo la API de Resend:", resendData);
+      return NextResponse.json({ error: "Error de Resend", detalles: resendData }, { status: 400 });
     }
 
-    console.log("Email enviado exitosamente a:", email);
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true, data: resendData });
 
   } catch (error) {
-    console.error("Error de servidor enviando email:", error);
-    return NextResponse.json(
-      { error: "Error interno al enviar email", detalle: String(error) },
-      { status: 500 }
-    );
+    console.error("Error catastrofico en el servidor:", error);
+    return NextResponse.json({ error: "Error interno del servidor", detalle: String(error) }, { status: 500 });
   }
 }
