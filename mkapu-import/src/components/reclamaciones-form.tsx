@@ -86,8 +86,11 @@ export default function ReclamacionesForm() {
       }
 
       const ticket = data?.[0]?.ticket;
+      
       try {
-        const emailRes = await fetch("/api/send-reclamacion-email", {
+        console.log("Enviando petición a /api/notificar-ticket...");
+        
+        const emailRes = await fetch("/api/notificar-ticket", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -95,27 +98,16 @@ export default function ReclamacionesForm() {
             apellidos: form.apellidos,
             email: form.email,
             tipo: form.tipo,
-            ticket,
+            ticket: ticket || "0000",
           }),
         });
 
         const textData = await emailRes.text();
-        
-        let emailData;
-        try {
-          emailData = JSON.parse(textData);
-        } catch (parseError) {
-          console.error("❌ El servidor no devolvió un JSON. Respuesta cruda:", textData);
-        }
-        
-        if (!emailRes.ok) {
-          console.error("❌ Respuesta fallida de la API:", emailData || textData);
-        } else {
-          console.log("✅ Correo enviado con éxito:", emailData);
-        }
+        console.log("Status de respuesta:", emailRes.status);
+        console.log("Cuerpo de respuesta:", textData);
 
       } catch (err) {
-        console.error("❌ Error grave de red enviando email:", err);
+        console.error("❌ El navegador bloqueó la petición (Probablemente un AdBlocker o error de red):", err);
       }
 
       setStatus("success");
