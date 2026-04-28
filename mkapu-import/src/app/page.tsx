@@ -1,7 +1,10 @@
 import Link from "next/link";
 import Carousel from "@/components/carousel";
-import { getProductos } from "@/lib/queries";
+import BrandsCarousel from "@/components/BrandsCarousel";
+import CollaboratorsCarousel from "@/components/CollaboratorsCarousel";
+import VideoSection from "@/components/VideoSection";
 import HeroAccordion from "@/components/HeroAccordion";
+import { getProductos, getProductosNuevos } from "@/lib/queries";
 
 type AnyProduct = any;
 
@@ -12,7 +15,6 @@ function byCategory(products: AnyProduct[], cat: string) {
 function toCarouselProduct(p: AnyProduct) {
   return {
     ...p,
-    // mapeo snake_case -> camelCase para componentes viejos
     imageUrl: p.image_url ?? "",
     pricemCaja: p.price_caja ?? undefined,
     unidadcaja: p.unidad_caja ?? undefined,
@@ -39,7 +41,6 @@ function CarouselSection({
   dark?: boolean;
 }) {
   if (products.length === 0) return null;
-
   return (
     <section className={`csec${dark ? " csec--dark" : ""}`}>
       <div className="csec__inner">
@@ -48,80 +49,37 @@ function CarouselSection({
           <h2 className="csec__title">{title}</h2>
           {subtitle && <p className="csec__sub">{subtitle}</p>}
         </div>
-
         <Carousel products={products.map(toCarouselProduct)} title="" />
-
         <div className="csec__foot">
           <Link href={href} className="csec__link">
             Ver todos →
           </Link>
         </div>
       </div>
-
       <style>{`
-        .csec {
-          padding: 4rem 1.5rem;
-          background: #faf8f5;
-        }
-        .csec--dark {
-          background: #111;
-        }
-        .csec__inner {
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .csec__head {
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-        .csec__tag {
-          display: inline-block;
-          font-size: 0.7rem;
-          font-weight: 700;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: #f5a623;
-          margin-bottom: 0.5rem;
-        }
-        .csec__title {
-          font-size: clamp(1.4rem, 3vw, 2rem);
-          font-weight: 900;
-          letter-spacing: -0.02em;
-          color: #1a1a1a;
-          margin: 0 0 0.5rem;
-        }
-        .csec--dark .csec__title {
-          color: #fff;
-        }
-        .csec__sub {
-          font-size: 0.92rem;
-          color: #777;
-          max-width: 480px;
-          margin: 0 auto;
-          line-height: 1.6;
-        }
-        .csec--dark .csec__sub {
-          color: #888;
-        }
-        .csec__foot {
-          text-align: center;
-          margin-top: 1.5rem;
-        }
-        .csec__link {
-          font-size: 0.88rem;
-          font-weight: 700;
-          color: #f5a623;
-          text-decoration: none;
-          border-bottom: 2px solid transparent;
-          transition: border-color 0.15s;
-        }
-        .csec__link:hover {
-          border-color: #f5a623;
-        }
+        .csec { padding: 4rem 1.5rem; background: #faf8f5; }
+        .csec--dark { background: #111; }
+        .csec__inner { max-width: 1200px; margin: 0 auto; }
+        .csec__head { text-align: center; margin-bottom: 2rem; }
+        .csec__tag { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #f5a623; margin-bottom: 0.5rem; }
+        .csec__title { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 900; letter-spacing: -0.02em; color: #1a1a1a; margin: 0 0 0.5rem; }
+        .csec--dark .csec__title { color: #fff; }
+        .csec__sub { font-size: 0.92rem; color: #777; max-width: 480px; margin: 0 auto; line-height: 1.6; }
+        .csec--dark .csec__sub { color: #888; }
+        .csec__foot { text-align: center; margin-top: 1.5rem; }
+        .csec__link { font-size: 0.88rem; font-weight: 700; color: #f5a623; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.15s; }
+        .csec__link:hover { border-color: #f5a623; }
       `}</style>
     </section>
   );
 }
+
+const STATS = [
+  { value: "9,907+", label: "Ventas realizadas" },
+  { value: "500+", label: "Clientes satisfechos" },
+  { value: "60 días", label: "Garantía en productos" },
+  { value: "24-48h", label: "Entrega en Lima" },
+];
 
 const WHY_ITEMS = [
   {
@@ -173,7 +131,10 @@ const WHY_ITEMS = [
 ];
 
 export default async function HomePage() {
-  const products = await getProductos();
+  const [products, nuevos] = await Promise.all([
+    getProductos(),
+    getProductosNuevos(),
+  ]);
 
   const featured = products.filter((p: AnyProduct) => p.featured);
   const hornos = byCategory(products, "horno");
@@ -185,6 +146,17 @@ export default async function HomePage() {
     <div className="home">
       <HeroAccordion />
 
+      <section className="stats-bar">
+        <div className="stats-bar__inner">
+          {STATS.map((s) => (
+            <div key={s.label} className="stats-bar__item">
+              <strong className="stats-bar__value">{s.value}</strong>
+              <span className="stats-bar__label">{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <CarouselSection
         tag="Más vendidos"
         title="Productos destacados"
@@ -192,6 +164,17 @@ export default async function HomePage() {
         products={featured.length > 0 ? featured : products.slice(0, 10)}
         href="/productos"
       />
+
+      <CarouselSection
+        tag="Recién llegados"
+        title="Nuevos Productos"
+        subtitle="Los últimos equipos que acaban de llegar al catálogo."
+        products={nuevos}
+        href="/productos?new=true"
+        dark
+      />
+
+      <BrandsCarousel />
 
       <CarouselSection
         tag="Categoría"
@@ -227,6 +210,10 @@ export default async function HomePage() {
         href="/productos?cat=refrigeracion"
       />
 
+      <VideoSection tipo="video" />
+
+      <CollaboratorsCarousel />
+
       <section className="why">
         <div className="why__inner">
           <div className="why__head">
@@ -251,107 +238,28 @@ export default async function HomePage() {
       </section>
 
       <style>{`
-        .home {
-          overflow-x: hidden;
-        }
-        .why {
-          background: #0d0d0d;
-          padding: 96px 40px;
-        }
-        .why__inner {
-          max-width: 1100px;
-          margin: 0 auto;
-        }
-        .why__head {
-          margin-bottom: 72px;
-        }
-        .why__tag {
-          display: inline-block;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          color: #f5a623;
-          margin-bottom: 16px;
-        }
-        .why__title {
-          font-size: clamp(32px, 5vw, 56px);
-          font-weight: 800;
-          color: #fff;
-          line-height: 1.05;
-          max-width: 620px;
-        }
-        .why__title em {
-          font-style: normal;
-          color: #f5a623;
-        }
-        .why__grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 2px;
-        }
-        .why__card {
-          padding: 40px 32px;
-          border-right: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .why__card:last-child {
-          border-right: none;
-        }
-        .why__num {
-          font-size: 72px;
-          font-weight: 800;
-          color: rgba(255, 255, 255, 0.04);
-          line-height: 1;
-          margin-bottom: -16px;
-          letter-spacing: -4px;
-        }
-        .why__icon-wrap {
-          width: 40px;
-          height: 40px;
-          margin-bottom: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .why__icon-wrap :global(svg) {
-          width: 28px;
-          height: 28px;
-          stroke: #e05c2a;
-          fill: none;
-          stroke-width: 1.5;
-        }
-        .why__card-title {
-          font-size: 15px;
-          font-weight: 700;
-          color: #fff;
-          margin-bottom: 12px;
-        }
-        .why__card-desc {
-          font-size: 13.5px;
-          color: rgba(255, 255, 255, 0.45);
-          line-height: 1.65;
-        }
-
-        @media (max-width: 768px) {
-          .why__grid {
-            grid-template-columns: 1fr 1fr;
-          }
-          .why__card {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          }
-          .why__card:nth-child(2n) {
-            border-right: none;
-          }
-        }
-        @media (max-width: 480px) {
-          .why__grid {
-            grid-template-columns: 1fr;
-          }
-          .why__card {
-            border-right: none;
-          }
-        }
+        .home { overflow-x: hidden; }
+        .stats-bar { background: #f5a623; padding: 1.5rem; }
+        .stats-bar__inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; text-align: center; }
+        .stats-bar__value { display: block; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 900; color: #fff; }
+        .stats-bar__label { font-size: 0.8rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+        @media (max-width: 640px) { .stats-bar__inner { grid-template-columns: repeat(2, 1fr); } }
+        .why { background: #0d0d0d; padding: 96px 40px; }
+        .why__inner { max-width: 1100px; margin: 0 auto; }
+        .why__head { margin-bottom: 72px; }
+        .why__tag { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: #f5a623; margin-bottom: 16px; }
+        .why__title { font-size: clamp(32px, 5vw, 56px); font-weight: 800; color: #fff; line-height: 1.05; max-width: 620px; }
+        .why__title em { font-style: normal; color: #f5a623; }
+        .why__grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; }
+        .why__card { padding: 40px 32px; border-right: 1px solid rgba(255,255,255,0.08); }
+        .why__card:last-child { border-right: none; }
+        .why__num { font-size: 72px; font-weight: 800; color: rgba(255,255,255,0.04); line-height: 1; margin-bottom: -16px; letter-spacing: -4px; }
+        .why__icon-wrap { width: 40px; height: 40px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        .why__icon-wrap :global(svg) { width: 28px; height: 28px; stroke: #e05c2a; fill: none; stroke-width: 1.5; }
+        .why__card-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+        .why__card-desc { font-size: 13.5px; color: rgba(255,255,255,0.45); line-height: 1.65; }
+        @media (max-width: 768px) { .why__grid { grid-template-columns: 1fr 1fr; } .why__card { border-bottom: 1px solid rgba(255,255,255,0.08); } .why__card:nth-child(2n) { border-right: none; } }
+        @media (max-width: 480px) { .why__grid { grid-template-columns: 1fr; } .why__card { border-right: none; } }
       `}</style>
     </div>
   );

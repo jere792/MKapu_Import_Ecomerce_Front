@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { Package, AlertCircle, Home, LogOut, Menu } from "lucide-react";
+import { Package, AlertCircle, Home, LogOut, Menu, Tag, Users, Video } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -55,18 +55,22 @@ export default function AdminLayout({
 
   if (loading) {
     return (
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        background: "#0f0f0f",
-        fontSize: "1rem",
-        color: "#f5a623",
-        fontWeight: 600,
-        letterSpacing: "0.05em",
-      }}>
-        <span style={{ animation: "pulse 1.5s ease-in-out infinite" }}>Cargando...</span>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          background: "#0f0f0f",
+          fontSize: "1rem",
+          color: "#f5a623",
+          fontWeight: 600,
+          letterSpacing: "0.05em",
+        }}
+      >
+        <span style={{ animation: "pulse 1.5s ease-in-out infinite" }}>
+          Cargando...
+        </span>
         <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
       </div>
     );
@@ -76,9 +80,11 @@ export default function AdminLayout({
 
   const menuItems = [
     { name: "Productos", icon: Package, href: "/admin/productos" },
+    { name: "Marcas", icon: Tag, href: "/admin/marcas" },
+    { name: "Colaboradores", icon: Users, href: "/admin/colaboradores" },
+    { name: "Videos", icon: Video, href: "/admin/videos" },
     { name: "Reclamaciones", icon: AlertCircle, href: "/admin/reclamos" },
   ];
-
   async function logout() {
     await supabase.auth.signOut();
     router.push("/admin/login");
@@ -103,41 +109,57 @@ export default function AdminLayout({
 
       <div className="admin-layout">
         {/* Sidebar */}
-        <aside style={{
-          width: sidebarOpen ? "240px" : "64px",
-          background: "#141414",
-          color: "#fff",
-          display: "flex",
-          flexDirection: "column",
-          transition: "width 0.25s ease",
-          overflowY: "auto",
-          overflowX: "hidden",
-          borderRight: "1px solid #222",
-          flexShrink: 0,
-        }}>
+        <aside
+          style={{
+            width: sidebarOpen ? "240px" : "64px",
+            background: "#141414",
+            color: "#fff",
+            display: "flex",
+            flexDirection: "column",
+            transition: "width 0.25s ease",
+            overflowY: "auto",
+            overflowX: "hidden",
+            borderRight: "1px solid #222",
+            flexShrink: 0,
+          }}
+        >
           {/* Logo */}
-          <div style={{
-            padding: sidebarOpen ? "20px 16px 18px" : "20px 0 18px",
-            textAlign: "center",
-            fontWeight: 800,
-            fontSize: sidebarOpen ? "1rem" : "0.75rem",
-            color: "#f5a623",
-            borderBottom: "1px solid #222",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-          }}>
+          <div
+            style={{
+              padding: sidebarOpen ? "20px 16px 18px" : "20px 0 18px",
+              textAlign: "center",
+              fontWeight: 800,
+              fontSize: sidebarOpen ? "1rem" : "0.75rem",
+              color: "#f5a623",
+              borderBottom: "1px solid #222",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+            }}
+          >
             {sidebarOpen ? "Panel Admin" : "PA"}
           </div>
 
           {/* Nav */}
-          <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: "2px" }}>
+          <nav
+            style={{
+              flex: 1,
+              padding: "12px 8px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
+            }}
+          >
             {menuItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
               return (
-                <Link key={item.href} href={item.href} className={`nav-link ${active ? "active" : ""}`}
-                  title={!sidebarOpen ? item.name : undefined}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`nav-link ${active ? "active" : ""}`}
+                  title={!sidebarOpen ? item.name : undefined}
+                >
                   <Icon size={18} style={{ flexShrink: 0 }} />
                   {sidebarOpen && <span>{item.name}</span>}
                 </Link>
@@ -146,12 +168,28 @@ export default function AdminLayout({
           </nav>
 
           {/* Footer buttons */}
-          <div style={{ padding: "12px 8px 16px", borderTop: "1px solid #222", display: "flex", flexDirection: "column", gap: "8px" }}>
-            <Link href="/" className="btn-store" title={!sidebarOpen ? "Ir a tienda" : undefined}>
+          <div
+            style={{
+              padding: "12px 8px 16px",
+              borderTop: "1px solid #222",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            <Link
+              href="/"
+              className="btn-store"
+              title={!sidebarOpen ? "Ir a tienda" : undefined}
+            >
               <Home size={16} style={{ flexShrink: 0 }} />
               {sidebarOpen && "Ir a tienda"}
             </Link>
-            <button onClick={logout} className="btn-logout" title={!sidebarOpen ? "Salir" : undefined}>
+            <button
+              onClick={logout}
+              className="btn-logout"
+              title={!sidebarOpen ? "Salir" : undefined}
+            >
               <LogOut size={16} style={{ flexShrink: 0 }} />
               {sidebarOpen && "Salir"}
             </button>
@@ -159,33 +197,62 @@ export default function AdminLayout({
         </aside>
 
         {/* Main */}
-        <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "#f7f7f5" }}>
-          {/* Topbar */}
-          <div style={{
-            background: "#fff",
-            padding: "0 20px",
-            height: "56px",
-            borderBottom: "1px solid #e8e8e8",
+        <main
+          style={{
+            flex: 1,
             display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexShrink: 0,
-          }}>
+            flexDirection: "column",
+            overflow: "hidden",
+            background: "#f7f7f5",
+          }}
+        >
+          {/* Topbar */}
+          <div
+            style={{
+              background: "#fff",
+              padding: "0 20px",
+              height: "56px",
+              borderBottom: "1px solid #e8e8e8",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexShrink: 0,
+            }}
+          >
             <button
               className="menu-toggle"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#333", padding: "8px", display: "flex", alignItems: "center", transition: "all 0.2s" }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#333",
+                padding: "8px",
+                display: "flex",
+                alignItems: "center",
+                transition: "all 0.2s",
+              }}
             >
               <Menu size={20} />
             </button>
-            <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "#1a1a1a", letterSpacing: "0.01em" }}>
+            <span
+              style={{
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                color: "#1a1a1a",
+                letterSpacing: "0.01em",
+              }}
+            >
               Panel de Administración
             </span>
             <div style={{ width: "36px" }} />
           </div>
 
           {/* Content */}
-          <div className="main-content" style={{ flex: 1, overflow: "auto", padding: "28px 32px" }}>
+          <div
+            className="main-content"
+            style={{ flex: 1, overflow: "auto", padding: "28px 32px" }}
+          >
             {children}
           </div>
         </main>

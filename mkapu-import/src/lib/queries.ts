@@ -1,5 +1,44 @@
 import { supabase, Producto, Categoria } from "./supabase";
 
+// ── TIPOS NUEVOS ───────────────────────────────────────────
+
+export type Marca = {
+  id: number;
+  name: string;
+  logo_url: string | null;
+  activo: boolean;
+  orden: number;
+};
+
+export type Colaborador = {
+  id: number;
+  name: string;
+  logo_url: string | null;
+  url: string | null;
+  activo: boolean;
+  orden: number;
+};
+
+export type Video = {
+  id: number;
+  title: string;
+  descripcion: string | null;
+  youtube_id: string | null;
+  video_url: string | null;
+  tipo: "video" | "vlog";
+  thumbnail: string | null;
+  activo: boolean;
+  created_at: string;
+};
+
+export type ProductoImagen = {
+  id: number;
+  producto_id: number;
+  url_imagenes: string;
+  orden: number;
+  created_at: string;
+};
+
 // ── PRODUCTOS ──────────────────────────────────────────────
 
 export async function getProductos(): Promise<Producto[]> {
@@ -85,6 +124,35 @@ export async function getProductosDestacados(limit = 8): Promise<Producto[]> {
   return data ?? [];
 }
 
+export async function getProductosNuevos(limit = 10): Promise<Producto[]> {
+  const { data, error } = await supabase
+    .from("productos")
+    .select("*")
+    .eq("is_new", true)
+    .eq("activo", true)
+    .limit(limit);
+
+  if (error) {
+    console.error("Error fetching nuevos productos:", error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getProductoImagenes(productoId: number): Promise<ProductoImagen[]> {
+  const { data, error } = await supabase
+    .from("producto_imagenes")
+    .select("*")
+    .eq("producto_id", productoId)
+    .order("orden", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching imagenes del producto:", error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
 // ── CATEGORÍAS ─────────────────────────────────────────────
 
 export async function getCategorias(): Promise<Categoria[]> {
@@ -102,7 +170,6 @@ export async function getCategorias(): Promise<Categoria[]> {
 
 export async function getCategoriasFromProductos(): Promise<string[]> {
   try {
-    // Obtener productos
     const { data: productos, error: prodError } = await supabase
       .from("productos")
       .select("category");
@@ -112,7 +179,6 @@ export async function getCategoriasFromProductos(): Promise<string[]> {
       return [];
     }
 
-    // Obtener categorías
     const { data: categorias, error: catError } = await supabase
       .from("categorias")
       .select("id, name");
@@ -122,12 +188,10 @@ export async function getCategoriasFromProductos(): Promise<string[]> {
       return [];
     }
 
-    // Crear mapa de ID -> nombre
     const catMap = new Map(
       (categorias ?? []).map((c: any) => [String(c.id), c.name])
     );
 
-    // Obtener IDs únicos de categorías usadas
     const uniqueCatIds = Array.from(
       new Set(
         (productos ?? [])
@@ -136,15 +200,66 @@ export async function getCategoriasFromProductos(): Promise<string[]> {
       )
     );
 
-    // Convertir IDs a nombres
-    const catNames = uniqueCatIds
+    return uniqueCatIds
       .map((id) => catMap.get(String(id)))
       .filter((name): name is string => Boolean(name))
       .sort();
-
-    return catNames;
   } catch (err) {
     console.error("Error in getCategoriasFromProductos:", err);
     return [];
   }
+}
+
+// ── MARCAS ─────────────────────────────────────────────────
+
+export async function getMarcas(): Promise<Marca[]> {
+  const { data, error } = await supabase
+    .from("marcas")
+    .select("*")
+    .eq("activo", true)
+    .order("orden", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching marcas:", error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+// ── COLABORADORES ──────────────────────────────────────────
+
+export async function getColaboradores(): Promise<Colaborador[]> {
+  const { data, error } = await supabase
+    .from("colaboradores")
+    .select("*")
+    .eq("activo", true)
+    .order("orden", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching colaboradores:", error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+// ── VIDEOS ─────────────────────────────────────────────────
+
+export async function getVideos(tipo?: "video" | "vlog"): Promise<Video[]> {
+  let query = supabase
+    .from("videos")
+    .select("*")
+    .eq("activo", true)
+    .order("created_at", { ascending: false });
+
+  if (tipo) {
+    query = query.eq("tipo", tipo);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching videos:", error.message);
+    return [];
+  }
+  return data ?? [];
 }

@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 type Producto = {
@@ -18,11 +17,15 @@ type Producto = {
   unidad_mayorista: number | null;
   featured: boolean;
   activo: boolean;
+  is_new: boolean;
 };
 
-type Categoria = {
-  id: string;
-  name: string;
+type Categoria = { id: string; name: string };
+type ProductoImagen = {
+  id: number;
+  producto_id: number;
+  url_imagenes: string;
+  orden: number;
 };
 
 const initialForm = {
@@ -38,9 +41,10 @@ const initialForm = {
   unidad_mayorista: 0,
   featured: false,
   activo: true,
+  is_new: false,
 };
 
-const inputStyle: React.CSSProperties = {
+const inp: React.CSSProperties = {
   width: "100%",
   padding: "9px 12px",
   border: "1px solid #e0e0e0",
@@ -49,11 +53,10 @@ const inputStyle: React.CSSProperties = {
   background: "#fff",
   color: "#1a1a1a",
   outline: "none",
-  transition: "border-color 0.15s",
   boxSizing: "border-box",
 };
 
-const labelStyle: React.CSSProperties = {
+const lbl: React.CSSProperties = {
   display: "block",
   fontSize: "0.75rem",
   fontWeight: 600,
@@ -70,71 +73,113 @@ export default function AdminProductosPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const itemsPerPage = 10;
 
-async function load() {
-  try {
-    setLoading(true);
-    setError(null);
+  const [uploading, setUploading] = useState(false);
+  const [imagenes, setImagenes] = useState<ProductoImagen[]>([]);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log("Usuario autenticado:", user?.email);
-
-    // Cargar categorías PRIMERO - sin order si falla
-    let catRes = await supabase
-      .from("categorias")
-      .select("id, name");
-
-    if (catRes.error) {
-      console.error("Error loading categorias:", catRes.error);
-      // Intentar sin select específico
-      catRes = await supabase.from("categorias").select("*");
+  async function load() {
+    try {
+      setLoading(true);
+      setError(null);
+      const [catRes, prodRes] = await Promise.all([
+        supabase.from("categorias").select("id, name"),
+        supabase
+          .from("productos")
+          .select("*")
+          .order("id", { ascending: false }),
+      ]);
+      if (catRes.data) setCategorias(catRes.data);
+      if (prodRes.error) {
+        setError(prodRes.error.message);
+        return;
+      }
+      setRows((prodRes.data as Producto[]) ?? []);
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setLoading(false);
     }
-
-    console.log("Categorías cargadas:", catRes.data);
-    console.log("Error categorías:", catRes.error);
-    
-    if (catRes.data && catRes.data.length > 0) {
-      setCategorias(catRes.data || []);
-    } else {
-      console.warn("No categories found or error loading");
-      setError("No se pudieron cargar las categorías");
-    }
-
-    // Luego cargar productos
-    const prodRes = await supabase
-      .from("productos")
-      .select("*")
-      .order("id", { ascending: false });
-
-    if (prodRes.error) {
-      console.error("Error loading productos:", prodRes.error);
-      setError(prodRes.error.message);
-      return;
-    }
-
-    console.log("Productos cargados:", prodRes.data?.length);
-
-    setRows((prodRes.data as Producto[]) || []);
-  } catch (err) {
-    console.error("Error:", err);
-    setError(String(err));
-  } finally {
-    setLoading(false);
   }
-}
+
+  async function loadImagenes(productoId: number) {
+    const { data } = await supabase
+      .from("producto_imagenes")
+      .select("*")
+      .eq("producto_id", productoId)
+      .order("orden", { ascending: true });
+    setImagenes(data ?? []);
+  }
 
   useEffect(() => {
     load();
   }, []);
 
-  useEffect(() => {
-    console.log("Categorías actualizadas:", categorias);
-  }, [categorias]);
+  async function uploadMainImage(file: File): Promise<string | null> {
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `productos/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("imagenes")
+      .upload(path, file, { upsert: true });
+    setUploading(false);
+    if (error) {
+      alert("Error subiendo imagen: " + error.message);
+      return null;
+    }
+    const { data } = supabase.storage.from("imagenes").getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  async function uploadGalleryImage(
+    file: File,
+    productoId: number,
+    orden: number,
+  ) {
+    const ext = file.name.split(".").pop();
+    const path = `productos/gallery/${productoId}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("imagenes")
+      .upload(path, file, { upsert: true });
+    if (error) {
+      alert("Error: " + error.message);
+      return;
+    }
+    const { data } = supabase.storage.from("imagenes").getPublicUrl(path);
+    await supabase.from("producto_imagenes").insert({
+      producto_id: productoId,
+      url_imagenes: data.publicUrl,
+      orden,
+    });
+    loadImagenes(productoId);
+  }
+
+  async function handleGalleryUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!editId)
+      return alert("Guarda el producto primero antes de subir galería.");
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    setUploadingGallery(true);
+    const baseOrden = imagenes.length;
+    for (let i = 0; i < files.length; i++) {
+      await uploadGalleryImage(files[i], editId, baseOrden + i);
+    }
+    setUploadingGallery(false);
+    if (galleryRef.current) galleryRef.current.value = "";
+  }
+
+  async function deleteImagen(id: number) {
+    if (!confirm("¿Eliminar imagen?")) return;
+    await supabase.from("producto_imagenes").delete().eq("id", id);
+    if (editId) loadImagenes(editId);
+  }
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -154,6 +199,7 @@ async function load() {
       unidad_mayorista: form.unidad_mayorista || null,
       featured: form.featured,
       activo: form.activo,
+      is_new: form.is_new,
     };
 
     const { error } = editId
@@ -164,6 +210,7 @@ async function load() {
     setForm(initialForm);
     setEditId(null);
     setShowForm(false);
+    setImagenes([]);
     load();
   }
 
@@ -182,15 +229,16 @@ async function load() {
       unidad_mayorista: p.unidad_mayorista ?? 0,
       featured: p.featured ?? false,
       activo: p.activo ?? true,
+      is_new: p.is_new ?? false,
     });
+    loadImagenes(p.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function onDelete(id: number) {
     if (!confirm("¿Eliminar producto?")) return;
-    const { error } = await supabase.from("productos").delete().eq("id", id);
-    if (error) return alert(error.message);
+    await supabase.from("productos").delete().eq("id", id);
     load();
   }
 
@@ -198,53 +246,42 @@ async function load() {
     setEditId(null);
     setForm(initialForm);
     setShowForm(false);
+    setImagenes([]);
   }
 
-  // Filtrar por búsqueda y categoría
   const filtered = rows.filter((p) => {
     const matchSearch =
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.code.toLowerCase().includes(search.toLowerCase());
-
-    const matchCategory =
+    const matchCat =
       selectedCategory === "" || String(p.category) === selectedCategory;
-
-    return matchSearch && matchCategory;
+    return matchSearch && matchCat;
   });
 
-  // Paginación
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedRows = filtered.slice(startIndex, endIndex);
+  const paginatedRows = filtered.slice(startIndex, startIndex + itemsPerPage);
 
-  // Resetear a página 1 cuando se busca
   useEffect(() => {
     setCurrentPage(1);
   }, [search, selectedCategory]);
 
   const getCategoryName = (catId: string | number | null) => {
     if (!catId) return "—";
-
-    const catIdStr = String(catId).toLowerCase().trim();
-    const cat = categorias.find(
-      (c) => String(c.id).toLowerCase().trim() === catIdStr
+    return (
+      categorias.find((c) => String(c.id) === String(catId))?.name ??
+      String(catId)
     );
-
-    return cat ? cat.name : catIdStr;
   };
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "20px" }}>
       <style>{`
-        .field-input:focus { border-color: #f5a623 !important; box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
-        .field-input:hover { border-color: #ccc; }
-        .row-hover:hover { background: #fafafa !important; }
-        .btn-edit:hover { background: rgba(0,123,255,0.1) !important; color: #0056b3 !important; }
-        .btn-delete:hover { background: rgba(220,53,69,0.1) !important; color: #a71d2a !important; }
-        .btn-primary:hover { background: #e69510 !important; }
-        .btn-new:hover { background: #e69510 !important; }
-        .search-input:focus { border-color: #f5a623 !important; box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
+        .fi:focus { border-color: #f5a623 !important; box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
+        .rh:hover { background: #fafafa !important; }
+        .be:hover { background: rgba(0,123,255,0.1) !important; color: #0056b3 !important; }
+        .bd:hover { background: rgba(220,53,69,0.1) !important; color: #a71d2a !important; }
+        .bp:hover { background: #e69510 !important; }
       `}</style>
 
       <div
@@ -272,7 +309,7 @@ async function load() {
           </p>
         </div>
         <button
-          className="btn-new"
+          className="bp"
           onClick={() => {
             setShowForm(!showForm);
             if (showForm) cancelForm();
@@ -286,7 +323,6 @@ async function load() {
             fontWeight: 700,
             cursor: "pointer",
             fontSize: "0.875rem",
-            transition: "background 0.15s",
           }}
         >
           {showForm ? "✕ Cancelar" : "+ Nuevo producto"}
@@ -330,7 +366,6 @@ async function load() {
           >
             {editId ? "Editar producto" : "Nuevo producto"}
           </h2>
-
           <form onSubmit={save}>
             <div
               style={{
@@ -341,10 +376,10 @@ async function load() {
               }}
             >
               <div>
-                <label style={labelStyle}>Código *</label>
+                <label style={lbl}>Código *</label>
                 <input
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   placeholder="SKU-001"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value })}
@@ -352,10 +387,10 @@ async function load() {
                 />
               </div>
               <div>
-                <label style={labelStyle}>Nombre *</label>
+                <label style={lbl}>Nombre *</label>
                 <input
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   placeholder="Nombre del producto"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -363,26 +398,21 @@ async function load() {
                 />
               </div>
               <div>
-                <label style={labelStyle}>Categoría</label>
+                <label style={lbl}>Categoría</label>
                 <select
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   value={form.category}
                   onChange={(e) =>
                     setForm({ ...form, category: e.target.value })
                   }
-                  disabled={categorias.length === 0}
                 >
                   <option value="">Seleccionar...</option>
-                  {categorias && categorias.length > 0 ? (
-                    categorias.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))
-                  ) : (
-                    <option disabled>Cargando categorías...</option>
-                  )}
+                  {categorias.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -396,13 +426,12 @@ async function load() {
               }}
             >
               <div>
-                <label style={labelStyle}>Precio unitario (S/)</label>
+                <label style={lbl}>Precio unitario (S/)</label>
                 <input
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   type="number"
                   step="0.01"
-                  placeholder="0.00"
                   value={form.price}
                   onChange={(e) =>
                     setForm({ ...form, price: Number(e.target.value) })
@@ -411,13 +440,12 @@ async function load() {
                 />
               </div>
               <div>
-                <label style={labelStyle}>Precio caja (S/)</label>
+                <label style={lbl}>Precio caja (S/)</label>
                 <input
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   type="number"
                   step="0.01"
-                  placeholder="0.00"
                   value={form.price_caja}
                   onChange={(e) =>
                     setForm({ ...form, price_caja: Number(e.target.value) })
@@ -425,12 +453,11 @@ async function load() {
                 />
               </div>
               <div>
-                <label style={labelStyle}>Unidades por caja</label>
+                <label style={lbl}>Unidades por caja</label>
                 <input
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   type="number"
-                  placeholder="0"
                   value={form.unidad_caja}
                   onChange={(e) =>
                     setForm({ ...form, unidad_caja: Number(e.target.value) })
@@ -448,13 +475,12 @@ async function load() {
               }}
             >
               <div>
-                <label style={labelStyle}>Precio mayorista (S/)</label>
+                <label style={lbl}>Precio mayorista (S/)</label>
                 <input
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   type="number"
                   step="0.01"
-                  placeholder="0.00"
                   value={form.price_mayorista}
                   onChange={(e) =>
                     setForm({
@@ -465,12 +491,11 @@ async function load() {
                 />
               </div>
               <div>
-                <label style={labelStyle}>Unid. mayorista</label>
+                <label style={lbl}>Unid. mayorista</label>
                 <input
-                  className="field-input"
-                  style={inputStyle}
+                  className="fi"
+                  style={inp}
                   type="number"
-                  placeholder="0"
                   value={form.unidad_mayorista}
                   onChange={(e) =>
                     setForm({
@@ -481,24 +506,70 @@ async function load() {
                 />
               </div>
               <div>
-                <label style={labelStyle}>URL imagen</label>
-                <input
-                  className="field-input"
-                  style={inputStyle}
-                  placeholder="https://..."
-                  value={form.image_url}
-                  onChange={(e) =>
-                    setForm({ ...form, image_url: e.target.value })
-                  }
-                />
+                <label style={lbl}>Imagen principal</label>
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
+                  <input
+                    className="fi"
+                    style={{ ...inp, flex: 1 }}
+                    placeholder="URL o sube archivo..."
+                    value={form.image_url}
+                    onChange={(e) =>
+                      setForm({ ...form, image_url: e.target.value })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    style={{
+                      background: "#f0f0f0",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "8px",
+                      padding: "9px 14px",
+                      cursor: "pointer",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {uploading ? "Subiendo..." : "📁 Subir"}
+                  </button>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const url = await uploadMainImage(file);
+                      if (url) setForm((f) => ({ ...f, image_url: url }));
+                      if (fileRef.current) fileRef.current.value = "";
+                    }}
+                  />
+                </div>
+                {form.image_url && (
+                  <img
+                    src={form.image_url}
+                    alt="preview"
+                    style={{
+                      marginTop: "8px",
+                      height: "64px",
+                      borderRadius: "8px",
+                      objectFit: "cover",
+                      border: "1px solid #e0e0e0",
+                    }}
+                  />
+                )}
               </div>
             </div>
 
-            <div style={{ marginBottom: "20px" }}>
-              <label style={labelStyle}>Descripción</label>
+            <div style={{ marginBottom: "16px" }}>
+              <label style={lbl}>Descripción</label>
               <textarea
-                className="field-input"
-                style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+                className="fi"
+                style={{ ...inp, minHeight: "80px", resize: "vertical" }}
                 placeholder="Descripción del producto..."
                 value={form.description}
                 onChange={(e) =>
@@ -507,11 +578,21 @@ async function load() {
               />
             </div>
 
-            <div style={{ display: "flex", gap: "24px", marginBottom: "24px" }}>
-              {[
-                { key: "featured" as const, label: "Producto destacado" },
-                { key: "activo" as const, label: "Activo / visible" },
-              ].map(({ key, label }) => (
+            <div
+              style={{
+                display: "flex",
+                gap: "24px",
+                marginBottom: "20px",
+                flexWrap: "wrap",
+              }}
+            >
+              {(
+                [
+                  { key: "featured" as const, label: "⭐ Destacado" },
+                  { key: "activo" as const, label: "✅ Activo" },
+                  { key: "is_new" as const, label: "🆕 Nuevo" },
+                ] as { key: keyof typeof form; label: string }[]
+              ).map(({ key, label }) => (
                 <label
                   key={key}
                   style={{
@@ -525,7 +606,7 @@ async function load() {
                 >
                   <input
                     type="checkbox"
-                    checked={form[key]}
+                    checked={form[key] as boolean}
                     onChange={(e) =>
                       setForm({ ...form, [key]: e.target.checked })
                     }
@@ -541,10 +622,103 @@ async function load() {
               ))}
             </div>
 
+            {editId && (
+              <div
+                style={{
+                  marginBottom: "20px",
+                  background: "#fafafa",
+                  border: "1px solid #e8e8e8",
+                  borderRadius: "10px",
+                  padding: "16px",
+                }}
+              >
+                <label style={{ ...lbl, marginBottom: "10px" }}>
+                  Galería de imágenes
+                </label>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {imagenes.map((img) => (
+                    <div key={img.id} style={{ position: "relative" }}>
+                      <img
+                        src={img.url_imagenes}
+                        alt=""
+                        style={{
+                          width: 72,
+                          height: 72,
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                          border: "1px solid #e0e0e0",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => deleteImagen(img.id)}
+                        style={{
+                          position: "absolute",
+                          top: -6,
+                          right: -6,
+                          background: "#dc3545",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: 20,
+                          height: 20,
+                          fontSize: "0.7rem",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => galleryRef.current?.click()}
+                    style={{
+                      width: 72,
+                      height: 72,
+                      border: "2px dashed #e0e0e0",
+                      borderRadius: "8px",
+                      background: "#fff",
+                      cursor: "pointer",
+                      fontSize: "1.5rem",
+                      color: "#ccc",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {uploadingGallery ? "⏳" : "+"}
+                  </button>
+                  <input
+                    ref={galleryRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: "none" }}
+                    onChange={handleGalleryUpload}
+                  />
+                </div>
+                <p style={{ margin: 0, fontSize: "0.75rem", color: "#aaa" }}>
+                  Puedes subir múltiples imágenes. Se muestran en la galería del
+                  producto.
+                </p>
+              </div>
+            )}
+
             <div style={{ display: "flex", gap: "10px" }}>
               <button
                 type="submit"
-                className="btn-primary"
+                className="bp"
                 style={{
                   background: "#f5a623",
                   color: "#fff",
@@ -554,7 +728,6 @@ async function load() {
                   fontWeight: 700,
                   cursor: "pointer",
                   fontSize: "0.875rem",
-                  transition: "background 0.15s",
                 }}
               >
                 {editId ? "Guardar cambios" : "Crear producto"}
@@ -580,7 +753,6 @@ async function load() {
         </div>
       )}
 
-      {/* Filtros */}
       <div
         style={{
           display: "flex",
@@ -591,39 +763,23 @@ async function load() {
         }}
       >
         <input
-          className="search-input"
-          style={{
-            ...inputStyle,
-            background: "#fff",
-            border: "1px solid #e0e0e0",
-            paddingLeft: "36px",
-            flex: "1",
-            minWidth: "200px",
-          }}
+          className="fi"
+          style={{ ...inp, flex: 1, minWidth: "200px" }}
           placeholder="Buscar por nombre, código..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select
-          style={{
-            ...inputStyle,
-            background: "#fff",
-            border: "1px solid #e0e0e0",
-            minWidth: "200px",
-          }}
+          style={{ ...inp, minWidth: "200px" }}
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <option value="">Todas las categorías</option>
-          {categorias.length > 0 ? (
-            categorias.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))
-          ) : (
-            <option disabled>Cargando categorías...</option>
-          )}
+          {categorias.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
         </select>
         {(search || selectedCategory) && (
           <button
@@ -642,18 +798,16 @@ async function load() {
               fontSize: "0.875rem",
             }}
           >
-            ✕ Limpiar filtros
+            ✕ Limpiar
           </button>
         )}
       </div>
 
-      {loading && (
+      {loading ? (
         <div style={{ textAlign: "center", padding: "40px", color: "#888" }}>
           Cargando productos...
         </div>
-      )}
-
-      {!loading && (
+      ) : (
         <div
           style={{
             background: "#fff",
@@ -683,6 +837,7 @@ async function load() {
                   "Precio unit.",
                   "Precio caja",
                   "Categoría",
+                  "Badges",
                   "Estado",
                   "Acciones",
                 ].map((h) => (
@@ -708,16 +863,15 @@ async function load() {
               {paginatedRows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     style={{
                       padding: "40px",
                       textAlign: "center",
                       color: "#aaa",
-                      fontSize: "0.875rem",
                     }}
                   >
                     {search || selectedCategory
-                      ? "Sin resultados con estos filtros"
+                      ? "Sin resultados"
                       : "No hay productos aún"}
                   </td>
                 </tr>
@@ -725,14 +879,13 @@ async function load() {
                 paginatedRows.map((p, i) => (
                   <tr
                     key={p.id}
-                    className="row-hover"
+                    className="rh"
                     style={{
                       borderBottom:
                         i < paginatedRows.length - 1
                           ? "1px solid #f0f0f0"
                           : "none",
                       background: "#fff",
-                      transition: "background 0.1s",
                     }}
                   >
                     <td
@@ -752,7 +905,6 @@ async function load() {
                           borderRadius: "4px",
                           fontSize: "0.8rem",
                           color: "#444",
-                          fontFamily: "monospace",
                         }}
                       >
                         {p.code}
@@ -766,47 +918,19 @@ async function load() {
                         maxWidth: 200,
                       }}
                     >
-                      <div
+                      <span
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          display: "block",
                         }}
                       >
-                        {p.featured && (
-                          <span
-                            style={{
-                              background: "#fff8e6",
-                              color: "#b07800",
-                              fontSize: "0.7rem",
-                              fontWeight: 700,
-                              padding: "1px 6px",
-                              borderRadius: "4px",
-                              border: "1px solid #f5a62355",
-                            }}
-                          >
-                            ★ Dest.
-                          </span>
-                        )}
-                        <span
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {p.name}
-                        </span>
-                      </div>
+                        {p.name}
+                      </span>
                     </td>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        fontWeight: 600,
-                        color: "#1a1a1a",
-                      }}
-                    >
-                      S/ {p.price.toFixed(2)}
+                    <td style={{ padding: "12px 16px", fontWeight: 600 }}>
+                      S/ {p.price?.toFixed(2)}
                     </td>
                     <td style={{ padding: "12px 16px", color: "#666" }}>
                       {p.price_caja ? (
@@ -815,7 +939,7 @@ async function load() {
                         <span style={{ color: "#ccc" }}>—</span>
                       )}
                     </td>
-                    <td style={{ padding: "12px 16px", color: "#666" }}>
+                    <td style={{ padding: "12px 16px" }}>
                       <span
                         style={{
                           background: "#f0f0f0",
@@ -826,6 +950,46 @@ async function load() {
                       >
                         {getCategoryName(p.category)}
                       </span>
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "4px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {p.featured && (
+                          <span
+                            style={{
+                              background: "#fff8e6",
+                              color: "#b07800",
+                              fontSize: "0.7rem",
+                              fontWeight: 700,
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              border: "1px solid #f5a62355",
+                            }}
+                          >
+                            ★ Dest.
+                          </span>
+                        )}
+                        {p.is_new && (
+                          <span
+                            style={{
+                              background: "#e8f4ff",
+                              color: "#0066cc",
+                              fontSize: "0.7rem",
+                              fontWeight: 700,
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              border: "1px solid #0066cc33",
+                            }}
+                          >
+                            🆕 Nuevo
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <span
@@ -844,7 +1008,7 @@ async function load() {
                     <td style={{ padding: "12px 16px" }}>
                       <div style={{ display: "flex", gap: "6px" }}>
                         <button
-                          className="btn-edit"
+                          className="be"
                           onClick={() => onEdit(p)}
                           style={{
                             background: "rgba(0,123,255,0.08)",
@@ -855,13 +1019,12 @@ async function load() {
                             cursor: "pointer",
                             fontSize: "0.8rem",
                             fontWeight: 600,
-                            transition: "all 0.15s",
                           }}
                         >
                           Editar
                         </button>
                         <button
-                          className="btn-delete"
+                          className="bd"
                           onClick={() => onDelete(p.id)}
                           style={{
                             background: "rgba(220,53,69,0.08)",
@@ -872,7 +1035,6 @@ async function load() {
                             cursor: "pointer",
                             fontSize: "0.8rem",
                             fontWeight: 600,
-                            transition: "all 0.15s",
                           }}
                         >
                           Eliminar
@@ -885,7 +1047,6 @@ async function load() {
             </tbody>
           </table>
 
-          {/* Pie de página con paginación */}
           <div
             style={{
               display: "flex",
@@ -901,17 +1062,11 @@ async function load() {
             }}
           >
             <div>
-              Mostrando {startIndex + 1} - {Math.min(endIndex, filtered.length)}{" "}
-              de {filtered.length}
+              Mostrando {startIndex + 1} –{" "}
+              {Math.min(startIndex + itemsPerPage, filtered.length)} de{" "}
+              {filtered.length}
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
@@ -924,12 +1079,10 @@ async function load() {
                   opacity: currentPage === 1 ? 0.5 : 1,
                   fontSize: "0.8rem",
                   fontWeight: 600,
-                  transition: "all 0.15s",
                 }}
               >
                 ← Anterior
               </button>
-
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
@@ -947,14 +1100,12 @@ async function load() {
                       fontWeight: currentPage === page ? 700 : 600,
                       cursor: "pointer",
                       fontSize: "0.8rem",
-                      transition: "all 0.15s",
                     }}
                   >
                     {page}
                   </button>
-                )
+                ),
               )}
-
               <button
                 onClick={() =>
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
@@ -970,7 +1121,6 @@ async function load() {
                   opacity: currentPage === totalPages ? 0.5 : 1,
                   fontSize: "0.8rem",
                   fontWeight: 600,
-                  transition: "all 0.15s",
                 }}
               >
                 Siguiente →
