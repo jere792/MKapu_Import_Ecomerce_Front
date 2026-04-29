@@ -2,17 +2,32 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import VideoSection from "@/components/VideoSection";
 import { getVideos } from "@/lib/queries";
+import { createClient } from "@supabase/supabase-js";
 
 export const revalidate = 3600;
 
+// Cliente server-side
+const supabaseServer = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export default async function BlogPage() {
-  const vlogs = await getVideos("vlog");
+  // Consultas en paralelo
+  const [{ data: banner }] = await Promise.all([
+    supabaseServer
+      .from("banners_config")
+      .select("titulo, subtitulo, image_url, activo")
+      .eq("ruta", "/blog")
+      .single(),
+  ]);
 
   return (
     <>
       <PageHero
-        title="Blog & Vlog"
-        subtitle="Contenido, consejos y novedades del mundo de la cocina industrial."
+        title={banner?.titulo ?? "Blog & Vlog"}
+        subtitle={banner?.subtitulo ?? "Contenido, consejos y novedades del mundo de la cocina industrial."}
+        image={banner?.image_url ?? undefined}
         dark
       />
 
