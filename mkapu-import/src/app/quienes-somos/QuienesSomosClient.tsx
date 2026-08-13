@@ -180,53 +180,53 @@ export default function QuienesSomosClient({ secciones, banner }: Props) {
   const heroImg = banner?.activo && banner?.image_url ? banner.image_url : null;
 
   return (
-    <main className="qs-main">
+    <main className="bg-bg min-h-screen">
       {/* ── HERO ── */}
-      <section className="qs-hero">
+      <section className="relative w-full min-h-[320px] flex items-center justify-center bg-[#1a1a1a] overflow-hidden max-[520px]:min-h-[240px]">
         {heroImg && (
           <Image
             src={heroImg}
             alt={heroTitulo}
             fill
             priority
-            className="qs-hero-bg"
+            className="object-cover object-center"
           />
         )}
-        <div className="qs-hero-overlay" />
-        <div className="qs-hero-content">
-          <span className="qs-hero-tag">Sobre nosotros</span>
-          <h1 className="qs-hero-title">{heroTitulo}</h1>
-          <p className="qs-hero-sub">{heroSub}</p>
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.5)_50%,rgba(0,0,0,0.6)_100%)] z-[1]" />
+        <div className="relative z-[2] text-center px-6 pt-16 pb-14 max-w-[680px] max-[520px]:pt-12 max-[520px]:pb-10 max-[520px]:px-5">
+          <span className="inline-block text-[0.7rem] font-bold tracking-[0.18em] uppercase text-brand mb-3 px-4 py-[0.4rem] border border-[rgba(245,166,35,0.3)] rounded-full bg-[rgba(245,166,35,0.08)]">Sobre nosotros</span>
+          <h1 className="text-[clamp(2rem,4.5vw,3.2rem)] font-black text-white tracking-[-0.03em] mb-4 leading-[1.05]">{heroTitulo}</h1>
+          <p className="text-[1.05rem] text-white/70 mx-auto leading-[1.7] max-w-[520px]">{heroSub}</p>
         </div>
       </section>
 
       {/* ── SECCIONES ZIGZAG ── */}
-      <div className="qs-container">
+      <div className="max-w-[1200px] mx-auto px-6 pt-20 pb-[120px] flex flex-col gap-20 max-[1024px]:py-[60px] max-[1024px]:px-5 max-[1024px]:pb-20 max-[1024px]:gap-12 max-[520px]:px-3.5 max-[520px]:pt-10 max-[520px]:pb-[60px] max-[520px]:gap-8">
         {secciones.map((seccion, index) => {
           const isReverse = index % 2 !== 0;
           return (
             <section
               key={seccion.id}
-              className={`qs-section${isReverse ? " qs-section--reverse" : ""}`}
+              className={`grid grid-cols-2 gap-[60px] p-10 bg-white rounded-[28px] border border-[#ede8e1] shadow-[0_8px_32px_rgba(78,52,24,0.06)] transition-shadow duration-300 hover:shadow-[0_12px_48px_rgba(78,52,24,0.1)] max-[1024px]:gap-10 max-[1024px]:p-8 max-[900px]:grid-cols-1 max-[900px]:gap-8 max-[900px]:p-7 max-[520px]:p-5 max-[520px]:gap-6 max-[520px]:rounded-[20px]`}
             >
-              <div className="qs-section-text">
+              <div className={`flex flex-col gap-5 ${isReverse ? "order-2 max-[900px]:order-none" : ""}`}>
                 {seccion.titulo && (
-                  <div className="qs-section-title-wrap">
-                    <span className="qs-section-number">
+                  <div className="flex items-start gap-4 max-[520px]:gap-3">
+                    <span className="text-[2.5rem] font-black text-brand leading-none shrink-0 opacity-60 tracking-[-0.04em] mt-0.5 max-[520px]:text-[2rem]">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <h2 className="qs-section-title">{seccion.titulo}</h2>
+                    <h2 className="text-[clamp(1.4rem,2.2vw,1.9rem)] font-extrabold leading-[1.2] text-[#1f1a17]">{seccion.titulo}</h2>
                   </div>
                 )}
                 {seccion.descripcion && (
                   <div
-                    className="qs-section-desc"
+                    className="text-base leading-[1.8] text-[#5c5249] [&_p]:mb-4 [&_p:last-child]:mb-0"
                     dangerouslySetInnerHTML={{ __html: seccion.descripcion }}
                   />
                 )}
               </div>
 
-              <div className="qs-section-media">
+              <div className={`w-full ${isReverse ? "order-1 max-[900px]:order-none" : ""}`}>
                 <SeccionCarousel imagenes={seccion.imagenes} />
               </div>
             </section>
