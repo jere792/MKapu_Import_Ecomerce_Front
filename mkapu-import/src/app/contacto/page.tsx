@@ -57,6 +57,8 @@ const socialDefaults: { label: string; key: keyof EmpresaData }[] = [
   { label: "TikTok", key: "tiktok_url" },
 ];
 
+const shimmer = "bg-[linear-gradient(90deg,#2a2a2a_25%,#3a3a3a_50%,#2a2a2a_75%)] bg-[length:200%_100%] animate-[ctShimmer_1.4s_ease-in-out_infinite]";
+
 export default function ContactoPage() {
   const [banner, setBanner] = useState<BannerConfig | null>(null);
   const { empresa, loaded } = useEmpresa();
@@ -122,120 +124,101 @@ export default function ContactoPage() {
   }
 
   return (
-    <main className="ct-main">
-      <section className="ct-hero">
-        {heroImg && <Image src={heroImg} alt={heroTitulo} fill priority className="ct-hero-bg" />}
-        <div className="ct-hero-overlay" />
-        <div className="ct-hero-content">
-          <span className="ct-hero-tag">Estamos para ayudarte</span>
-          <h1 className="ct-hero-title">{heroTitulo}</h1>
-          <p className="ct-hero-sub">{heroSub}</p>
+    <main className="bg-[#f8f7f4] min-h-screen">
+      <section className="relative w-full min-h-[320px] flex items-center justify-center bg-[#1a1a1a] overflow-hidden max-[520px]:min-h-[240px]">
+        {heroImg && <Image src={heroImg} alt={heroTitulo} fill priority className="object-cover object-center" />}
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.5)_50%,rgba(0,0,0,0.6)_100%)] z-[1]" />
+        <div className="relative z-[2] text-center px-6 pt-16 pb-14 max-w-[680px] max-[520px]:pt-12 max-[520px]:pb-10 max-[520px]:px-5">
+          <span className="inline-block text-[0.7rem] font-bold tracking-[0.18em] uppercase text-brand mb-3 px-4 py-1.5 border border-[rgba(245,166,35,0.3)] rounded-full bg-[rgba(245,166,35,0.08)]">Estamos para ayudarte</span>
+          <h1 className="text-[clamp(2rem,4.5vw,3.2rem)] font-black text-white tracking-[-0.03em] mb-4 leading-[1.05]">{heroTitulo}</h1>
+          <p className="text-[1.05rem] text-white/70 mx-auto leading-relaxed max-w-[520px]">{heroSub}</p>
         </div>
       </section>
 
-      <section className="ct-body">
-        <div className="ct-grid">
-          <div className="ct-info-col">
-            <div className="ct-info-card">
-              <h2 className="ct-info-title">Información de contacto</h2>
+      <section className="max-w-[1100px] mx-auto px-6 py-20 pb-[120px] max-[900px]:py-[60px] max-[900px]:px-5 max-[900px]:pb-20 max-[520px]:py-10 max-[520px]:px-3.5 max-[520px]:pb-[60px]">
+        <div className="grid grid-cols-1 min-[901px]:grid-cols-2 gap-8 items-start">
+          <div className="flex flex-col gap-5">
+            <div className="bg-[#1a1a1a] rounded-[20px] p-8 text-white border border-[#2a2a2a] max-[520px]:p-6">
+              <h2 className="text-[1.15rem] font-extrabold mb-6 text-brand">Información de contacto</h2>
               {loaded ? (
                 contactInfo.map((item) => (
-                  <div key={item.label} className="ct-info-row">
-                    <span className="ct-info-icon">{item.icon}</span>
+                  <div key={item.label} className="flex gap-3.5 mb-5 last:mb-0">
+                    <span className="mt-0.5 shrink-0 w-9 h-9 flex items-center justify-center bg-[rgba(245,166,35,0.1)] rounded-[10px]">{item.icon}</span>
                     <div>
-                      <div className="ct-info-label">{item.label}</div>
-                      <div className="ct-info-value">{item.value}</div>
+                      <div className="text-[0.7rem] font-bold text-[#888] uppercase tracking-[0.08em] mb-0.5">{item.label}</div>
+                      <div className="text-[0.92rem] text-[#ddd] leading-relaxed whitespace-pre-line">{item.value}</div>
                     </div>
                   </div>
                 ))
               ) : (
                 <>
-                  <div className="ct-info-row ct-skeleton">
-                    <span className="ct-skeleton-icon" />
-                    <div>
-                      <div className="ct-skeleton-label" />
-                      <div className="ct-skeleton-value" />
+                  {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className="flex gap-3.5 mb-5 opacity-60">
+                      <span className={`mt-0.5 shrink-0 w-9 h-9 rounded-[10px] ${shimmer}`} />
+                      <div>
+                        <div className={`w-[60px] h-2.5 rounded mb-1.5 ${shimmer}`} />
+                        <div className={`w-[180px] h-3.5 rounded ${shimmer}`} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="ct-info-row ct-skeleton">
-                    <span className="ct-skeleton-icon" />
-                    <div>
-                      <div className="ct-skeleton-label" />
-                      <div className="ct-skeleton-value" />
-                    </div>
-                  </div>
-                  <div className="ct-info-row ct-skeleton">
-                    <span className="ct-skeleton-icon" />
-                    <div>
-                      <div className="ct-skeleton-label" />
-                      <div className="ct-skeleton-value" />
-                    </div>
-                  </div>
-                  <div className="ct-info-row ct-skeleton">
-                    <span className="ct-skeleton-icon" />
-                    <div>
-                      <div className="ct-skeleton-label" />
-                      <div className="ct-skeleton-value" />
-                    </div>
-                  </div>
+                  ))}
                 </>
               )}
             </div>
 
-            <div className="ct-social-card">
-              <p className="ct-social-title">Síguenos en redes</p>
-              <div className="ct-social-row">
+            <div className="bg-white rounded-2xl border border-[#ede8e1] p-6">
+              <p className="text-[0.85rem] font-bold text-[#444] mb-3">Síguenos en redes</p>
+              <div className="flex gap-2.5 flex-wrap">
                 {loaded ? (
                   socialLinks.map((red) => (
-                    <a key={red.label} href={red.href} target="_blank" rel="noopener noreferrer" className="ct-social-link">
+                    <a key={red.label} href={red.href} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-[#f8f7f4] border border-[#ede8e1] rounded-lg text-[0.8rem] font-bold text-[#444] no-underline transition-colors hover:bg-brand hover:text-white hover:border-brand">
                       {red.label}
                     </a>
                   ))
                 ) : (
                   <>
-                    <span className="ct-skeleton-social" />
-                    <span className="ct-skeleton-social" />
-                    <span className="ct-skeleton-social" />
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className="inline-block w-20 h-8 rounded-lg bg-[linear-gradient(90deg,#eee_25%,#f5f5f5_50%,#eee_75%)] bg-[length:200%_100%] animate-[ctShimmer_1.4s_ease-in-out_infinite]" />
+                    ))}
                   </>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="ct-form-card">
+          <div className="bg-white rounded-[20px] border border-[#ede8e1] p-8 shadow-[0_8px_32px_rgba(78,52,24,0.06)] max-[520px]:p-6">
             {enviado ? (
-              <div className="ct-success">
-                <h3 className="ct-success-title">¡Mensaje enviado!</h3>
-                <p className="ct-success-desc">Gracias por contactarnos. Te responderemos pronto a tu correo.</p>
-                <button onClick={() => { setEnviado(false); setForm({ nombre: "", email: "", telefono: "", asunto: "", mensaje: "" }); }} className="ct-btn ct-btn--secondary">
+              <div className="text-center px-4 py-10">
+                <h3 className="text-[1.25rem] font-extrabold text-[#1a1a1a] mb-2">¡Mensaje enviado!</h3>
+                <p className="text-[0.9rem] text-[#666] mb-6 leading-relaxed">Gracias por contactarnos. Te responderemos pronto a tu correo.</p>
+                <button onClick={() => { setEnviado(false); setForm({ nombre: "", email: "", telefono: "", asunto: "", mensaje: "" }); }} className="bg-brand text-white px-6 py-2.5 border-0 rounded-[10px] font-bold text-[0.9rem] cursor-pointer transition-colors hover:bg-[#d4891a]">
                   Enviar otro mensaje
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="ct-form">
-                <h2 className="ct-form-title">Envíanos un mensaje</h2>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                <h2 className="text-[1.2rem] font-extrabold text-[#1a1a1a] mb-1">Envíanos un mensaje</h2>
 
-                {errorMsg && <div className="ct-error">{errorMsg}</div>}
+                {errorMsg && <div className="bg-[#fee2e2] text-[#b91c1c] px-4 py-3 rounded-[10px] text-[0.85rem] border border-[#fca5a5]">{errorMsg}</div>}
 
-                <div className="ct-form-row">
-                  <div className="ct-field">
-                    <label className="ct-label">Nombre *</label>
-                    <input required name="nombre" value={form.nombre} onChange={handleChange} placeholder="Tu nombre" className="ct-input" />
+                <div className="grid grid-cols-1 min-[521px]:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[0.8rem] font-bold text-[#444] tracking-[0.02em]">Nombre *</label>
+                    <input required name="nombre" value={form.nombre} onChange={handleChange} placeholder="Tu nombre" className="w-full px-4 py-3 text-base border-[1.5px] border-[#ddd] rounded-[10px] outline-none bg-[#fafafa] text-[#1a1a1a] font-inherit transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(245,166,35,0.12)]" />
                   </div>
-                  <div className="ct-field">
-                    <label className="ct-label">Teléfono</label>
-                    <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="999 000 000" className="ct-input" />
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[0.8rem] font-bold text-[#444] tracking-[0.02em]">Teléfono</label>
+                    <input name="telefono" value={form.telefono} onChange={handleChange} placeholder="999 000 000" className="w-full px-4 py-3 text-base border-[1.5px] border-[#ddd] rounded-[10px] outline-none bg-[#fafafa] text-[#1a1a1a] font-inherit transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(245,166,35,0.12)]" />
                   </div>
                 </div>
 
-                <div className="ct-field">
-                  <label className="ct-label">Email *</label>
-                  <input required type="email" name="email" value={form.email} onChange={handleChange} placeholder="tucorreo@email.com" className="ct-input" />
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[0.8rem] font-bold text-[#444] tracking-[0.02em]">Email *</label>
+                  <input required type="email" name="email" value={form.email} onChange={handleChange} placeholder="tucorreo@email.com" className="w-full px-4 py-3 text-base border-[1.5px] border-[#ddd] rounded-[10px] outline-none bg-[#fafafa] text-[#1a1a1a] font-inherit transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(245,166,35,0.12)]" />
                 </div>
 
-                <div className="ct-field">
-                  <label className="ct-label">Asunto</label>
-                  <select name="asunto" value={form.asunto} onChange={handleChange} className="ct-input ct-select">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[0.8rem] font-bold text-[#444] tracking-[0.02em]">Asunto</label>
+                  <select name="asunto" value={form.asunto} onChange={handleChange} className="w-full px-4 py-3 text-base border-[1.5px] border-[#ddd] rounded-[10px] outline-none bg-[#fafafa] text-[#1a1a1a] font-inherit transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(245,166,35,0.12)] cursor-pointer">
                     <option value="">Seleccionar asunto...</option>
                     <option value="consulta">Consulta sobre producto</option>
                     <option value="pedido">Pedido especial</option>
@@ -245,12 +228,12 @@ export default function ContactoPage() {
                   </select>
                 </div>
 
-                <div className="ct-field">
-                  <label className="ct-label">Mensaje *</label>
-                  <textarea required name="mensaje" value={form.mensaje} onChange={handleChange} placeholder="Escribe tu mensaje aquí..." rows={5} className="ct-input ct-textarea" />
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[0.8rem] font-bold text-[#444] tracking-[0.02em]">Mensaje *</label>
+                  <textarea required name="mensaje" value={form.mensaje} onChange={handleChange} placeholder="Escribe tu mensaje aquí..." rows={5} className="w-full px-4 py-3 text-base border-[1.5px] border-[#ddd] rounded-[10px] outline-none bg-[#fafafa] text-[#1a1a1a] font-inherit transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(245,166,35,0.12)] resize-y min-h-[120px]" />
                 </div>
 
-                <button type="submit" disabled={enviando} className={`ct-btn${enviando ? " ct-btn--disabled" : ""}`}>
+                <button type="submit" disabled={enviando} className={`w-full py-3.5 bg-brand text-white border-0 rounded-xl text-[0.95rem] font-extrabold cursor-pointer transition-all tracking-[0.02em] hover:bg-[#d4891a] hover:-translate-y-px ${enviando ? "bg-[#ccc] cursor-not-allowed !translate-y-0" : ""}`}>
                   {enviando ? "Enviando..." : "Enviar mensaje →"}
                 </button>
               </form>

@@ -97,6 +97,7 @@ button {
   }
 }
 
+@keyframes ctShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes megaIn {
   from {
     opacity: 0;
@@ -1468,71 +1469,7 @@ button {
 }
 @keyframes nbLogoShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-/* ============================================================
-   CONTACTO (contacto/page.tsx)
-   ============================================================ */
-.ct-main { background: #f8f7f4; min-height: 100vh; }
-.ct-hero { position: relative; width: 100%; min-height: 320px; display: flex; align-items: center; justify-content: center; background: #1a1a1a; overflow: hidden; }
-.ct-hero-bg { object-fit: cover; object-position: center; }
-.ct-hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.6) 100%); z-index: 1; }
-.ct-hero-content { position: relative; z-index: 2; text-align: center; padding: 4rem 1.5rem 3.5rem; max-width: 680px; }
-.ct-hero-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #f5a623; margin-bottom: 0.75rem; padding: 0.4rem 1rem; border: 1px solid rgba(245,166,35,0.3); border-radius: 999px; background: rgba(245,166,35,0.08); }
-.ct-hero-title { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 900; color: #fff; letter-spacing: -0.03em; margin: 0 0 1rem; line-height: 1.05; }
-.ct-hero-sub { font-size: 1.05rem; color: rgba(255,255,255,0.7); margin: 0 auto; line-height: 1.7; max-width: 520px; }
-.ct-body { max-width: 1100px; margin: 0 auto; padding: 80px 24px 120px; }
-.ct-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-.ct-info-col { display: flex; flex-direction: column; gap: 20px; }
-.ct-info-card { background: #1a1a1a; border-radius: 20px; padding: 2rem; color: #fff; border: 1px solid #2a2a2a; }
-.ct-info-title { font-size: 1.15rem; font-weight: 800; margin: 0 0 1.5rem; color: #f5a623; }
-.ct-info-row { display: flex; gap: 14px; margin-bottom: 1.25rem; }
-.ct-info-row:last-child { margin-bottom: 0; }
-.ct-info-icon { margin-top: 2px; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(245,166,35,0.1); border-radius: 10px; }
-.ct-info-label { font-size: 0.7rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
-.ct-info-value { font-size: 0.92rem; color: #ddd; line-height: 1.5; white-space: pre-line; }
-.ct-social-card { background: #fff; border-radius: 16px; border: 1px solid #ede8e1; padding: 1.5rem; }
-.ct-social-title { font-size: 0.85rem; font-weight: 700; color: #444; margin: 0 0 0.75rem; }
-.ct-social-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.ct-social-link { padding: 0.5rem 1rem; background: #f8f7f4; border: 1px solid #ede8e1; border-radius: 8px; font-size: 0.8rem; font-weight: 700; color: #444; text-decoration: none; transition: all 0.15s; }
-.ct-social-link:hover { background: #f5a623; color: #fff; border-color: #f5a623; }
-@keyframes ctShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-.ct-skeleton { opacity: 0.6; }
-.ct-skeleton-icon { display: block; width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%); background-size: 200% 100%; animation: ctShimmer 1.4s ease-in-out infinite; }
-.ct-skeleton-label { width: 60px; height: 10px; border-radius: 4px; background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%); background-size: 200% 100%; animation: ctShimmer 1.4s ease-in-out infinite; margin-bottom: 6px; }
-.ct-skeleton-value { width: 180px; height: 14px; border-radius: 4px; background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%); background-size: 200% 100%; animation: ctShimmer 1.4s ease-in-out infinite; }
-.ct-skeleton-social { display: inline-block; width: 80px; height: 32px; border-radius: 8px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: ctShimmer 1.4s ease-in-out infinite; }
-.ct-form-card { background: #fff; border-radius: 20px; border: 1px solid #ede8e1; padding: 2rem; box-shadow: 0 8px 32px rgba(78,52,24,0.06); }
-.ct-form { display: flex; flex-direction: column; gap: 1.25rem; }
-.ct-form-title { font-size: 1.2rem; font-weight: 800; color: #1a1a1a; margin: 0 0 0.25rem; }
-.ct-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.ct-field { display: flex; flex-direction: column; gap: 0.4rem; }
-.ct-label { font-size: 0.8rem; font-weight: 700; color: #444; letter-spacing: 0.02em; }
-.ct-input { width: 100%; padding: 0.75rem 1rem; font-size: 16px; border: 1.5px solid #ddd; border-radius: 10px; outline: none; background: #fafafa; color: #1a1a1a; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box; }
-.ct-input:focus { border-color: #f5a623; box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
-.ct-select { cursor: pointer; }
-.ct-textarea { resize: vertical; min-height: 120px; }
-.ct-error { background: #fee2e2; color: #b91c1c; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.85rem; border: 1px solid #fca5a5; }
-.ct-btn { width: 100%; padding: 0.85rem; background: #f5a623; color: #fff; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: background 0.15s, transform 0.12s; letter-spacing: 0.02em; }
-.ct-btn:hover { background: #d4891a; transform: translateY(-1px); }
-.ct-btn--disabled { background: #ccc !important; cursor: not-allowed; transform: none !important; }
-.ct-btn--secondary { background: #f5a623; color: #fff; padding: 0.6rem 1.5rem; border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background 0.15s; }
-.ct-success { text-align: center; padding: 2.5rem 1rem; }
-.ct-success-icon { font-size: 3rem; margin-bottom: 1rem; }
-.ct-success-title { font-size: 1.25rem; font-weight: 800; color: #1a1a1a; margin: 0 0 0.5rem; }
-.ct-success-desc { font-size: 0.9rem; color: #666; margin: 0 0 1.5rem; line-height: 1.6; }
-@media (max-width: 900px) { .ct-grid { grid-template-columns: 1fr; } .ct-body { padding: 60px 20px 80px; } }
-@media (max-width: 520px) { .ct-hero { min-height: 240px; } .ct-hero-content { padding: 3rem 1.25rem 2.5rem; } .ct-body { padding: 40px 14px 60px; } .ct-form-row { grid-template-columns: 1fr; } .ct-form-card { padding: 1.5rem; } .ct-info-card { padding: 1.5rem; } }
 
-/* ============================================================
-   PAGEHERO (PageHero.tsx)
-   ============================================================ */
-.page-hero { position: relative; width: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center; background: #111; overflow: hidden; }
-.page-hero__img { object-fit: cover; object-position: center; }
-.page-hero__overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.65) 100%); z-index: 1; }
-.page-hero__content { position: relative; z-index: 2; text-align: center; padding: 3rem 1.5rem; max-width: 700px; }
-.page-hero__eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em; color: #f5a623; text-transform: uppercase; margin: 0 0 0.75rem; }
-.page-hero__title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: #fff; margin: 0 0 0.75rem; line-height: 1.1; }
-.page-hero__sub { font-size: 1rem; color: rgba(255,255,255,0.75); margin: 0; line-height: 1.6; }
-@media (max-width: 640px) { .page-hero { min-height: 220px; } }
 
 /* ============================================================
    MAPALOCAL (MapaLocal.tsx)
@@ -2046,4 +1983,5 @@ button {
 @media (max-width: 1024px) { .qs-container { padding: 60px 20px 80px; gap: 48px; } .qs-section { gap: 40px; padding: 32px; } }
 @media (max-width: 900px) { .qs-section { grid-template-columns: 1fr; gap: 32px; padding: 28px; } .qs-section--reverse .qs-section-text { order: unset; } .qs-section--reverse .qs-section-media { order: unset; } .qs-section-text { order: unset !important; } .qs-section-media { order: unset !important; } }
 @media (max-width: 520px) { .qs-container { padding: 40px 14px 60px; gap: 32px; } .qs-section { padding: 20px; gap: 24px; border-radius: 20px; } .qs-section-title-wrap { gap: 12px; } .qs-section-number { font-size: 2rem; } .qs-hero { min-height: 240px; } .qs-hero-content { padding: 3rem 1.25rem 2.5rem; } }
+
 
