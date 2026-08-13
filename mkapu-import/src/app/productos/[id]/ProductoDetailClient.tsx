@@ -58,6 +58,8 @@ function calcDescuento(
   return { precioFinal, descuentoTexto };
 }
 
+const cardBase = "bg-white/90 border border-[rgba(234,223,206,0.9)] shadow-[0_16px_40px_rgba(78,52,24,0.08)] backdrop-blur-[10px]";
+
 export default function ProductoDetailClient({ producto, sugeridos, promocionesMap }: Props) {
   const { addItem, items, updateQty, removeItem } = useCart();
   const [imgError, setImgError] = useState(false);
@@ -149,62 +151,62 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
   }
 
   return (
-    <div className="detail-shell">
-      <div className="detail-topbar">
-        <Link href="/productos" className="detail-back">
-          <span className="detail-back__icon" aria-hidden="true">
+    <div className="max-w-[1240px] mx-auto px-4 pt-6 pb-14 text-[#1f1a17] max-[720px]:px-3.5 max-[720px]:pb-[42px] max-[720px]:pt-[18px]">
+      <div className="mb-[18px]">
+        <Link href="/productos" className="inline-flex items-center gap-2.5 w-fit px-3.5 py-2.5 rounded-full border border-[#e6dccf] bg-white/86 text-[#4d5b67] text-[0.92rem] font-semibold transition-[transform,border-color,background,color] duration-[0.18s] hover:-translate-y-px hover:border-[#d7c6b0] hover:bg-white hover:text-[#e05c2a] max-[520px]:text-[0.86rem]">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#f6efe7] shrink-0" aria-hidden="true">
             <ArrowLeft size={18} />
           </span>
           <span>Volver a productos</span>
         </Link>
       </div>
 
-      <section className="detail-hero">
-        <div className="detail-visual-rail">
-          <div className="detail-visual-card">
-            <div className="detail-visual-toolbar">
-              <span className="detail-chip detail-chip--soft">
+      <section className="grid grid-cols-[minmax(320px,520px)_minmax(0,1fr)] gap-7 items-start max-[1080px]:grid-cols-1">
+        <div className="relative self-start max-[1080px]:static">
+          <div className="sticky top-[98px] p-[18px] rounded-[28px] bg-[linear-gradient(180deg,#fffaf3_0%,#ffffff_100%)] border border-[rgba(234,223,206,0.9)] shadow-[0_16px_40px_rgba(78,52,24,0.08)] backdrop-blur-[10px] max-[1080px]:static max-[720px]:rounded-[22px]">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <span className="inline-flex items-center px-3 py-2 rounded-full text-[0.78rem] font-bold uppercase tracking-[0.06em] bg-white border border-[#ebdfcf] text-[#6b625b]">
                 {categoryLabel}
               </span>
 
               {isAgotado && (
-                <span className="detail-badge detail-badge--agotado">
+                <span className="text-[0.7rem] font-extrabold px-3 py-1.5 rounded-lg uppercase tracking-[0.04em] bg-[#1a1a1a] text-white">
                   Agotado
                 </span>
               )}
 
               {producto.is_new && !isAgotado && (
-                <span className="detail-badge detail-badge--new">Nuevo</span>
+                <span className="text-[0.7rem] font-extrabold px-3 py-1.5 rounded-lg uppercase tracking-[0.04em] bg-amber-500 text-white">Nuevo</span>
               )}
 
               {producto.featured && !isAgotado && (
-                <span className="detail-badge detail-badge--featured">
+                <span className="text-[0.7rem] font-extrabold px-3 py-1.5 rounded-lg uppercase tracking-[0.04em] bg-emerald-500 text-white">
                   Destacado
                 </span>
               )}
             </div>
 
             <div
-              className={`detail-image-stage${currentMedia?.type === "video" ? " detail-image-stage--video" : ""}`}
+              className={`aspect-square min-h-0 transition-[aspect-ratio] duration-200 rounded-[22px] overflow-hidden relative bg-[radial-gradient(circle_at_top_left,#fff7ef_0%,#f2ece5_55%,#ebe4db_100%)] border border-[#ece3d7]${currentMedia?.type === "video" ? " !aspect-auto !max-h-[500px] !h-[500px]" : ""}`}
             >
               {currentMedia && currentMedia.url && !imgError ? (
                 currentMedia.type === "video" ? (
                   <video
                     src={currentMedia.url}
                     controls
-                    className="detail-video"
+                    className="w-auto h-full max-w-full object-contain block bg-black mx-auto static transform-none"
                     key={currentMedia.url}
                   />
                 ) : (
                   <img
                     src={currentMedia.url}
                     alt={producto.name}
-                    className="detail-image"
+                    className="w-auto h-full max-w-full object-contain block bg-black mx-auto static transform-none"
                     onError={() => setImgError(true)}
                   />
                 )
               ) : (
-                <div className="detail-image-empty">
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-[#b4aaa3] text-[0.95rem]">
                   <ImageOff size={48} strokeWidth={1.6} />
                   <span>Imagen no disponible</span>
                 </div>
@@ -212,7 +214,7 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
               {hasMultipleMedia && (
                 <>
                   <button
-                    className="detail-media-arrow detail-media-arrow--left"
+                    className="absolute top-1/2 -translate-y-1/2 left-3 w-10 h-10 rounded-full border-none bg-white/92 text-[#1a1a1a] flex items-center justify-center cursor-pointer z-[2] backdrop-blur-[4px] transition-[background,transform] duration-150 hover:bg-white hover:scale-[1.08]"
                     onClick={prevMedia}
                     aria-label="Anterior"
                     type="button"
@@ -220,7 +222,7 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                     <ChevronLeft size={20} />
                   </button>
                   <button
-                    className="detail-media-arrow detail-media-arrow--right"
+                    className="absolute top-1/2 -translate-y-1/2 right-3 w-10 h-10 rounded-full border-none bg-white/92 text-[#1a1a1a] flex items-center justify-center cursor-pointer z-[2] backdrop-blur-[4px] transition-[background,transform] duration-150 hover:bg-white hover:scale-[1.08]"
                     onClick={nextMedia}
                     aria-label="Siguiente"
                     type="button"
@@ -232,18 +234,18 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
             </div>
 
             {hasMultipleMedia && (
-              <div className="detail-thumbs">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(60px,1fr))] gap-2 mt-3">
                 {allMedia.map((media, i) => (
                   <button
                     key={i}
-                    className={`detail-thumb${
-                      i === activeMediaIdx ? " detail-thumb--active" : ""
+                    className={`aspect-square rounded-xl overflow-hidden border-2 border-[#e8dfd3] bg-[#f9f6f2] cursor-pointer p-0 transition-[border-color,transform] duration-150 hover:scale-[1.04] hover:border-[#d7c6b0]${
+                      i === activeMediaIdx ? " border-[#e05c2a]" : ""
                     }`}
                     onClick={() => setActiveMediaIdx(i)}
                     type="button"
                   >
                     {media.type === "video" ? (
-                      <div className="detail-thumb-video">
+                      <div className="w-full h-full relative overflow-hidden">
                         <video
                           src={media.url || ""}
                           muted
@@ -254,14 +256,14 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                             objectFit: "cover",
                           }}
                         />
-                        <div className="detail-thumb-video-overlay">
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
                           <Play size={24} color="#fff" />
                         </div>
                       </div>
                     ) : media.url ? (
-                      <img src={media.url} alt="" />
+                      <img src={media.url} alt="" className="w-full h-full object-cover block" />
                     ) : (
-                      <div className="detail-thumb-empty">
+                      <div className="w-full h-full flex items-center justify-center text-[#b4aaa3]">
                         <ImageOff size={14} />
                       </div>
                     )}
@@ -272,18 +274,18 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
           </div>
         </div>
 
-        <div className="detail-main">
-          <div className="detail-heading">
-            <div className="detail-kicker">Detalle del producto</div>
-            <h1 className="detail-title">{producto.name}</h1>
-            <p className="detail-summary">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-3">
+            <div className="text-[0.78rem] font-extrabold uppercase tracking-[0.12em] text-[#e05c2a]">Detalle del producto</div>
+            <h1 className="text-[clamp(2rem,4vw,3.3rem)] leading-[1.04] tracking-[-0.03em] m-0 max-[720px]:text-[1.9rem]">{producto.name}</h1>
+            <p className="max-w-[70ch] text-[#72675f] text-base leading-[1.7] m-0">
               {producto.description ||
                 "Este producto no tiene descripción por ahora."}
             </p>
 
             {producto.low_stock && (
-              <div className="detail-stock-alert">
-                <div className="detail-stock-alert__icon">
+              <div className="flex items-start gap-3.5 px-[18px] py-4 rounded-[16px] bg-[linear-gradient(135deg,#fff1f2_0%,#ffe4e6_100%)] border-[1.5px] border-[#fecdd3] mt-2 animate-[stock-pulse_2.5s_cubic-bezier(0.4,0,0.6,1)_infinite] max-[720px]:px-4 max-[720px]:py-3.5 max-[720px]:gap-3">
+                <div className="shrink-0 w-9 h-9 rounded-full bg-[#fef2f2] border-2 border-[#fca5a5] flex items-center justify-center text-[#dc2626] animate-[icon-shake_3s_ease-in-out_infinite] max-[720px]:w-8 max-[720px]:h-8">
                   <svg
                     width="20"
                     height="20"
@@ -299,7 +301,7 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                 </div>
-                <div className="detail-stock-alert__body">
+                <div className="flex flex-col gap-1 flex-1 [&_strong]:text-[0.94rem] [&_strong]:text-[#991b1b] [&_strong]:font-extrabold [&_strong]:leading-[1.3] [&_span]:text-[0.84rem] [&_span]:text-[#b91c1c] [&_span]:leading-[1.5] max-[720px]:[&_strong]:text-[0.88rem] max-[720px]:[&_span]:text-[0.8rem]">
                   <strong>¡Últimas unidades disponibles!</strong>
                   <span>Este producto se está agotando. Aprovecha ahora.</span>
                 </div>
@@ -307,42 +309,42 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
             )}
           </div>
 
-          <div className="detail-meta">
+          <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
             {producto.code && (
-              <div className="detail-meta-card">
-                <span className="detail-meta-label">Código</span>
+              <div className="p-4 rounded-[18px] bg-white border border-[#ece3d6] shadow-[0_10px_24px_rgba(59,41,17,0.05)] min-h-[94px] flex flex-col justify-between gap-2 [&_strong]:text-[0.98rem] [&_strong]:leading-[1.35]">
+                <span className="text-[0.76rem] uppercase tracking-[0.08em] text-[#95877d] font-bold">Código</span>
                 <strong>{producto.code}</strong>
               </div>
             )}
 
-            <div className="detail-meta-card">
-              <span className="detail-meta-label">Categoría</span>
+            <div className="p-4 rounded-[18px] bg-white border border-[#ece3d6] shadow-[0_10px_24px_rgba(59,41,17,0.05)] min-h-[94px] flex flex-col justify-between gap-2 [&_strong]:text-[0.98rem] [&_strong]:leading-[1.35]">
+              <span className="text-[0.76rem] uppercase tracking-[0.08em] text-[#95877d] font-bold">Categoría</span>
               <strong>{categoryLabel}</strong>
             </div>
           </div>
 
-          <div className="detail-pricing-panel">
-            <div className="detail-section-head">
+          <div className={`${cardBase} rounded-3xl p-[22px] max-[720px]:rounded-[22px]`}>
+            <div className="flex items-start justify-between gap-3 mb-4 [&_h2]:text-[1.08rem] [&_h2]:m-0 max-[720px]:flex-col max-[720px]:items-stretch">
               <h2>Precio</h2>
             </div>
 
-            <div className="detail-price-single">
-              <div className="detail-price-label">
+            <div className="flex items-center justify-between p-[18px] rounded-[16px] bg-[linear-gradient(180deg,#ffffff_0%,#fcfaf7_100%)] border border-[#ece2d6]">
+              <div className="flex items-center gap-2.5 text-[0.92rem] font-semibold text-[#1f1a17]">
                 <Tag size={16} />
                 Precio por unidad
               </div>
-              <div className="detail-price-value">
+              <div className="text-[1.5rem] font-black text-[#e05c2a] flex items-center gap-2.5 flex-wrap">
                 {isConsult ? (
                   "Consultar"
                 ) : tieneDescuento ? (
                   <>
-                    <span className="detail-price-old">
+                    <span className="text-base font-semibold text-[#999] line-through">
                       {formatPrice(producto.price)}
                     </span>
-                    <span className="detail-price-final">
+                    <span className="text-[1.5rem] font-black text-[#e05c2a]">
                       {formatPrice(precioFinal)}
                     </span>
-                    <span className="detail-price-badge">
+                    <span className="text-[0.72rem] font-extrabold bg-[#dc2626] text-white px-2.5 py-0.5 rounded-md tracking-[0.04em]">
                       {descuento!.descuentoTexto}
                     </span>
                   </>
@@ -353,19 +355,19 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
             </div>
           </div>
 
-          <div className="detail-purchase-card">
-            <div className="detail-section-head">
+          <div className={`${cardBase} rounded-3xl p-[22px] max-[720px]:rounded-[22px]`}>
+            <div className="flex items-start justify-between gap-3 mb-4 [&_h2]:text-[1.08rem] [&_h2]:m-0 max-[720px]:flex-col max-[720px]:items-stretch">
               <h2>Compra</h2>
               {qty > 0 && (
-                <span className="detail-total">
+                <span className="text-[0.92rem] text-[#4d5b67] font-bold">
                   Total: {formatPrice(totalPrice)}
                 </span>
               )}
             </div>
 
             {isAgotado ? (
-              <div className="detail-agotado-msg">
-                <span className="detail-agotado-msg__icon">
+              <div className="w-full min-h-[54px] rounded-[16px] inline-flex items-center justify-center gap-2 px-[18px] py-3.5 bg-[#fafafa] text-[#999] text-[0.95rem] font-semibold border border-dashed border-[#d1d5db]">
+                <span className="inline-flex items-center justify-center w-6 h-6 shrink-0">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="15" y1="9" x2="9" y2="15" />
@@ -376,7 +378,7 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
               </div>
             ) : qty === 0 ? (
               <button
-                className={`detail-cta${isConsult ? " detail-cta--consult" : ""}`}
+                className={`w-full min-h-[54px] border-none rounded-[16px] inline-flex items-center justify-center gap-2.5 px-[18px] py-3.5 text-white text-[0.98rem] font-bold cursor-pointer shadow-[0_14px_28px_rgba(224,92,42,0.22)] transition-[transform,box-shadow,filter] duration-[0.18s] hover:-translate-y-0.5 hover:saturate-[1.05] hover:shadow-[0_18px_32px_rgba(224,92,42,0.28)] ${isConsult ? "bg-[linear-gradient(135deg,#25d366_0%,#18b957_100%)] shadow-[0_14px_28px_rgba(37,211,102,0.22)]" : "bg-[linear-gradient(135deg,#e05c2a_0%,#f07a4c_100%)]"}`}
                 onClick={handleAdd}
                 type="button"
               >
@@ -393,9 +395,9 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                 )}
               </button>
             ) : (
-              <div className="detail-stepper">
+              <div className="grid grid-cols-[56px_1fr_56px] gap-3 items-center p-2.5 rounded-[18px] bg-[#f8f5f1] border border-[#ece2d6] max-[520px]:grid-cols-[48px_1fr_48px]">
                 <button
-                  className="detail-stepper__btn"
+                  className="min-h-14 border border-[#e6dbcf] rounded-[14px] bg-white text-[#1f1a17] text-[1.5rem] font-bold cursor-pointer transition-[background,color,border-color] duration-[0.18s] hover:bg-[#e05c2a] hover:text-white hover:border-[#e05c2a] max-[520px]:min-h-12"
                   onClick={() => handleUpdateQty(qty - 1)}
                   aria-label="Disminuir cantidad"
                   type="button"
@@ -403,17 +405,17 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                   -
                 </button>
 
-                <div className="detail-stepper__body">
-                  <strong className="detail-stepper__qty">
+                <div className="flex flex-col items-center justify-center gap-[5px] text-center min-h-14">
+                  <strong className="text-base">
                     {qty} unidades
                   </strong>
-                  <span className="detail-stepper__tier">
+                  <span className="text-[0.8rem] font-bold text-[#e05c2a]">
                     {tieneDescuento ? formatPrice(precioFinal) : formatPrice(producto.price)} c/u
                   </span>
                 </div>
 
                 <button
-                  className="detail-stepper__btn"
+                  className="min-h-14 border border-[#e6dbcf] rounded-[14px] bg-white text-[#1f1a17] text-[1.5rem] font-bold cursor-pointer transition-[background,color,border-color] duration-[0.18s] hover:bg-[#e05c2a] hover:text-white hover:border-[#e05c2a] max-[520px]:min-h-12"
                   onClick={() => handleUpdateQty(qty + 1)}
                   aria-label="Aumentar cantidad"
                   type="button"
@@ -425,30 +427,30 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
           </div>
 
           {/* Opciones de entrega */}
-          <div className="detail-delivery-options">
-            <div className="detail-delivery-item">
-              <div className="detail-delivery-icon">
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-3.5 px-4 py-3.5 rounded-[16px] bg-[#f5f7fa] border border-[#e6eaf0]">
+              <div className="flex items-center justify-center w-11 h-11 rounded-full bg-[#e2e8f0] text-[#475569] shrink-0">
                 <Truck size={22} />
               </div>
-              <span className="detail-delivery-label">Disponible envío a domicilio</span>
+              <span className="text-[0.92rem] font-semibold text-[#1e293b]">Disponible envío a domicilio</span>
             </div>
 
-            <div className="detail-delivery-item">
-              <div className="detail-delivery-icon">
+            <div className="flex items-center gap-3.5 px-4 py-3.5 rounded-[16px] bg-[#f5f7fa] border border-[#e6eaf0]">
+              <div className="flex items-center justify-center w-11 h-11 rounded-full bg-[#e2e8f0] text-[#475569] shrink-0">
                 <Store size={22} />
               </div>
-              <span className="detail-delivery-label">Disponible retiro en tienda</span>
+              <span className="text-[0.92rem] font-semibold text-[#1e293b]">Disponible retiro en tienda</span>
             </div>
           </div>
         </div>
       </section>
 
       {sugeridos.length > 0 && (
-        <section className="detail-sugeridos">
-          <h2 className="detail-sugeridos__title">
+        <section className="mt-12 pt-8 border-t border-[#ece3d6]">
+          <h2 className="text-[1.1rem] font-extrabold text-[#1a1a1a] mb-5">
             También te puede interesar
           </h2>
-          <div className="detail-sugeridos__scroll">
+          <div className="flex gap-4 overflow-x-auto [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch] pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {sugeridos.map((p) => {
               const d = calcDescuento(p.price, promocionesMap[p.id]);
               const pf = d ? d.precioFinal : p.price;
@@ -456,25 +458,25 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                 <a
                   key={p.id}
                   href={`/productos/${p.id}`}
-                  className="detail-sug-card"
+                  className="group flex-[0_0_180px] [scroll-snap-align:start] no-underline text-inherit cursor-pointer"
                 >
-                  <div className="detail-sug-img">
+                  <div className="aspect-square bg-[#f5f2ee] rounded-xl overflow-hidden mb-2">
                     {p.image_url ? (
-                      <img src={p.image_url} alt={p.name} loading="lazy" />
+                      <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover block transition-transform duration-300 group-hover:scale-[1.04]" />
                     ) : (
-                      <div className="detail-sug-noimg">Sin imagen</div>
+                      <div className="w-full h-full flex items-center justify-center text-[0.7rem] text-[#bbb]">Sin imagen</div>
                     )}
                   </div>
-                  <div className="detail-sug-body">
-                    <p className="detail-sug-price">
+                  <div className="px-0.5">
+                    <p className="text-[0.88rem] font-bold text-[#1a1a1a] mb-[3px] flex items-center gap-1.5 flex-wrap">
                       {p.price === 0 ? "Consultar" : d ? (
                         <>
-                          <span className="detail-sug-old">S/ {p.price.toFixed(2)}</span>
+                          <span className="text-[0.75rem] font-semibold text-[#999] line-through">S/ {p.price.toFixed(2)}</span>
                           <span>S/ {pf.toFixed(2)}</span>
                         </>
                       ) : `S/ ${p.price.toFixed(2)}`}
                     </p>
-                    <p className="detail-sug-name">{p.name}</p>
+                    <p className="text-[0.78rem] text-[#555] leading-[1.3] line-clamp-2">{p.name}</p>
                   </div>
                 </a>
               );
