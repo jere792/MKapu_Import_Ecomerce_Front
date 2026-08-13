@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* ============================================================
    MKAPU IMPORT — CSS Global (sin módulos)
    ============================================================ */
@@ -23,6 +25,21 @@
   --green-dark: #1ebe5d;
   --radius: 12px;
   --radius-sm: 8px;
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-light: var(--brand-light);
+  --color-ink: var(--black);
+  --color-muted: var(--gray);
+  --color-line: var(--border);
+  --color-bg: var(--bg);
+  --color-white: var(--white);
+  --color-whatsapp: var(--green);
+  --color-whatsapp-dark: var(--green-dark);
+  --radius-card: var(--radius);
+  --radius-card-sm: var(--radius-sm);
 }
 
 html {
