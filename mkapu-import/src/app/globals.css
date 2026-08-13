@@ -366,37 +366,6 @@ button {
   line-height: 1.4;
 }
 
-/* CATEGORY MENU */
-.cat-menu {
-  display: flex;
-  gap: 8px;
-  padding: 12px 20px;
-  overflow-x: auto;
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-}
-.cat-menu::-webkit-scrollbar {
-  height: 3px;
-}
-.cat-menu__btn {
-  white-space: nowrap;
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 1.5px solid var(--brand);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: var(--brand-dark);
-  transition: all 0.15s;
-}
-.cat-menu__btn:hover,
-.cat-menu__btn--active {
-  background: var(--brand);
-  color: var(--white);
-  border-color: var(--brand);
-}
-
 /* PRODUCT CARD */
 .product-card {
   background: var(--white);
@@ -617,75 +586,6 @@ button {
   padding: 6px 12px;
   border-radius: 6px;
   color: var(--brand);
-}
-
-/* FOOTER */
-.footer {
-  background: var(--brand);
-  padding: 28px 24px 16px;
-}
-.footer__inner {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-.footer__brand {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-}
-.footer__logo {
-  font-size: 28px;
-  font-weight: 900;
-  font-style: italic;
-  color: var(--white);
-  letter-spacing: -1px;
-}
-.footer__logo-sub {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--black);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-.footer__social-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--black);
-  margin-bottom: 10px;
-}
-.footer__social-links {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.footer__soc-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  background: var(--white);
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--black);
-  transition: background 0.15s;
-}
-.footer__soc-btn:hover {
-  background: #f0f0f0;
-}
-.footer__bottom {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  padding-top: 14px;
-  font-size: 12px;
-  color: var(--white);
-  opacity: 0.75;
-  font-style: italic;
 }
 
 /* BLOG */
@@ -3224,30 +3124,6 @@ button {
 @keyframes nbLogoShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .nb__logo-img { height: 40px; width: auto; display: block; transition: transform 0.2s ease; }
 .nb__logo-img:hover { transform: scale(1.25); }
-
-/* ============================================================
-   FOOTER (Footer.tsx)
-   ============================================================ */
-.footer { background: #1a1a1a; color: #ccc; margin-top: auto; }
-.footer__inner { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: space-between; }
-.footer__brand { display: flex; flex-direction: column; gap: 0.25rem; }
-.footer__logo-img { height: 100px; width: 100px; display: block; justify-content: center; }
-.footer__logo-title { font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: -0.03em; text-transform: lowercase; }
-.footer__logo-sub { font-size: 0.75rem; font-weight: 600; color: #f5a623; text-transform: uppercase; letter-spacing: 0.12em; margin-top: -4px; }
-.footer__tagline { font-size: 0.8rem; color: #888; margin-top: 0.4rem; max-width: 220px; }
-.footer__links { display: flex; gap: 3rem; flex-wrap: wrap; }
-.footer__col { display: flex; flex-direction: column; gap: 0.5rem; }
-.footer__col-title { font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.25rem; }
-.footer__link { font-size: 0.85rem; color: #aaa; text-decoration: none; transition: color 0.15s; display: flex; align-items: center; gap: 6px; }
-.footer__link:hover { color: #fff; }
-.footer__link--wsp:hover { color: #25d366; }
-.footer__link--reclamos:hover { opacity: 0.85; }
-.footer__reclamos-img { width: 120px; height: auto; border-radius: 4px; display: block; margin-top: 0.25rem; }
-.footer__bottom { border-top: 1px solid #2a2a2a; padding: 1.5rem 1.5rem; font-size: 0.75rem; color: #888; }
-.footer__bottom-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
-.footer__solvegrades { display: inline-flex; opacity: 0.7; transition: opacity 0.2s; }
-.footer__solvegrades:hover { opacity: 1; }
-.footer__solvegrades-img { height: 120px; width: auto; display: block; }
 
 /* ============================================================
    CONTACTO (contacto/page.tsx)

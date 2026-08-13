@@ -7,39 +7,39 @@ export default function Footer() {
   const { empresa } = useEmpresa();
 
   return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__brand">
+    <footer className="bg-[#1a1a1a] text-[#ccc] mt-auto">
+      <div className="max-w-[1200px] mx-auto px-6 py-10 pb-6 flex gap-8 flex-wrap justify-between">
+        <div className="flex flex-col gap-1">
           {empresa?.logo && (
             <img
               src={empresa.logo}
               alt={empresa.nombre || "MKapu Import"}
-              className="footer__logo-img"
+              className="h-[100px] w-[100px] block justify-center"
             />
           )}
-          <p className="footer__tagline">
+          <p className="text-[0.8rem] text-[#888] mt-1 max-w-[220px]">
             {empresa?.descripcion || "Equipos de importación para tu negocio"}
           </p>
         </div>
 
-        <div className="footer__links">
-          <div className="footer__col">
-            <h4 className="footer__col-title">Navegación</h4>
-            <Link href="/" className="footer__link">
+        <div className="flex gap-12 flex-wrap">
+          <div className="flex flex-col gap-2">
+            <h4 className="text-xs font-bold text-white uppercase tracking-[0.08em] mb-1">Navegación</h4>
+            <Link href="/" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
               Inicio
             </Link>
-            <Link href="/productos" className="footer__link">
+            <Link href="/productos" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
               Productos
             </Link>
           </div>
 
-          <div className="footer__col">
-            <h4 className="footer__col-title">Contacto</h4>
+          <div className="flex flex-col gap-2">
+            <h4 className="text-xs font-bold text-white uppercase tracking-[0.08em] mb-1">Contacto</h4>
             <a
               href={`https://wa.me/${empresa?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="footer__link footer__link--wsp"
+              className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white hover:[color:#25d366]"
             >
               <svg
                 width="14"
@@ -52,47 +52,47 @@ export default function Footer() {
               </svg>
               WhatsApp
             </a>
-            <Link href="/contacto" className="footer__link">
+            <Link href="/contacto" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
               <Mail size={14} />
               Email
             </Link>
           </div>
 
-          <div className="footer__col">
-            <h4 className="footer__col-title">Legal</h4>
-            <Link href="/terminos-y-condiciones" className="footer__link">
+          <div className="flex flex-col gap-2">
+            <h4 className="text-xs font-bold text-white uppercase tracking-[0.08em] mb-1">Legal</h4>
+            <Link href="/terminos-y-condiciones" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
               Términos y Condiciones
             </Link>
-            <Link href="/politica-de-privacidad" className="footer__link">
+            <Link href="/politica-de-privacidad" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
               Política de Privacidad
             </Link>
             <Link
               href="/reclamaciones"
-              className="footer__link footer__link--reclamos"
+              className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:opacity-85"
             >
               <img
                 src="https://res.cloudinary.com/dxuk9bogw/image/upload/v1776155530/7f85d794-58b5-47d0-850d-d06179563fb2.png"
                 alt="Libro de Reclamaciones"
-                className="footer__reclamos-img"
+                className="w-[120px] h-auto rounded block mt-1"
               />
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="footer__bottom">
-        <div className="footer__bottom-inner">
+      <div className="border-t border-[#2a2a2a] px-6 py-6 text-xs text-[#888]">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-6 flex-wrap">
           <p>© {new Date().getFullYear()} {empresa?.razon_social || "MKAPU IMPORT S.A.C."} Todos los derechos reservados.</p>
           <a
             href="https://www.instagram.com/solvegrades.com_/"
             target="_blank"
             rel="noopener noreferrer"
-            className="footer__solvegrades"
+            className="inline-flex opacity-70 transition-opacity hover:opacity-100"
           >
             <img
               src="https://res.cloudinary.com/dp1vgjhsq/image/upload/v1778834655/WhatsApp_Image_2026-05-15_at_3.21.36_AM-removebg-preview_wtgmkr.png"
               alt="Designed & Built by SolveGrades"
-              className="footer__solvegrades-img"
+              className="h-[120px] w-auto block"
             />
           </a>
         </div>
