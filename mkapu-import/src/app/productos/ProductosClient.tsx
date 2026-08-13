@@ -320,7 +320,7 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
         </div>
       </section>
 
-      <div className="productos-page">
+      <div className="min-h-[80vh] pb-10">
         <button
           className="filter-toggle"
           onClick={() => setSidebarOpen(true)}
