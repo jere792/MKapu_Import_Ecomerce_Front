@@ -154,10 +154,10 @@ export default function Carousel({ products, title = "Destacados", promocionesMa
   }
 
   return (
-    <section className="carousel">
-      <div className="carousel__header">
-        <h2 className="carousel__title">{title}</h2>
-        <div className="carousel__nav">
+    <section className="pt-7 pb-7 pl-5">
+      <div>
+        <h2 className="text-xl font-extrabold mb-3.5 pr-5">{title}</h2>
+        <div>
           <button
             className="carousel__arrow"
             onClick={prev}
@@ -178,7 +178,7 @@ export default function Carousel({ products, title = "Destacados", promocionesMa
       </div>
 
       <div
-        className={`carousel__track${isDragging ? " carousel__track--dragging" : ""}`}
+        className="flex gap-3 overflow-x-auto pb-2.5 pr-5 snap-x snap-mandatory [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-brand [&::-webkit-scrollbar-thumb]:rounded-[2px]"
         ref={trackRef}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
@@ -186,7 +186,7 @@ export default function Carousel({ products, title = "Destacados", promocionesMa
         onMouseLeave={onMouseUp}
       >
         {products.map((p) => (
-          <div className="carousel__slide" key={p.id}>
+          <div className="carousel__slide shrink-0 w-[172px] snap-start max-[480px]:w-[152px]" key={p.id}>
             <ProductCard product={{ ...p, descuento: promocionesMap[p.id] ?? undefined }} />
           </div>
         ))}
