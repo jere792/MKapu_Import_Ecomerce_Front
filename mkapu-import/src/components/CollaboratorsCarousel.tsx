@@ -505,33 +505,33 @@ function ColabCard({
 
   const cardContent = (
     <>
-      <div className="collab-logo-slot">
+      <div className="w-full h-[175px] flex items-center justify-center px-[26px] py-5 bg-white max-sm:h-[130px] max-sm:px-[18px] max-sm:py-4">
         {colaborador.logo_url ? (
-          <div className="collab-logo-box">
+          <div className="w-[140px] h-20 flex items-center justify-center overflow-hidden shrink-0">
             <img
               src={colaborador.logo_url}
               alt={colaborador.name}
-              className="collab-logo"
+              className="w-full h-full object-cover object-center block transition-transform duration-200 max-sm:w-[110px] max-sm:h-[46px]"
               loading="lazy"
             />
           </div>
         ) : (
-          <span className="collab-fallback-name">{colaborador.name}</span>
+          <span className="text-[0.95rem] font-extrabold text-ink text-center">{colaborador.name}</span>
         )}
       </div>
 
-      <div className="collab-card-footer">
-        <span className="collab-card-name">{colaborador.name}</span>
+      <div className="border-t border-[#f0ebe4] px-3 py-2 flex items-center justify-between gap-1.5 min-h-[42px]">
+        <span className="text-[0.72rem] font-bold text-[#666] whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] max-sm:max-w-[82px]">{colaborador.name}</span>
 
         {hasMedia && (
-          <div className="collab-media-badges">
+          <div className="flex items-center gap-1 shrink-0">
             {nFotos > 0 && (
-              <span className="collab-badge collab-badge--photos">
+              <span className="flex items-center gap-0.5 text-[0.58rem] font-bold rounded-full px-1.5 py-0.5 bg-[#f0ebe4] text-[#666]">
                 <ImageIcon size={8} /> {nFotos}
               </span>
             )}
             {nVideos > 0 && (
-              <span className="collab-badge collab-badge--videos">
+              <span className="flex items-center gap-0.5 text-[0.58rem] font-bold rounded-full px-1.5 py-0.5 bg-[#fff3d6] text-[#c47a00]">
                 <Film size={8} /> {nVideos}
               </span>
             )}
@@ -540,9 +540,9 @@ function ColabCard({
       </div>
 
       {hasMedia && (
-        <div className="collab-gallery-cta">
+        <div className="bg-brand py-[7px] text-center flex items-center justify-center gap-[5px]">
           <Images size={12} color="#fff" />
-          <span>Ver galería</span>
+          <span className="text-[0.68rem] font-extrabold text-white tracking-[0.04em] uppercase">Ver galería</span>
         </div>
       )}
     </>
@@ -550,7 +550,7 @@ function ColabCard({
 
   return (
     <div
-      className="collab-item"
+      className="flex flex-col justify-start items-stretch min-w-[220px] bg-white border border-[#e8e8e8] rounded-[14px] overflow-hidden transition-[box-shadow,border-color,transform] duration-200 shrink-0 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:border-brand max-sm:min-w-[160px]"
       onClick={hasMedia ? onOpen : undefined}
       style={{ cursor: hasMedia ? "pointer" : "default" }}
     >
@@ -559,7 +559,7 @@ function ColabCard({
           href={colaborador.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="collab-link"
+          className="flex flex-col no-underline text-inherit h-full"
         >
           {cardContent}
         </a>
@@ -620,24 +620,24 @@ export default function CollaboratorsCarousel() {
 
   return (
     <>
-      <section className="collab-section">
-        <div className="collab-header">
-          <span className="collab-tag">Colaboraciones</span>
-          <h2 className="collab-title">Con quienes hemos trabajado</h2>
+      <section className="py-16 px-6 bg-[#f5f5f5] overflow-hidden max-sm:py-10 max-sm:px-4">
+        <div className="text-center mb-10">
+          <span className="inline-block text-[0.7rem] font-bold tracking-[0.1em] uppercase text-brand mb-2">Colaboraciones</span>
+          <h2 className="text-[clamp(1.4rem,3vw,2rem)] font-black text-ink m-0">Con quienes hemos trabajado</h2>
         </div>
 
         <div
-          className={`collab-wrapper${shouldScroll ? " collab-wrapper--scroll" : ""}`}
+          className={`overflow-hidden w-full${shouldScroll ? " relative" : ""}`}
         >
           {shouldScroll && (
             <>
-              <div className="collab-fade collab-fade--left" />
-              <div className="collab-fade collab-fade--right" />
+              <div className="absolute top-0 bottom-0 w-[100px] z-[2] pointer-events-none left-0 bg-gradient-to-r from-[#f5f5f5] from-30% to-transparent max-sm:w-[60px]" />
+              <div className="absolute top-0 bottom-0 w-[100px] z-[2] pointer-events-none right-0 bg-gradient-to-l from-[#f5f5f5] from-30% to-transparent max-sm:w-[60px]" />
             </>
           )}
 
           <div
-            className={`collab-track${!shouldScroll ? " collab-track--static" : ""}`}
+            className={`flex gap-8 w-max will-change-transform items-stretch${!shouldScroll ? " w-full! justify-center flex-wrap gap-6 max-sm:gap-4" : ""}`}
             ref={trackRef}
           >
             {items.map((c, i) => (
