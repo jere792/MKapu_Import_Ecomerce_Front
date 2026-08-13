@@ -322,7 +322,7 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
 
       <div className="min-h-[80vh] pb-10">
         <button
-          className="filter-toggle"
+          className="hidden max-[768px]:flex items-center gap-2 bg-white border-[1.5px] border-[#e0d8d0] rounded-[10px] px-4 py-2 text-[0.88rem] font-semibold cursor-pointer mb-4 relative text-[#1a1a1a] transition-colors hover:border-[#e05c2a] hover:text-[#e05c2a]"
           onClick={() => setSidebarOpen(true)}
           aria-label="Abrir filtros"
         >
@@ -342,23 +342,23 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
           </svg>
           Filtros
           {activeFilters > 0 && (
-            <span className="filter-toggle__badge">{activeFilters}</span>
+            <span className="bg-[#e05c2a] text-white text-[0.65rem] font-bold rounded-full px-1.5 min-w-[18px] text-center">{activeFilters}</span>
           )}
         </button>
 
-        <div className="productos-layout">
+        <div className="grid grid-cols-[240px_1fr] gap-8 items-start max-[768px]:grid-cols-1">
           {/* ── Sidebar ── */}
-          <aside className={`sidebar${sidebarOpen ? " sidebar--open" : ""}`}>
-            <div className="sidebar__header">
-              <h2 className="sidebar__title">Filtros</h2>
-              <div className="sidebar__header-actions">
+          <aside className={`bg-white border border-[#ede8e1] rounded-[16px] p-5 sticky top-[108px] max-[768px]:fixed max-[768px]:top-0 max-[768px]:left-0 max-[768px]:w-[min(320px,85vw)] max-[768px]:h-dvh max-[768px]:overflow-y-auto max-[768px]:z-[200] max-[768px]:rounded-none max-[768px]:-translate-x-full max-[768px]:transition-transform max-[768px]:duration-[0.28s] max-[768px]:ease-[cubic-bezier(0.4,0,0.2,1)] max-[768px]:shadow-[4px_0_24px_rgba(0,0,0,0.12)] ${sidebarOpen ? "max-[768px]:translate-x-0" : ""}`}>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-base font-extrabold text-[#1a1a1a]">Filtros</h2>
+              <div className="flex items-center gap-2">
                 {activeFilters > 0 && (
-                  <button className="sidebar__clear" onClick={clearFilters}>
+                  <button className="text-[0.75rem] font-semibold text-[#e05c2a] bg-transparent border-none cursor-pointer p-0" onClick={clearFilters}>
                     Limpiar
                   </button>
                 )}
                 <button
-                  className="sidebar__close"
+                  className="hidden max-[768px]:block bg-transparent border-none text-[1.4rem] cursor-pointer text-[#888] leading-none p-0"
                   onClick={() => setSidebarOpen(false)}
                   aria-label="Cerrar"
                 >
@@ -368,28 +368,28 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
             </div>
 
             {/* Categorías */}
-            <div className="sidebar__section">
-              <label className="sidebar__label">Categoría</label>
-              <div className="sidebar__cats">
+            <div className="mb-6 pb-6 border-b border-[#f0ebe4] last:border-b-0 last:mb-0 last:pb-0">
+              <label className="flex items-center justify-between text-[0.75rem] font-bold uppercase tracking-[0.07em] text-[#888] mb-3">Categoría</label>
+              <div className="flex flex-col gap-1.5 max-h-[240px] overflow-y-auto [scrollbar-width:thin]">
                 {ALL_CATS.map((cat) => (
-                  <label key={cat} className="sidebar__check-row">
+                  <label key={cat} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={cats.includes(cat)}
                       onChange={() => toggleCat(cat)}
-                      className="sidebar__checkbox"
+                      className="w-[15px] h-[15px] accent-[#f5a623] cursor-pointer shrink-0"
                     />
-                    <span className="sidebar__check-label">{cat}</span>
+                    <span className="text-[0.85rem] text-[#444] capitalize leading-[1.3]">{cat}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Precio */}
-            <div className="sidebar__section">
-              <label className="sidebar__label">
+            <div className="mb-6 pb-6 border-b border-[#f0ebe4] last:border-b-0 last:mb-0 last:pb-0">
+              <label className="flex items-center justify-between text-[0.75rem] font-bold uppercase tracking-[0.07em] text-[#888] mb-3">
                 Precio máximo
-                <span className="sidebar__price-val">
+                <span className="text-[0.8rem] font-bold text-[#e05c2a] normal-case tracking-normal">
                   {maxPrice >= priceMax
                     ? "Sin límite"
                     : `S/ ${maxPrice.toLocaleString("es-PE")}`}
@@ -402,83 +402,83 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
                 step={100}
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="sidebar__range"
+                className="w-full accent-[#f5a623] cursor-pointer"
               />
-              <div className="sidebar__range-labels">
+              <div className="flex justify-between text-[0.72rem] text-[#aaa] mt-1">
                 <span>S/ 0</span>
                 <span>S/ {priceMax.toLocaleString("es-PE")}</span>
               </div>
             </div>
 
             {/* ✅ Checkboxes — 5 filtros exactos pedidos */}
-            <div className="sidebar__section">
-              <label className="sidebar__check-row">
+            <div className="mb-6 pb-6 border-b border-[#f0ebe4] last:border-b-0 last:mb-0 last:pb-0">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={onlyNew}
                   onChange={(e) => setOnlyNew(e.target.checked)}
-                  className="sidebar__checkbox"
+                  className="w-[15px] h-[15px] accent-[#f5a623] cursor-pointer shrink-0"
                 />
-                <span className="sidebar__check-label">Productos nuevos</span>
+                <span className="text-[0.85rem] text-[#444] capitalize leading-[1.3]">Productos nuevos</span>
               </label>
 
-              <label className="sidebar__check-row" style={{ marginTop: 6 }}>
+              <label className="flex items-center gap-2 cursor-pointer" style={{ marginTop: 6 }}>
                 <input
                   type="checkbox"
                   checked={onlyLowStock}
                   onChange={(e) => setOnlyLowStock(e.target.checked)}
-                  className="sidebar__checkbox"
+                  className="w-[15px] h-[15px] accent-[#f5a623] cursor-pointer shrink-0"
                 />
-                <span className="sidebar__check-label">Últimas unidades</span>
+                <span className="text-[0.85rem] text-[#444] capitalize leading-[1.3]">Últimas unidades</span>
               </label>
 
               {/* ✅ Destacados: filtra en query pero SIN tag en ProductCard */}
-              <label className="sidebar__check-row" style={{ marginTop: 6 }}>
+              <label className="flex items-center gap-2 cursor-pointer" style={{ marginTop: 6 }}>
                 <input
                   type="checkbox"
                   checked={onlyFeatured}
                   onChange={(e) => setOnlyFeatured(e.target.checked)}
-                  className="sidebar__checkbox"
+                  className="w-[15px] h-[15px] accent-[#f5a623] cursor-pointer shrink-0"
                 />
-                <span className="sidebar__check-label">
+                <span className="text-[0.85rem] text-[#444] capitalize leading-[1.3]">
                   Productos destacados
                 </span>
               </label>
 
               {/* ✅ Solo con promoción — ahora filtra por IDs en la query */}
-              <label className="sidebar__check-row" style={{ marginTop: 6 }}>
+              <label className="flex items-center gap-2 cursor-pointer" style={{ marginTop: 6 }}>
                 <input
                   type="checkbox"
                   checked={onlyPromo}
                   onChange={(e) => setOnlyPromo(e.target.checked)}
-                  className="sidebar__checkbox"
+                  className="w-[15px] h-[15px] accent-[#f5a623] cursor-pointer shrink-0"
                 />
-                <span className="sidebar__check-label">Con promociones</span>
+                <span className="text-[0.85rem] text-[#444] capitalize leading-[1.3]">Con promociones</span>
               </label>
 
               {/* ✅ Renombrado: "Productos agotados" en vez de "Ocultar agotados" */}
-              <label className="sidebar__check-row" style={{ marginTop: 6 }}>
+              <label className="flex items-center gap-2 cursor-pointer" style={{ marginTop: 6 }}>
                 <input
                   type="checkbox"
                   checked={hideAgotado}
                   onChange={(e) => setHideAgotado(e.target.checked)}
-                  className="sidebar__checkbox"
+                  className="w-[15px] h-[15px] accent-[#f5a623] cursor-pointer shrink-0"
                 />
-                <span className="sidebar__check-label">Productos agotados</span>
+                <span className="text-[0.85rem] text-[#444] capitalize leading-[1.3]">Productos agotados</span>
               </label>
             </div>
           </aside>
 
           {sidebarOpen && (
             <div
-              className="sidebar-backdrop"
+              className="fixed inset-0 bg-black/40 z-[199]"
               onClick={() => setSidebarOpen(false)}
               aria-hidden="true"
             />
           )}
 
           {/* ── Main content ── */}
-          <main className="productos-main">
+          <main className="min-w-0">
             <div style={{ marginBottom: "1rem" }}>
               <div style={{ position: "relative", maxWidth: 480 }}>
                 <svg
@@ -526,15 +526,15 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
               </div>
             </div>
 
-            <div className="productos-main__top">
-              <p className="productos-main__count">
+            <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+              <p className="text-[0.85rem] text-[#777] [&_strong]:text-[#1a1a1a]">
                 <strong>{totalCount}</strong> producto
                 {totalCount !== 1 ? "s" : ""}
                 {cats.length > 0 && ` en ${cats.join(", ")}`}
               </p>
               {activeFilters > 0 && (
                 <button
-                  className="productos-main__clear"
+                  className="text-[0.8rem] font-semibold text-[#e05c2a] bg-[#fff1ec] border-none rounded-full px-3 py-1 cursor-pointer transition-colors hover:bg-[#fbd5c5]"
                   onClick={clearFilters}
                 >
                   × Limpiar filtros
@@ -617,16 +617,16 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             ) : totalCount === 0 ? (
-              <div className="productos-empty">
-                <span>😕</span>
-                <p>No se encontraron productos con esos filtros</p>
-                <button onClick={clearFilters} className="productos-empty__btn">
+              <div className="flex flex-col items-center justify-center gap-3 px-4 py-16 text-[#888]">
+                <span className="text-5xl">😕</span>
+                <p className="m-0">No se encontraron productos con esos filtros</p>
+                <button onClick={clearFilters} className="px-5 py-2 bg-brand text-white border-none rounded-full font-semibold cursor-pointer">
                   Ver todos
                 </button>
               </div>
             ) : (
               <>
-                <div className="productos-grid">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 max-[768px]:grid-cols-[repeat(auto-fill,minmax(155px,1fr))]">
                   {productos.map((p) => (
                     <ProductCard
                       key={p.id}
