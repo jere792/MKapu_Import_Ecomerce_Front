@@ -50,21 +50,25 @@ function CarouselSection({
   if (products.length === 0)
     return (
       <section
-        className={`csec${dark ? " csec--dark" : ""}`}
+        className={`${dark ? "bg-[#111]" : "bg-[#faf8f5]"} px-6 py-16`}
         style={{ minHeight: "420px" }}
       />
     );
   return (
-    <section className={`csec${dark ? " csec--dark" : ""}`}>
-      <div className="csec__inner">
-        <div className="csec__head">
-          {tag && <span className="csec__tag">{tag}</span>}
-          <h2 className="csec__title">{title}</h2>
-          {subtitle && <p className="csec__sub">{subtitle}</p>}
+    <section className={`${dark ? "bg-[#111]" : "bg-[#faf8f5]"} px-6 py-16`}>
+      <div className="max-w-[1200px] mx-auto">
+        <div className="text-center mb-8">
+          {tag && <span className="inline-block text-[0.7rem] font-bold tracking-[0.1em] uppercase text-brand mb-2">{tag}</span>}
+          <h2 className={`text-[clamp(1.4rem,3vw,2rem)] font-black tracking-[-0.02em] mb-2 ${dark ? "text-white" : "text-[#1a1a1a]"}`}>{title}</h2>
+          {subtitle && (
+            <p className={`text-[0.92rem] leading-relaxed max-w-[480px] mx-auto ${dark ? "text-[#888]" : "text-[#777]"}`}>
+              {subtitle}
+            </p>
+          )}
         </div>
         <Carousel products={products.map(toCarouselProduct)} title="" promocionesMap={promocionesMap} />
-        <div className="csec__foot">
-          <Link href={href} className="csec__link">
+        <div className="text-center mt-6">
+          <Link href={href} className="text-[0.88rem] font-bold text-brand no-underline border-b-2 border-transparent hover:border-brand transition-colors">
             Ver todos →
           </Link>
         </div>
@@ -133,7 +137,7 @@ export default async function HomePage() {
   const featured = products.filter((p: AnyProduct) => p.featured);
 
   return (
-    <div className="home">
+    <div className="overflow-x-hidden">
       <HeroAccordion initialBanners={banners} />
 
       <CarouselSection
@@ -161,23 +165,32 @@ export default async function HomePage() {
 
       <HomeSecciones />
 
-      <section className="why">
-        <div className="why__inner">
-          <div className="why__head">
-            <span className="why__tag">¿Por qué elegirnos?</span>
-            <h2 className="why__title">
+      <section className="bg-[#0d0d0d] py-24 px-10 max-[600px]:px-5 max-[600px]:py-16">
+        <div className="max-w-[1100px] mx-auto">
+          <div className="mb-[72px]">
+            <span className="inline-block text-[11px] font-medium tracking-[0.2em] uppercase text-brand mb-4">
+              ¿Por qué elegirnos?
+            </span>
+            <h2 className="text-[clamp(32px,5vw,56px)] font-extrabold text-white leading-[1.05] max-w-[620px] [&_em]:not-italic [&_em]:text-brand">
               Importación directa,
               <br />
               <em>calidad garantizada</em>
             </h2>
           </div>
-          <div className="why__grid">
+          <div className="grid grid-cols-1 min-[481px]:grid-cols-2 lg:grid-cols-4 border border-white/8 rounded-sm">
             {WHY_ITEMS.map((item) => (
-              <div key={item.title} className="why__card">
-                <div className="why__num">{item.num}</div>
-                <div className="why__icon-wrap">{item.icon}</div>
-                <h3 className="why__card-title">{item.title}</h3>
-                <p className="why__card-desc">{item.desc}</p>
+              <div
+                key={item.title}
+                className="group relative overflow-hidden p-8 md:p-10 transition-colors border-white/8 border-r border-b lg:border-b-0 lg:last:border-r-0 max-[768px]:[&:nth-child(2n)]:border-r-0 max-[480px]:border-r-0 hover:bg-[rgba(224,92,42,0.05)] before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-[#e05c2a] before:scale-x-0 before:origin-left before:transition-transform before:duration-[350ms] before:ease-[cubic-bezier(0.4,0,0.2,1)] hover:before:scale-x-100"
+              >
+                <div className="text-[72px] font-extrabold text-white/4 leading-none -mb-4 tracking-[-4px] transition-colors group-hover:text-[rgba(224,92,42,0.12)]">
+                  {item.num}
+                </div>
+                <div className="w-10 h-10 mb-5 flex items-center justify-center [&_svg]:w-7 [&_svg]:h-7 [&_svg]:stroke-brand [&_svg]:fill-none [&_svg]:[stroke-width:1.5] [&_svg]:[stroke-linecap:round] [&_svg]:[stroke-linejoin:round]">
+                  {item.icon}
+                </div>
+                <h3 className="text-[15px] font-bold text-white mb-3 tracking-[-0.01em]">{item.title}</h3>
+                <p className="text-[13.5px] text-white/45 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
