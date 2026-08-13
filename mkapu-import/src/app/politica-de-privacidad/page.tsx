@@ -1,12 +1,13 @@
+import LegalSection from "@/components/LegalSection";
+
 export default function PoliticaDePrivacidad() {
   return (
-    <main className="legal-page">
-      <div className="legal-page__container">
-        <h1 className="legal-page__title">Política de Privacidad</h1>
-        <p className="legal-page__updated">Última actualización: abril 2026</p>
+    <main className="bg-[#111] text-[#ccc] min-h-screen px-6 py-12">
+      <div className="max-w-[800px] mx-auto">
+        <h1 className="text-[2rem] font-black text-white mb-1">Política de Privacidad</h1>
+        <p className="text-[0.8rem] text-[#555] mb-10">Última actualización: abril 2026</p>
 
-        <section className="legal-page__section">
-          <h2>1. Responsable del tratamiento</h2>
+        <LegalSection title="1. Responsable del tratamiento">
           <p>
             <strong>Mkapu Import</strong>, empresa registrada en el Perú con RUC
             activo, es responsable del banco de datos personales recopilados a
@@ -20,10 +21,9 @@ export default function PoliticaDePrivacidad() {
               marlomauriciop1@gmail.com
             </a>
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>2. Datos que recopilamos</h2>
+        <LegalSection title="2. Datos que recopilamos">
           <p>
             Al interactuar con nuestro sitio o al contactarnos vía WhatsApp,
             podemos recopilar los siguientes datos personales:
@@ -38,10 +38,9 @@ export default function PoliticaDePrivacidad() {
               Datos de navegación (páginas visitadas, dispositivo, dirección IP)
             </li>
           </ul>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>3. Finalidad del tratamiento</h2>
+        <LegalSection title="3. Finalidad del tratamiento">
           <p>Utilizamos tus datos personales para:</p>
           <ul>
             <li>Atender consultas y cotizaciones de productos.</li>
@@ -54,10 +53,9 @@ export default function PoliticaDePrivacidad() {
             </li>
             <li>Cumplir con obligaciones legales y tributarias aplicables.</li>
           </ul>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>4. Consentimiento</h2>
+        <LegalSection title="4. Consentimiento">
           <p>
             Al contactarnos a través de WhatsApp o cualquier formulario de este
             sitio, el usuario otorga su consentimiento libre, informado y
@@ -65,10 +63,9 @@ export default function PoliticaDePrivacidad() {
             fines descritos en esta política, de acuerdo con el artículo 13 de
             la Ley N° 29733.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>5. Compartición de datos</h2>
+        <LegalSection title="5. Compartición de datos">
           <p>
             Mkapu Import no vende, alquila ni cede datos personales a terceros
             con fines comerciales. Podremos compartir datos únicamente con:
@@ -83,30 +80,27 @@ export default function PoliticaDePrivacidad() {
               INDECOPI, poder judicial, etc.).
             </li>
           </ul>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>6. Seguridad de los datos</h2>
+        <LegalSection title="6. Seguridad de los datos">
           <p>
             Adoptamos medidas técnicas y organizativas razonables para proteger
             tus datos personales contra accesos no autorizados, pérdida,
             alteración o divulgación indebida, conforme al artículo 16 de la Ley
             N° 29733.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>7. Conservación de datos</h2>
+        <LegalSection title="7. Conservación de datos">
           <p>
             Los datos personales se conservarán durante el tiempo necesario para
             cumplir con la finalidad para la que fueron recopilados y por el
             período mínimo exigido por la normativa legal aplicable (por
             ejemplo, 5 años para documentos tributarios según SUNAT).
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>8. Derechos del titular (Derechos ARCO)</h2>
+        <LegalSection title="8. Derechos del titular (Derechos ARCO)">
           <p>De conformidad con la Ley N° 29733, tienes derecho a:</p>
           <ul>
             <li>
@@ -134,39 +128,35 @@ export default function PoliticaDePrivacidad() {
             adjuntando una copia de tu DNI. Responderemos en un plazo máximo de
             20 días hábiles.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>9. Cookies y datos de navegación</h2>
+        <LegalSection title="9. Cookies y datos de navegación">
           <p>
             Este sitio puede utilizar cookies y tecnologías similares para
             mejorar la experiencia de navegación y analizar el tráfico del
             sitio. Puedes configurar tu navegador para rechazar cookies, aunque
             esto podría afectar el funcionamiento de algunas funciones.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>10. Modificaciones a esta política</h2>
+        <LegalSection title="10. Modificaciones a esta política">
           <p>
             Mkapu Import se reserva el derecho de actualizar esta Política de
             Privacidad en cualquier momento. Cualquier cambio será publicado en
             esta página con la fecha de actualización correspondiente. Te
             recomendamos revisarla periódicamente.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>11. Autoridad de control</h2>
+        <LegalSection title="11. Autoridad de control">
           <p>
             Si consideras que el tratamiento de tus datos no cumple con la
             normativa, puedes presentar una reclamación ante la Autoridad
             Nacional de Protección de Datos Personales del Ministerio de
             Justicia y Derechos Humanos del Perú, o ante el INDECOPI.
           </p>
-        </section>
+        </LegalSection>
       </div>
-
     </main>
   );
 }

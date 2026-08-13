@@ -1480,62 +1480,6 @@ button {
    TOAST (Toast.tsx)
    ============================================================ */
 @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ============================================================
-
-/* ============================================================
-   LEGAL PAGES — merged from terminos-y-condiciones & política-de-privacidad
-   ============================================================ */
-.legal-page {
-  background: #111;
-  color: #ccc;
-  min-height: 100vh;
-  padding: 3rem 1.5rem;
-}
-.legal-page__container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-.legal-page__title {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #fff;
-  margin-bottom: 0.25rem;
-}
-.legal-page__updated {
-  font-size: 0.8rem;
-  color: #555;
-  margin-bottom: 2.5rem;
-}
-.legal-page__section {
-  margin-bottom: 2rem;
-  border-left: 3px solid #f5a623;
-  padding-left: 1.25rem;
-}
-.legal-page__section h2 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 0.6rem;
-}
-.legal-page__section p,
-.legal-page__section ul,
-.legal-page__section ol,
-.legal-page__section li {
-  font-size: 0.9rem;
-  line-height: 1.75;
-  color: #aaa;
-  margin-bottom: 0.5rem;
-}
-.legal-page__section ul,
-.legal-page__section ol {
-  padding-left: 1.25rem;
-}
-.legal-page__section a {
-  color: #f5a623;
-  text-decoration: none;
-}
-.legal-page__section a:hover {
   text-decoration: underline;
 }
 
@@ -1983,5 +1927,6 @@ button {
 @media (max-width: 1024px) { .qs-container { padding: 60px 20px 80px; gap: 48px; } .qs-section { gap: 40px; padding: 32px; } }
 @media (max-width: 900px) { .qs-section { grid-template-columns: 1fr; gap: 32px; padding: 28px; } .qs-section--reverse .qs-section-text { order: unset; } .qs-section--reverse .qs-section-media { order: unset; } .qs-section-text { order: unset !important; } .qs-section-media { order: unset !important; } }
 @media (max-width: 520px) { .qs-container { padding: 40px 14px 60px; gap: 32px; } .qs-section { padding: 20px; gap: 24px; border-radius: 20px; } .qs-section-title-wrap { gap: 12px; } .qs-section-number { font-size: 2rem; } .qs-hero { min-height: 240px; } .qs-hero-content { padding: 3rem 1.25rem 2.5rem; } }
+
 
 

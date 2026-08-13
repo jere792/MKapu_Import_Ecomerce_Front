@@ -1,12 +1,13 @@
+import LegalSection from "@/components/LegalSection";
+
 export default function TerminosYCondiciones() {
   return (
-    <main className="legal-page">
-      <div className="legal-page__container">
-        <h1 className="legal-page__title">Términos y Condiciones</h1>
-        <p className="legal-page__updated">Última actualización: abril 2026</p>
+    <main className="bg-[#111] text-[#ccc] min-h-screen px-6 py-12">
+      <div className="max-w-[800px] mx-auto">
+        <h1 className="text-[2rem] font-black text-white mb-1">Términos y Condiciones</h1>
+        <p className="text-[0.8rem] text-[#555] mb-10">Última actualización: abril 2026</p>
 
-        <section className="legal-page__section">
-          <h2>1. Información de la empresa</h2>
+        <LegalSection title="1. Información de la empresa">
           <p>
             El presente sitio web es operado por <strong>Mkapu Import</strong>,
             empresa debidamente registrada en el Perú con RUC activo. Para
@@ -16,20 +17,18 @@ export default function TerminosYCondiciones() {
             </a>{" "}
             o por WhatsApp.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>2. Aceptación de los términos</h2>
+        <LegalSection title="2. Aceptación de los términos">
           <p>
             Al navegar y/o realizar una consulta de compra a través de este
             sitio web, el usuario acepta los presentes Términos y Condiciones en
             su totalidad. Si no está de acuerdo con alguno de ellos, le
             recomendamos abstenerse de usar el sitio.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>3. Proceso de compra</h2>
+        <LegalSection title="3. Proceso de compra">
           <p>
             Mkapu Import opera como un catálogo digital de equipos de
             importación. El proceso de compra se realiza de la siguiente manera:
@@ -59,10 +58,9 @@ export default function TerminosYCondiciones() {
             causas justificadas, informando al usuario en el menor tiempo
             posible.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>4. Precios</h2>
+        <LegalSection title="4. Precios">
           <p>
             Los precios publicados en el catálogo son referenciales y están
             expresados en soles peruanos (S/) o dólares americanos (USD) según
@@ -70,10 +68,9 @@ export default function TerminosYCondiciones() {
             ventas al momento de la cotización, pudiendo variar por tipo de
             cambio, disponibilidad o configuración del equipo.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>5. Envíos y despacho</h2>
+        <LegalSection title="5. Envíos y despacho">
           <p>
             Realizamos envíos a Lima Metropolitana y provincias a nivel
             nacional. Los plazos y costos de envío son coordinados directamente
@@ -86,10 +83,9 @@ export default function TerminosYCondiciones() {
             momento de la entrega al transportista o al cliente, según se haya
             pactado.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>6. Garantía y soporte técnico</h2>
+        <LegalSection title="6. Garantía y soporte técnico">
           <p>
             Todos los equipos comercializados por Mkapu Import cuentan con
             garantía según las condiciones del fabricante. Contamos con equipo
@@ -97,10 +93,9 @@ export default function TerminosYCondiciones() {
             garantías. Las condiciones específicas de garantía de cada producto
             serán informadas al momento de la compra.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>7. Devoluciones y cambios</h2>
+        <LegalSection title="7. Devoluciones y cambios">
           <p>
             De acuerdo con el Código de Protección y Defensa del Consumidor (Ley
             N° 29571), el usuario tiene derecho a solicitar la reparación,
@@ -109,30 +104,27 @@ export default function TerminosYCondiciones() {
             legal aplicable, contactando a nuestro equipo a través de los
             canales oficiales.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>8. Propiedad intelectual</h2>
+        <LegalSection title="8. Propiedad intelectual">
           <p>
             Todo el contenido de este sitio web (textos, imágenes, logotipos,
             diseño) es propiedad de Mkapu Import o de sus proveedores y está
             protegido por la legislación peruana de propiedad intelectual. Queda
             prohibida su reproducción total o parcial sin autorización expresa.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>9. Limitación de responsabilidad</h2>
+        <LegalSection title="9. Limitación de responsabilidad">
           <p>
             Mkapu Import no será responsable por daños indirectos, pérdida de
             datos o lucro cesante derivados del uso del sitio web. La
             información del catálogo es de carácter referencial y puede estar
             sujeta a cambios sin previo aviso.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>10. Ley aplicable y jurisdicción</h2>
+        <LegalSection title="10. Ley aplicable y jurisdicción">
           <p>
             Los presentes Términos y Condiciones se rigen por las leyes de la
             República del Perú. Cualquier controversia será sometida a la
@@ -141,16 +133,15 @@ export default function TerminosYCondiciones() {
             corresponderles. Asimismo, el usuario puede presentar un reclamo
             ante el INDECOPI de conformidad con la Ley N° 29571.
           </p>
-        </section>
+        </LegalSection>
 
-        <section className="legal-page__section">
-          <h2>11. Modificaciones</h2>
+        <LegalSection title="11. Modificaciones">
           <p>
             Mkapu Import se reserva el derecho de modificar estos Términos y
             Condiciones en cualquier momento. Los cambios serán publicados en
             esta página con indicación de la fecha de actualización.
           </p>
-        </section>
+        </LegalSection>
       </div>
     </main>
   );
