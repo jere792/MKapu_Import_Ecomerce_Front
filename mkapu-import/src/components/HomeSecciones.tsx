@@ -68,13 +68,13 @@ export default async function HomeSecciones() {
           <section
             key={sec.categoria_id}
             style={{
-              padding: "60px 0",
+              padding: "72px 0",
               background: "#fafafa",
             }}
           >
             <div
               style={{
-                maxWidth: 1280,
+                maxWidth: 1400,
                 margin: "0 auto",
                 padding: "0 24px",
               }}

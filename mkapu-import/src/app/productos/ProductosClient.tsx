@@ -320,7 +320,7 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
         </div>
       </section>
 
-      <div className="min-h-[80vh] pb-10">
+      <div className="max-w-[1400px] mx-auto px-4 py-6 pb-10">
         <button
           className="hidden max-[768px]:flex items-center gap-2 bg-white border-[1.5px] border-[#e0d8d0] rounded-[10px] px-4 py-2 text-[0.88rem] font-semibold cursor-pointer mb-4 relative text-[#1a1a1a] transition-colors hover:border-[#e05c2a] hover:text-[#e05c2a]"
           onClick={() => setSidebarOpen(true)}

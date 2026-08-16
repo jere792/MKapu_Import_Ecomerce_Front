@@ -55,8 +55,8 @@ function CarouselSection({
       />
     );
   return (
-    <section className={`${dark ? "bg-[#111]" : "bg-[#faf8f5]"} px-6 py-16`}>
-      <div className="max-w-[1200px] mx-auto">
+    <section className={`${dark ? "bg-[#111]" : "bg-[#faf8f5]"} px-6 py-20`}>
+      <div className="max-w-[1400px] mx-auto">
         <div className="text-center mb-8">
           {tag && <span className="inline-block text-[0.7rem] font-bold tracking-[0.1em] uppercase text-brand mb-2">{tag}</span>}
           <h2 className={`text-[clamp(1.4rem,3vw,2rem)] font-black tracking-[-0.02em] mb-2 ${dark ? "text-white" : "text-[#1a1a1a]"}`}>{title}</h2>
@@ -166,7 +166,7 @@ export default async function HomePage() {
       <HomeSecciones />
 
       <section className="bg-[#0d0d0d] py-24 px-10 max-[600px]:px-5 max-[600px]:py-16">
-        <div className="max-w-[1100px] mx-auto">
+        <div className="max-w-[1400px] mx-auto">
           <div className="mb-[72px]">
             <span className="inline-block text-[11px] font-medium tracking-[0.2em] uppercase text-brand mb-4">
               ¿Por qué elegirnos?

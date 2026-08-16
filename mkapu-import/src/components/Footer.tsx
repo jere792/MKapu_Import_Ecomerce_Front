@@ -8,7 +8,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#1a1a1a] text-[#ccc] mt-auto">
-      <div className="max-w-[1200px] mx-auto px-6 py-10 pb-6 flex gap-8 flex-wrap justify-between">
+      <div className="max-w-[1400px] mx-auto px-6 py-10 pb-6 flex gap-8 flex-wrap justify-between">
         <div className="flex flex-col gap-1">
           {empresa?.logo && (
             <img
@@ -81,7 +81,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-[#2a2a2a] px-6 py-6 text-xs text-[#888]">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-6 flex-wrap">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-6 flex-wrap">
           <p>© {new Date().getFullYear()} {empresa?.razon_social || "MKAPU IMPORT S.A.C."} Todos los derechos reservados.</p>
           <a
             href="https://www.instagram.com/solvegrades.com_/"

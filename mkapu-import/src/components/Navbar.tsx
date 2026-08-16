@@ -209,7 +209,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
   return (
     <>
       <div className="sticky top-0 z-[100] bg-[#1a1a1a] border-b-[3px] border-[#f5a623]">
-        <div className="max-w-[1300px] mx-auto px-4 md:px-6 h-16 flex items-center gap-4">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 flex items-center gap-4">
           <Link
             href="/"
             className="flex flex-col no-underline leading-none shrink-0"
@@ -241,7 +241,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
           >
             <button
               type="button"
-              className={`flex items-center gap-[7px] bg-[#f5a623] text-white border-0 rounded-[10px] px-4 py-2 text-[0.86rem] font-bold cursor-pointer transition-colors whitespace-nowrap hover:bg-[#b77c1b] ${
+              className={`flex items-center gap-[7px] bg-[#f5a623] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.86rem] font-bold cursor-pointer transition-colors whitespace-nowrap hover:bg-[#b77c1b] ${
                 megaOpen ? "bg-[#b77c1b]" : ""
               }`}
               onClick={() => setMegaOpen((v) => !v)}
@@ -296,7 +296,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
                     <Link
                       key={getCategoryKey(cat)}
                       href={getCategoryHref(cat)}
-                      className="block px-3 py-2 text-[0.83rem] font-semibold text-[#444] no-underline rounded-lg capitalize transition-colors hover:bg-[#fff1ec] hover:text-[#f5a623] whitespace-nowrap overflow-hidden text-ellipsis"
+                      className="block px-3.5 py-2.5 text-[0.83rem] font-semibold text-[#444] no-underline rounded-lg capitalize transition-colors hover:bg-[#fff1ec] hover:text-[#f5a623] whitespace-nowrap overflow-hidden text-ellipsis"
                       onClick={() => setMegaOpen(false)}
                     >
                       {getCategoryName(cat)}
@@ -318,7 +318,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
                 onFocus={() => {
                   if (search.trim().length >= 2) setSuggestOpen(true);
                 }}
-                className="flex-1 border-0 bg-transparent px-3 py-2 text-base outline-none text-white min-w-0 placeholder:text-[#555]"
+                className="flex-1 border-0 bg-transparent px-3.5 py-2.5 text-base outline-none text-white min-w-0 placeholder:text-[#555]"
                 role="combobox"
                 aria-expanded={suggestOpen}
                 aria-autocomplete="list"
@@ -326,7 +326,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               />
               <button
                 type="submit"
-                className="bg-[#d2691e] border-0 px-3 text-white cursor-pointer inline-flex items-center justify-center h-full shrink-0 hover:bg-[#b8561a]"
+                className="bg-[#d2691e] border-0 px-4 text-white cursor-pointer inline-flex items-center justify-center h-full shrink-0 hover:bg-[#b8561a]"
                 aria-label="Buscar"
               >
                 <MagnifyingGlassIcon className="h-4 w-4" />
@@ -391,7 +391,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
           <div className="flex items-center gap-1.5 ml-auto shrink-0">
             <div className="hidden md:flex items-center gap-0.5 border-r border-[#2a2a2a] pr-2.5 mr-1">
               {socialUrls.instagram && (
-                <a href={socialUrls.instagram} target="_blank" rel="noopener noreferrer" className="w-[34px] h-[34px] flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="Instagram">
+                <a href={socialUrls.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="Instagram">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="2" width="20" height="20" rx="5" />
                     <circle cx="12" cy="12" r="4" />
@@ -400,14 +400,14 @@ export default function Navbar({ categories = [] }: NavbarProps) {
                 </a>
               )}
               {socialUrls.facebook && (
-                <a href={socialUrls.facebook} target="_blank" rel="noopener noreferrer" className="w-[34px] h-[34px] flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="Facebook">
+                <a href={socialUrls.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="Facebook">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                   </svg>
                 </a>
               )}
               {socialUrls.tiktok && (
-                <a href={socialUrls.tiktok} target="_blank" rel="noopener noreferrer" className="w-[34px] h-[34px] flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="TikTok">
+                <a href={socialUrls.tiktok} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="TikTok">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
                   </svg>
@@ -416,7 +416,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
             </div>
 
             <button
-              className="relative inline-flex items-center gap-2.5 border-0 bg-[#fff7f1] text-[#d2691e] px-3 py-2 md:px-3.5 font-extrabold cursor-pointer rounded-[10px] transition-all hover:bg-[#f5ede4] hover:-translate-y-px whitespace-nowrap"
+              className="relative inline-flex items-center gap-2.5 border-0 bg-[#fff7f1] text-[#d2691e] px-4 py-2.5 font-extrabold cursor-pointer rounded-[10px] transition-all hover:bg-[#f5ede4] hover:-translate-y-px whitespace-nowrap"
               onClick={() => setCartOpen(true)}
               aria-label="Carrito"
               type="button"
@@ -437,7 +437,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               <>
                 <Link
                   href="/admin/productos"
-                  className="hidden md:inline-flex items-center justify-center gap-1 h-[38px] px-3.5 rounded-[10px] text-xs font-black tracking-[0.06em] cursor-pointer transition-all whitespace-nowrap shrink-0 no-underline uppercase bg-[#2a2a2a] text-[#f5a623] border-2 border-[#f5a623] hover:bg-[#f5a623] hover:text-[#1a1a1a]"
+                  className="hidden md:inline-flex items-center justify-center gap-1 h-11 px-4 rounded-[10px] text-xs font-black tracking-[0.06em] cursor-pointer transition-all whitespace-nowrap shrink-0 no-underline uppercase bg-[#2a2a2a] text-[#f5a623] border-2 border-[#f5a623] hover:bg-[#f5a623] hover:text-[#1a1a1a]"
                 >
                   <ShieldCheckIcon className="h-4 w-4 shrink-0" />
                   PANEL
@@ -445,7 +445,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
 
                 <button
                   type="button"
-                  className="hidden md:inline-flex items-center justify-center gap-1 h-[38px] px-3.5 rounded-[10px] text-xs font-black tracking-[0.06em] cursor-pointer transition-all whitespace-nowrap shrink-0 no-underline uppercase bg-[#c0392b] text-white border-2 border-[#c0392b] hover:bg-[#962d22] hover:border-[#962d22]"
+                  className="hidden md:inline-flex items-center justify-center gap-1 h-11 px-4 rounded-[10px] text-xs font-black tracking-[0.06em] cursor-pointer transition-all whitespace-nowrap shrink-0 no-underline uppercase bg-[#c0392b] text-white border-2 border-[#c0392b] hover:bg-[#962d22] hover:border-[#962d22]"
                   onClick={handleLogout}
                 >
                   SALIR
@@ -456,7 +456,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
             {/* ✅ FIX: El candado ahora sí aparece cuando no hay sesión activa */}
             {authChecked && !(isLogged && isAdmin) && (
               <button
-                className="w-10 h-10 bg-[#2a2a2a] border-[1.5px] border-[#3a3a3a] rounded-[10px] text-[#aaaaaa] flex items-center justify-center cursor-pointer transition-all shrink-0 hover:bg-[#f5a623] hover:border-[#f5a623] hover:text-[#1a1a1a]"
+                className="w-11 h-11 bg-[#2a2a2a] border-[1.5px] border-[#3a3a3a] rounded-[10px] text-[#aaaaaa] flex items-center justify-center cursor-pointer transition-all shrink-0 hover:bg-[#f5a623] hover:border-[#f5a623] hover:text-[#1a1a1a]"
                 onClick={() => router.push("/admin/login")}
                 title="Acceso admin"
                 aria-label="Panel de administrador"
@@ -526,12 +526,12 @@ export default function Navbar({ categories = [] }: NavbarProps) {
                   placeholder="Buscar productos..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="flex-1 border-0 bg-transparent px-3 py-2.5 text-base outline-none text-white placeholder:text-[#555]"
+                  className="flex-1 border-0 bg-transparent px-3.5 py-3 text-base outline-none text-white placeholder:text-[#555]"
                   autoFocus
                 />
                 <button
                   type="submit"
-                  className="bg-[#d2691e] border-0 px-3 text-white cursor-pointer inline-flex items-center justify-center h-full shrink-0 hover:bg-[#b8561a]"
+className="bg-[#d2691e] border-0 px-4 text-white cursor-pointer inline-flex items-center justify-center h-full shrink-0 hover:bg-[#b8561a]"
                   aria-label="Buscar"
                 >
                   <MagnifyingGlassIcon className="h-4 w-4" />
@@ -589,28 +589,28 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               <div className="flex flex-col gap-1.5">
                 <Link
                   href="/productos"
-                  className="block px-3 py-2 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
+                  className="block px-3.5 py-2.5 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
                   onClick={() => setMobileOpen(false)}
                 >
                   Nuestros productos
                 </Link>
                 <Link
                   href="/blog"
-                  className="block px-3 py-2 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
+                  className="block px-3.5 py-2.5 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
                   onClick={() => setMobileOpen(false)}
                 >
                   Blog
                 </Link>
                 <Link
                   href="/quienes-somos"
-                  className="block px-3 py-2 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
+                  className="block px-3.5 py-2.5 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
                   onClick={() => setMobileOpen(false)}
                 >
                   Quiénes Somos
                 </Link>
                 <Link
                   href="/contacto"
-                  className="block px-3 py-2 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
+                  className="block px-3.5 py-2.5 text-[0.85rem] font-semibold text-[#cccccc] no-underline bg-[#1e1e1e] rounded-lg border border-[#2a2a2a] transition-colors hover:bg-[#f5a623] hover:text-[#1a1a1a] hover:border-[#f5a623]"
                   onClick={() => setMobileOpen(false)}
                 >
                   Contacto

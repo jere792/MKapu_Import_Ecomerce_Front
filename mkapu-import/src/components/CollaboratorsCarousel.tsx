@@ -620,8 +620,8 @@ export default function CollaboratorsCarousel() {
 
   return (
     <>
-      <section className="py-16 px-6 bg-[#f5f5f5] overflow-hidden max-sm:py-10 max-sm:px-4">
-        <div className="text-center mb-10">
+      <section className="py-20 px-6 bg-[#f5f5f5] overflow-hidden max-sm:py-12 max-sm:px-4">
+        <div className="max-w-[1400px] mx-auto text-center mb-10">
           <span className="inline-block text-[0.7rem] font-bold tracking-[0.1em] uppercase text-brand mb-2">Colaboraciones</span>
           <h2 className="text-[clamp(1.4rem,3vw,2rem)] font-black text-ink m-0">Con quienes hemos trabajado</h2>
         </div>

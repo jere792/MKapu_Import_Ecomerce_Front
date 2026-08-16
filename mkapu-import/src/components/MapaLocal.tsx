@@ -15,8 +15,8 @@ export default function MapaLocal() {
   const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=17&output=embed`;
 
   return (
-    <section className="py-16 px-6 bg-[#0d0d0d]">
-      <div className="max-w-[1200px] mx-auto grid grid-cols-[1fr_1.6fr] gap-12 items-center max-md:grid-cols-1 max-md:gap-8">
+    <section className="py-20 px-6 bg-[#0d0d0d]">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-[1fr_1.6fr] gap-12 items-center max-md:grid-cols-1 max-md:gap-8">
         <div>
           <span className="inline-block text-[0.7rem] font-bold tracking-[0.1em] uppercase text-brand mb-3">Encuéntranos</span>
           <h2 className="text-[clamp(1.6rem,3vw,2.2rem)] font-black text-white m-0 mb-4 leading-[1.15]">Visita nuestra tienda</h2>

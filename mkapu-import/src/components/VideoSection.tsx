@@ -110,8 +110,8 @@ export default function VideoSection({ tipo }: { tipo?: "video" | "vlog" }) {
   if (videos.length === 0) return null;
 
   return (
-    <section className="py-16 px-6 bg-[#0d0d0d]">
-      <div className="max-w-[1040px] mx-auto">
+    <section className="py-20 px-6 bg-[#0d0d0d]">
+      <div className="max-w-[1400px] mx-auto">
         <div className="text-center mb-10">
           <span className="inline-block text-[0.7rem] font-bold tracking-[0.1em] uppercase text-brand mb-2">{tipo === "vlog" ? "Vlog" : "Videos"}</span>
           <h2 className="text-[clamp(1.4rem,3vw,2rem)] font-black text-white m-0">
