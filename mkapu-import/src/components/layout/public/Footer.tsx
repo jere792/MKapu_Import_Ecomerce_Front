@@ -14,7 +14,7 @@ export default function Footer() {
             <img
               src={empresa.logo}
               alt={empresa.nombre || "MKapu Import"}
-              className="h-[100px] w-[100px] block justify-center"
+              className="block justify-center max-h-[30px] max-w-[100px] w-auto h-auto"
             />
           )}
           <p className="text-[0.8rem] text-[#888] mt-1 max-w-[220px]">
@@ -30,6 +30,15 @@ export default function Footer() {
             </Link>
             <Link href="/productos" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
               Productos
+            </Link>
+            <Link href="/quienes-somos" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
+              Quiénes Somos
+            </Link>
+            <Link href="/blog" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
+              Blog
+            </Link>
+            <Link href="/contacto" className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white">
+              Contacto
             </Link>
           </div>
 

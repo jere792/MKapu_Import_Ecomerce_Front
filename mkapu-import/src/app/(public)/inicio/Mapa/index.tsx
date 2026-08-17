@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { MapPin } from "lucide-react";
 import { useEmpresa } from "@/context/EmpresaContext";
 
 export default function MapaLocal() {
@@ -20,7 +21,12 @@ export default function MapaLocal() {
         <div>
           <span className="inline-block text-[0.7rem] font-bold tracking-[0.1em] uppercase text-brand mb-3">Encuéntranos</span>
           <h2 className="text-[clamp(1.6rem,3vw,2.2rem)] font-black text-white m-0 mb-4 leading-[1.15]">Visita nuestra tienda</h2>
-          <p className="text-[0.95rem] text-[#ccc] mb-3 font-semibold">📍 {address}</p>
+          <p className="flex items-center gap-2.5 text-[0.95rem] text-[#ccc] mb-3 font-semibold">
+            <span className="inline-flex items-center justify-center w-9 h-9 shrink-0 rounded-full bg-brand/15 text-brand">
+              <MapPin size={18} />
+            </span>
+            {address}
+          </p>
           <p className="text-[0.9rem] text-[#888] leading-[1.65] m-0 mb-7">
             Contamos con showroom para que puedas ver los equipos en persona
             antes de comprar.

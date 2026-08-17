@@ -13,7 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Images,
-  Play,
   ImageIcon,
   Film,
 } from "lucide-react";
@@ -45,6 +44,16 @@ function MediaModal({
   );
   const [activeIdx, setActiveIdx] = useState(0);
 
+  const items = tab === "fotos" ? imagenes : videos;
+
+  function prev() {
+    setActiveIdx((i) => (i === 0 ? items.length - 1 : i - 1));
+  }
+
+  function next() {
+    setActiveIdx((i) => (i === items.length - 1 ? 0 : i + 1));
+  }
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -61,16 +70,6 @@ function MediaModal({
       document.body.style.overflow = "";
     };
   }, []);
-
-  const items = tab === "fotos" ? imagenes : videos;
-
-  function prev() {
-    setActiveIdx((i) => (i === 0 ? items.length - 1 : i - 1));
-  }
-
-  function next() {
-    setActiveIdx((i) => (i === items.length - 1 ? 0 : i + 1));
-  }
 
   function switchTab(t: "fotos" | "videos") {
     setTab(t);
@@ -611,8 +610,7 @@ export default function CollaboratorsCarousel() {
     return () => cancelAnimationFrame(raf);
   }, [colaboradores, shouldScroll]);
 
-  if (colaboradores.length === 0)
-    return <section style={{ minHeight: "280px" }} />;
+  if (colaboradores.length === 0) return null;
 
   const items = shouldScroll
     ? [...colaboradores, ...colaboradores]

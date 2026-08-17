@@ -64,7 +64,7 @@ function SeccionCarousel({ imagenes }: { imagenes: QuienesSomosImagen[] }) {
         style={{
           position: "relative",
           width: "100%",
-          aspectRatio: "4/3",
+          aspectRatio: "16/10",
           borderRadius: "20px",
           overflow: "hidden",
           background: "linear-gradient(135deg, #fff7ef 0%, #f2ece5 100%)",
@@ -200,33 +200,41 @@ export default function QuienesSomosClient({ secciones, banner }: Props) {
         </div>
       </section>
 
-      {/* ── SECCIONES ZIGZAG ── */}
-      <div className="max-w-[1200px] mx-auto px-6 pt-20 pb-[120px] flex flex-col gap-20 max-[1024px]:py-[60px] max-[1024px]:px-5 max-[1024px]:pb-20 max-[1024px]:gap-12 max-[520px]:px-3.5 max-[520px]:pt-10 max-[520px]:pb-[60px] max-[520px]:gap-8">
+      {/* ── SECCIONES TIMELINE ── */}
+      <div className="relative max-w-[1200px] mx-auto px-6 pt-20 pb-[120px] max-[1024px]:py-[60px] max-[1024px]:px-5 max-[1024px]:pb-20 max-[520px]:px-3.5 max-[520px]:pt-10 max-[520px]:pb-[60px]">
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#f5a623] via-[#ecd9bf] to-transparent max-[900px]:left-[27px] max-[900px]:from-[#f5a623] max-[900px]:via-[#ecd9bf]" aria-hidden />
+
         {secciones.map((seccion, index) => {
-          const isReverse = index % 2 !== 0;
+          const isLeft = index % 2 === 0;
           return (
             <section
               key={seccion.id}
-              className={`grid grid-cols-2 gap-[60px] p-10 bg-white rounded-[28px] border border-[#ede8e1] shadow-[0_8px_32px_rgba(78,52,24,0.06)] transition-shadow duration-300 hover:shadow-[0_12px_48px_rgba(78,52,24,0.1)] max-[1024px]:gap-10 max-[1024px]:p-8 max-[900px]:grid-cols-1 max-[900px]:gap-8 max-[900px]:p-7 max-[520px]:p-5 max-[520px]:gap-6 max-[520px]:rounded-[20px]`}
+              className="relative grid grid-cols-2 max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:pl-[70px] max-[520px]:pl-[54px]"
             >
-              <div className={`flex flex-col gap-5 ${isReverse ? "order-2 max-[900px]:order-none" : ""}`}>
-                {seccion.titulo && (
-                  <div className="flex items-start gap-4 max-[520px]:gap-3">
-                    <span className="text-[2.5rem] font-black text-brand leading-none shrink-0 opacity-60 tracking-[-0.04em] mt-0.5 max-[520px]:text-[2rem]">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <h2 className="text-[clamp(1.4rem,2.2vw,1.9rem)] font-extrabold leading-[1.2] text-[#1f1a17]">{seccion.titulo}</h2>
-                  </div>
-                )}
-                {seccion.descripcion && (
-                  <div
-                    className="text-base leading-[1.8] text-[#5c5249] [&_p]:mb-4 [&_p:last-child]:mb-0"
-                    dangerouslySetInnerHTML={{ __html: seccion.descripcion }}
-                  />
-                )}
+              <span
+                className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-[#f5a623] text-white font-black text-lg flex items-center justify-center border-4 border-white shadow-[0_4px_14px_rgba(245,166,35,0.45)] max-[900px]:left-[8px] max-[900px]:w-10 max-[900px]:h-10 max-[900px]:text-base"
+              >
+                {index + 1}
+              </span>
+
+              <div className={`flex flex-col justify-center gap-6 py-2 max-[900px]:py-0 ${isLeft ? "pr-[70px] max-[900px]:pr-0" : "col-start-2 pl-[70px] max-[900px]:col-start-auto max-[900px]:pl-0"}`}>
+                <article className="bg-white rounded-[24px] border border-[#ede8e1] p-8 shadow-[0_10px_36px_rgba(78,52,24,0.07)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_52px_rgba(78,52,24,0.14)] max-[520px]:p-5 max-[520px]:rounded-[18px]">
+                  {seccion.titulo && (
+                    <h2 className="text-[clamp(1.3rem,2vw,1.7rem)] font-extrabold leading-[1.2] text-[#1f1a17] mb-4 flex items-center gap-3">
+                      <span className="w-2 h-8 rounded-full bg-[#f5a623] shrink-0" />
+                      {seccion.titulo}
+                    </h2>
+                  )}
+                  {seccion.descripcion && (
+                    <div
+                      className="text-[0.95rem] leading-[1.85] text-[#5c5249] [&_p]:mb-4 [&_p:last-child]:mb-0"
+                      dangerouslySetInnerHTML={{ __html: seccion.descripcion }}
+                    />
+                  )}
+                </article>
               </div>
 
-              <div className={`w-full ${isReverse ? "order-1 max-[900px]:order-none" : ""}`}>
+              <div className={`py-2 max-[900px]:py-0 ${isLeft ? "pl-[70px] max-[900px]:pl-0" : "col-start-1 row-start-1 pr-[70px] max-[900px]:col-start-auto max-[900px]:row-start-auto max-[900px]:pr-0"}`}>
                 <SeccionCarousel imagenes={seccion.imagenes} />
               </div>
             </section>

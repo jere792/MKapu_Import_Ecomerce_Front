@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/public/Navbar";
+import Footer from "@/components/layout/public/Footer";
 
 interface Props {
   children: React.ReactNode;

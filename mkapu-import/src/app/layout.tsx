@@ -4,7 +4,6 @@ import "./globals.css";
 import { EmpresaProvider } from "@/context/EmpresaContext";
 import { CartProvider } from "@/app/context/CartContext";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import ClientShell from "@/components/ClientShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,7 +71,7 @@ export default function RootLayout({
       >
         <EmpresaProvider>
           <CartProvider>
-            <ClientShell>{children}</ClientShell>
+            {children}
             <WhatsAppButton />
           </CartProvider>
         </EmpresaProvider>

@@ -617,11 +617,37 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             ) : totalCount === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 px-4 py-16 text-[#888]">
-                <span className="text-5xl">😕</span>
-                <p className="m-0">No se encontraron productos con esos filtros</p>
-                <button onClick={clearFilters} className="px-5 py-2 bg-brand text-white border-none rounded-full font-semibold cursor-pointer">
-                  Ver todos
+              <div className="flex flex-col items-center justify-center gap-5 px-6 py-20 text-center bg-white rounded-[24px] border border-dashed border-[#e6ddd2] shadow-[0_8px_32px_rgba(78,52,24,0.05)]">
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full bg-[rgba(245,166,35,0.12)]" />
+                  <div className="absolute inset-3 rounded-full bg-[rgba(245,166,35,0.1)]" />
+                  <svg
+                    width="44"
+                    height="44"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#f5a623"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607z" />
+                  </svg>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="m-0 text-[1.15rem] font-extrabold text-[#1f1a17]">
+                    No encontramos productos
+                  </h3>
+                  <p className="m-0 text-[0.9rem] text-[#756a60] leading-relaxed max-w-[320px]">
+                    No se encontraron productos con esos filtros. Prueba con otra
+                    búsqueda o elimina los filtros.
+                  </p>
+                </div>
+                <button
+                  onClick={clearFilters}
+                  className="px-7 py-3 bg-brand text-white border-none rounded-full font-bold text-[0.9rem] cursor-pointer transition-colors hover:bg-[#d4891a] shadow-[0_8px_20px_rgba(245,166,35,0.35)]"
+                >
+                  Ver todos los productos
                 </button>
               </div>
             ) : (

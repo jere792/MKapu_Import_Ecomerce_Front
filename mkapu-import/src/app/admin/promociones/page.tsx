@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 
 type Promocion = {
   id: number;
@@ -507,75 +508,47 @@ export default function AdminPromocionesPage() {
       }}
     >
       {successMsg && (<div style={{position:"fixed",top:"1rem",right:"1rem",zIndex:9999,background:"#16a34a",color:"#fff",padding:"0.75rem 1.25rem",borderRadius:"10px",fontWeight:600,fontSize:"0.875rem",boxShadow:"0 4px 16px rgba(0,0,0,0.12)",display:"flex",alignItems:"center",gap:"8px"}}><CheckCircle size={16}/> {successMsg}</div>)}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <h1
+      <PageHeader
+        title="Promociones"
+        subtitle="Gestiona descuentos de productos con paginación"
+        actions={
+          <button
+            onClick={() => {
+              setShowForm(!showForm);
+              if (showForm) cancelForm();
+            }}
             style={{
-              margin: 0,
-              fontSize: "1.4rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: showForm ? "#f3f4f6" : C.primary,
+              color: showForm ? C.textMuted : "#fff",
+              border: showForm ? `1px solid ${C.border}` : "none",
+              borderRadius: "10px",
+              padding: "0.65rem 1.2rem",
               fontWeight: 700,
-              color: C.text,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Promociones
-          </h1>
-          <p
-            style={{
               fontSize: "0.875rem",
-              color: C.textMuted,
-              margin: "0.2rem 0 0",
+              cursor: "pointer",
+              transition: "all 0.18s",
+              boxShadow: showForm ? "none" : "0 2px 8px rgba(245,166,35,0.35)",
+            }}
+            onMouseEnter={(e) => {
+              if (!showForm) e.currentTarget.style.background = C.primaryHover;
+            }}
+            onMouseLeave={(e) => {
+              if (!showForm) e.currentTarget.style.background = C.primary;
             }}
           >
-            Gestiona descuentos de productos con paginación
-          </p>
-        </div>
-
-        <button
-          onClick={() => {
-            setShowForm(!showForm);
-            if (showForm) cancelForm();
-          }}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: showForm ? "#f3f4f6" : C.primary,
-            color: showForm ? C.textMuted : "#fff",
-            border: showForm ? `1px solid ${C.border}` : "none",
-            borderRadius: "10px",
-            padding: "0.65rem 1.2rem",
-            fontWeight: 700,
-            fontSize: "0.875rem",
-            cursor: "pointer",
-            transition: "all 0.18s",
-            boxShadow: showForm ? "none" : "0 2px 8px rgba(245,166,35,0.35)",
-          }}
-          onMouseEnter={(e) => {
-            if (!showForm) e.currentTarget.style.background = C.primaryHover;
-          }}
-          onMouseLeave={(e) => {
-            if (!showForm) e.currentTarget.style.background = C.primary;
-          }}
-        >
-          {showForm ? (
-            <>✕ Cancelar</>
-          ) : (
-            <>
-              <Tag size={15} /> + Nueva promoción
-            </>
-          )}
-        </button>
-      </div>
+            {showForm ? (
+              <>✕ Cancelar</>
+            ) : (
+              <>
+                <Tag size={15} /> + Nueva promoción
+              </>
+            )}
+          </button>
+        }
+      />
 
       {showForm && (
         <div

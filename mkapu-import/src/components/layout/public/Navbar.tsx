@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import CartDrawer from "./cartDrawer";
+import CartDrawer from "../../cartDrawer";
+import SubNavbar from "./SubNavbar";
 import { useCart } from "@/app/context/CartContext";
 import { useEmpresa } from "@/context/EmpresaContext";
 import { supabase } from "@/lib/supabase";
+import { LayoutGrid } from "lucide-react";
 import {
   ShieldCheckIcon,
   ShoppingCartIcon,
@@ -234,6 +236,8 @@ export default function Navbar({ categories = [] }: NavbarProps) {
             </span>
           </Link>
 
+          <span className="hidden md:block text-[#4a4a4a] text-2xl font-light leading-none select-none shrink-0">|</span>
+
           <div
             className="relative shrink-0 hidden md:block"
             onMouseEnter={openMega}
@@ -289,7 +293,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
                     className="col-span-2 flex items-center gap-2 px-3 py-2.5 text-[0.88rem] font-extrabold text-[#f5a623] no-underline rounded-lg bg-[#fff1ec] mb-1 transition-colors hover:bg-[#fbd5c5]"
                     onClick={() => setMegaOpen(false)}
                   >
-                    <span>🛍️</span> Catálogo
+                    <LayoutGrid size={16} className="shrink-0" /> Catálogo
                   </Link>
 
                   {cats.map((cat) => (
@@ -308,8 +312,8 @@ export default function Navbar({ categories = [] }: NavbarProps) {
           </div>
 
           {/* ✅ Buscador desktop */}
-          <div className="relative hidden md:block" ref={searchBoxRef}>
-            <form className="flex max-w-[440px] items-center bg-[#2a2a2a] border-[1.5px] border-[#333] rounded-[10px] overflow-hidden transition-colors focus-within:border-[#f5a623]" onSubmit={handleSearch}>
+          <div className="relative hidden md:block flex-1 min-w-0 max-w-[480px]" ref={searchBoxRef}>
+            <form className="flex max-w-[640px] items-center bg-[#2a2a2a] border-[1.5px] border-[#333] rounded-[10px] overflow-hidden transition-colors focus-within:border-[#f5a623]" onSubmit={handleSearch}>
               <input
                 type="search"
                 placeholder="Buscar productos..."
@@ -318,7 +322,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
                 onFocus={() => {
                   if (search.trim().length >= 2) setSuggestOpen(true);
                 }}
-                className="flex-1 border-0 bg-transparent px-3.5 py-2.5 text-base outline-none text-white min-w-0 placeholder:text-[#555]"
+                className="flex-1 border-0 bg-transparent px-3.5 py-2 text-base outline-none text-white min-w-0 placeholder:text-[#555]"
                 role="combobox"
                 aria-expanded={suggestOpen}
                 aria-autocomplete="list"
@@ -326,10 +330,10 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               />
               <button
                 type="submit"
-                className="bg-[#d2691e] border-0 px-4 text-white cursor-pointer inline-flex items-center justify-center h-full shrink-0 hover:bg-[#b8561a]"
+                className="bg-[#f5a623] border-0 px-5 text-black cursor-pointer inline-flex items-center justify-center self-stretch shrink-0 hover:bg-[#d9901d]"
                 aria-label="Buscar"
               >
-                <MagnifyingGlassIcon className="h-4 w-4" />
+                <MagnifyingGlassIcon className="h-4 w-4 text-black" />
               </button>
             </form>
 
@@ -391,24 +395,40 @@ export default function Navbar({ categories = [] }: NavbarProps) {
           <div className="flex items-center gap-1.5 ml-auto shrink-0">
             <div className="hidden md:flex items-center gap-0.5 border-r border-[#2a2a2a] pr-2.5 mr-1">
               {socialUrls.instagram && (
-                <a href={socialUrls.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="Instagram">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <a href={socialUrls.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg no-underline transition-all hover:bg-[#2a2a2a]" aria-label="Instagram">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#igGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <defs>
+                      <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#f09433" />
+                        <stop offset="25%" stopColor="#e6683c" />
+                        <stop offset="50%" stopColor="#dc2743" />
+                        <stop offset="75%" stopColor="#cc2366" />
+                        <stop offset="100%" stopColor="#bc1888" />
+                      </linearGradient>
+                    </defs>
                     <rect x="2" y="2" width="20" height="20" rx="5" />
                     <circle cx="12" cy="12" r="4" />
-                    <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
+                    <circle cx="17.5" cy="6.5" r="0.5" fill="url(#igGrad)" />
                   </svg>
                 </a>
               )}
               {socialUrls.facebook && (
-                <a href={socialUrls.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="Facebook">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <a href={socialUrls.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg no-underline transition-all hover:bg-[#2a2a2a]" aria-label="Facebook">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                   </svg>
                 </a>
               )}
               {socialUrls.tiktok && (
-                <a href={socialUrls.tiktok} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg text-[#888] no-underline transition-colors hover:text-white hover:bg-[#2a2a2a]" aria-label="TikTok">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <a href={socialUrls.tiktok} target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-lg no-underline transition-all hover:bg-[#2a2a2a]" aria-label="TikTok">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="url(#ttGrad)">
+                    <defs>
+                      <linearGradient id="ttGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#00f2ea" />
+                        <stop offset="50%" stopColor="#ffffff" />
+                        <stop offset="100%" stopColor="#ff0050" />
+                      </linearGradient>
+                    </defs>
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
                   </svg>
                 </a>
@@ -457,7 +477,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
             {authChecked && !(isLogged && isAdmin) && (
               <button
                 className="w-11 h-11 bg-[#2a2a2a] border-[1.5px] border-[#3a3a3a] rounded-[10px] text-[#aaaaaa] flex items-center justify-center cursor-pointer transition-all shrink-0 hover:bg-[#f5a623] hover:border-[#f5a623] hover:text-[#1a1a1a]"
-                onClick={() => router.push("/admin/login")}
+                onClick={() => router.push("/login")}
                 title="Acceso admin"
                 aria-label="Panel de administrador"
                 type="button"
@@ -526,15 +546,15 @@ export default function Navbar({ categories = [] }: NavbarProps) {
                   placeholder="Buscar productos..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="flex-1 border-0 bg-transparent px-3.5 py-3 text-base outline-none text-white placeholder:text-[#555]"
+                  className="flex-1 border-0 bg-transparent px-3.5 py-2.5 text-base outline-none text-white placeholder:text-[#555]"
                   autoFocus
                 />
-                <button
+<button
                   type="submit"
-className="bg-[#d2691e] border-0 px-4 text-white cursor-pointer inline-flex items-center justify-center h-full shrink-0 hover:bg-[#b8561a]"
+                  className="bg-[#f5a623] border-0 px-5 text-black cursor-pointer inline-flex items-center justify-center self-stretch shrink-0 hover:bg-[#d9901d]"
                   aria-label="Buscar"
                 >
-                  <MagnifyingGlassIcon className="h-4 w-4" />
+                  <MagnifyingGlassIcon className="h-4 w-4 text-black" />
                 </button>
               </form>
 
@@ -621,7 +641,7 @@ className="bg-[#d2691e] border-0 px-4 text-white cursor-pointer inline-flex item
             <div className="flex gap-2.5 border-t border-[#2a2a2a] pt-4 flex-wrap">
               {!isLogged && (
                 <Link
-                  href="/admin/login"
+                  href="/login"
                   className="text-[0.8rem] font-semibold text-[#888] no-underline transition-colors bg-transparent border-0 p-0 cursor-pointer hover:text-[#f5a623]"
                   onClick={() => setMobileOpen(false)}
                 >
@@ -662,25 +682,7 @@ className="bg-[#d2691e] border-0 px-4 text-white cursor-pointer inline-flex item
         )}
       </div>
 
-      <div className="hidden md:sticky md:top-[67px] z-[99] bg-[#1e1e1e] border-b-[3px] border-[#f5a623] border-t border-[#f5a623] flex justify-center items-stretch w-full min-h-[42px]">
-        <div className="flex items-stretch w-full max-w-[1000px]">
-          <Link href="/" className="group flex-1 flex items-center justify-center px-6 py-3 no-underline bg-[#1e1e1e] border-r-2 border-[#2e2e2e] transition-colors min-w-0 last:border-r-0 hover:bg-[#282828]">
-            <span className="text-[0.8rem] font-bold text-[#cccccc] tracking-[0.1em] uppercase transition-colors whitespace-nowrap group-hover:text-[#f5a623]">Home</span>
-          </Link>
-          <Link href="/productos" className="group flex-1 flex items-center justify-center px-6 py-3 no-underline bg-[#1e1e1e] border-r-2 border-[#2e2e2e] transition-colors min-w-0 last:border-r-0 hover:bg-[#282828]">
-            <span className="text-[0.8rem] font-bold text-[#cccccc] tracking-[0.1em] uppercase transition-colors whitespace-nowrap group-hover:text-[#f5a623]">Catálogo</span>
-          </Link>
-          <Link href="/blog" className="group flex-1 flex items-center justify-center px-6 py-3 no-underline bg-[#1e1e1e] border-r-2 border-[#2e2e2e] transition-colors min-w-0 last:border-r-0 hover:bg-[#282828]">
-            <span className="text-[0.8rem] font-bold text-[#cccccc] tracking-[0.1em] uppercase transition-colors whitespace-nowrap group-hover:text-[#f5a623]">Blog</span>
-          </Link>
-          <Link href="/quienes-somos" className="group flex-1 flex items-center justify-center px-6 py-3 no-underline bg-[#1e1e1e] border-r-2 border-[#2e2e2e] transition-colors min-w-0 last:border-r-0 hover:bg-[#282828]">
-            <span className="text-[0.8rem] font-bold text-[#cccccc] tracking-[0.1em] uppercase transition-colors whitespace-nowrap group-hover:text-[#f5a623]">Quiénes Somos</span>
-          </Link>
-          <Link href="/contacto" className="group flex-1 flex items-center justify-center px-6 py-3 no-underline bg-[#1e1e1e] border-r-2 border-[#2e2e2e] transition-colors min-w-0 last:border-r-0 hover:bg-[#282828]">
-            <span className="text-[0.8rem] font-bold text-[#cccccc] tracking-[0.1em] uppercase transition-colors whitespace-nowrap group-hover:text-[#f5a623]">Contacto</span>
-          </Link>
-        </div>
-      </div>
+      <SubNavbar />
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>

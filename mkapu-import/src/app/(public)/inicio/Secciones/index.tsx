@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import HomeSeccionesCarousel from "@/components/HomeSeccionesCarousel";
+import HomeSeccionesCarousel from "./HomeSeccionesCarousel";
 
 type Producto = {
   id: number;
