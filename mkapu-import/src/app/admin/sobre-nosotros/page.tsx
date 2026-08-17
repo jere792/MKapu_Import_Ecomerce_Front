@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Pencil, Trash2, Image as ImageIcon, ImageOff, ImagePlus, CheckCircle } from "lucide-react";
+import { Pencil, Trash2, Image as ImageIcon, ImageOff, ImagePlus, CheckCircle, Info } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
 
 type Seccion = {
   id: number;
@@ -289,83 +290,57 @@ export default function AdminSobreNosotrosPage() {
           <CheckCircle size={16} /> {successMsg}
         </div>
       )}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "1.4rem",
-              fontWeight: 700,
-              color: "#1a1a1a",
-            }}
-          >
-            Sobre Nosotros
-          </h1>
-          <p
-            style={{
-              fontSize: "0.875rem",
-              color: "#888",
-              margin: "0.25rem 0 0",
-            }}
-          >
-            Gestiona las secciones de la página "Quiénes Somos"
-          </p>
-        </div>
+      <SectionHeader
+        title="Sobre Nosotros"
+        icon={<Info size={18} />}
+        description={'Gestiona las secciones de la página "Quiénes Somos"'}
+        actions={
+          <>
+            {savingOrder && (
+              <span
+                style={{
+                  fontSize: "0.8rem",
+                  color: "#c47d00",
+                  background: "#fff8e6",
+                  padding: "6px 10px",
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Guardando orden...
+              </span>
+            )}
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {savingOrder && (
-            <span
+            <button
+              onClick={() => {
+                if (showForm) cancelForm();
+                else setForm({ ...initialForm, orden: rows.length + 1 });
+                setShowForm(!showForm);
+              }}
               style={{
-                fontSize: "0.8rem",
-                color: "#c47d00",
-                background: "#fff8e6",
-                padding: "6px 10px",
-                borderRadius: "999px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#f5a623",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.65rem 1.1rem",
                 fontWeight: 600,
+                fontSize: "0.875rem",
+                cursor: "pointer",
+                transition: "background 0.2s",
                 whiteSpace: "nowrap",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#d4891a")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "#f5a623")}
             >
-              Guardando orden...
-            </span>
-          )}
-
-          <button
-            onClick={() => {
-              if (showForm) cancelForm();
-              else setForm({ ...initialForm, orden: rows.length + 1 });
-              setShowForm(!showForm);
-            }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "#f5a623",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.65rem 1.1rem",
-              fontWeight: 600,
-              fontSize: "0.875rem",
-              cursor: "pointer",
-              transition: "background 0.2s",
-              whiteSpace: "nowrap",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d4891a")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f5a623")}
-          >
-            {showForm ? "✕ Cancelar" : "+ Nueva sección"}
-          </button>
-        </div>
-      </div>
+              {showForm ? "✕ Cancelar" : "+ Nueva sección"}
+            </button>
+          </>
+        }
+      />
 
       {showForm && (
         <div

@@ -10,7 +10,9 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  LayoutDashboard,
 } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
 
 type Categoria = { id: number; name: string; slug: string; activo: boolean };
 type Seccion = {
@@ -132,62 +134,40 @@ export default function AdminHomePage() {
       `}</style>
 
       {/* Header */}
-      <div
-        style={{
-          marginBottom: "1.5rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "1.4rem",
-              fontWeight: 700,
-              color: "#1a1a1a",
-            }}
-          >
-            Secciones del Home
-          </h1>
-          <p
-            style={{
-              fontSize: "0.875rem",
-              color: "#888",
-              margin: "0.25rem 0 0",
-            }}
-          >
+      <SectionHeader
+        title="Secciones del Home"
+        icon={<LayoutDashboard size={18} />}
+        description={
+          <>
             Elige qué categorías se muestran en la página principal y define su
             orden.
-          </p>
-        </div>
-
-        {saving && (
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "6px 12px",
-              borderRadius: 999,
-              background: "#fff8e6",
-              color: "#c47d00",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-            }}
-          >
-            <Loader2
-              size={14}
-              style={{ animation: "spin 0.8s linear infinite" }}
-            />
-            Guardando…
-          </div>
-        )}
-      </div>
+          </>
+        }
+        actions={
+          saving && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                borderRadius: 999,
+                background: "#fff8e6",
+                color: "#c47d00",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <Loader2
+                size={14}
+                style={{ animation: "spin 0.8s linear infinite" }}
+              />
+              Guardando…
+            </div>
+          )
+        }
+      />
 
       {/* Categorías disponibles */}
       <section

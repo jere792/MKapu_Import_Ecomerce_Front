@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { CheckCircle, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle, Pencil, Trash2, FolderTree } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
+import DataTable from "@/components/layout/admin/DataTable";
 
 type Categoria = {
   id: number;
@@ -164,64 +166,37 @@ export default function AdminCategoriasPage() {
           <CheckCircle size={16} /> {successMsg}
         </div>
       )}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "1.4rem",
-              fontWeight: 700,
-              color: "#1a1a1a",
+      <SectionHeader
+        title="Categorías"
+        icon={<FolderTree size={18} />}
+        description="Organiza tus productos en categorías"
+        actions={
+          <button
+            onClick={() => {
+              setShowForm(!showForm);
+              if (showForm) cancelForm();
             }}
-          >
-            Categorías
-          </h1>
-          <p
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#f5a623",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              padding: "0.65rem 1.1rem",
+              fontWeight: 600,
               fontSize: "0.875rem",
-              color: "#888",
-              margin: "0.25rem 0 0",
+              cursor: "pointer",
+              transition: "background 0.2s",
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#d4891a")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#f5a623")}
           >
-            {rows.length} categoría{rows.length !== 1 ? "s" : ""} registrada
-            {rows.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-
-        <button
-          onClick={() => {
-            setShowForm(!showForm);
-            if (showForm) cancelForm();
-          }}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "#f5a623",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            padding: "0.65rem 1.1rem",
-            fontWeight: 600,
-            fontSize: "0.875rem",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#d4891a")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#f5a623")}
-        >
-          {showForm ? "✕ Cancelar" : "+ Nueva categoría"}
-        </button>
-      </div>
+            {showForm ? "✕ Cancelar" : "+ Nueva categoría"}
+          </button>
+        }
+      />
 
       {showForm && (
         <div
@@ -387,238 +362,19 @@ export default function AdminCategoriasPage() {
             />
           </div>
 
-          {loading ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "3rem",
-                color: "#aaa",
-              }}
-            >
-              Cargando categorías...
-            </div>
-          ) : (
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: "12px",
-                border: "1px solid #e8e8e8",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  overflowX: "auto",
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                <table
-                  style={{
-                    width: "100%",
-                    minWidth: 640,
-                    borderCollapse: "collapse",
-                  }}
-                >
-                  <thead>
-                    <tr
-                      style={{
-                        background: "#fafafa",
-                        borderBottom: "1px solid #e8e8e8",
-                      }}
-                    >
-                      {["Nombre", "Slug", "Estado", "Acciones"].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "0.85rem 1rem",
-                            textAlign: "left",
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#888",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {filtered.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={4}
-                          style={{
-                            padding: "3rem",
-                            textAlign: "center",
-                            color: "#aaa",
-                          }}
-                        >
-                          {search ? "Sin resultados" : "No hay categorías aún"}
-                        </td>
-                      </tr>
-                    ) : (
-                      filtered.map((c, i) => (
-                        <tr
-                          key={c.id}
-                          style={{
-                            borderBottom:
-                              i < filtered.length - 1
-                                ? "1px solid #f0f0f0"
-                                : "none",
-                          }}
-                        >
-                          <td
-                            style={{
-                              padding: "0.9rem 1rem",
-                              fontWeight: 600,
-                              color: "#1a1a1a",
-                              fontSize: "0.9rem",
-                              minWidth: 180,
-                            }}
-                          >
-                            {c.name}
-                          </td>
-
-                          <td
-                            style={{
-                              padding: "0.9rem 1rem",
-                              minWidth: 180,
-                            }}
-                          >
-                            <span
-                              style={{
-                                background: "#f5f5f5",
-                                color: "#888",
-                                padding: "3px 10px",
-                                borderRadius: "6px",
-                                fontSize: "0.8rem",
-                                fontFamily: "monospace",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {c.slug}
-                            </span>
-                          </td>
-
-                          <td
-                            style={{
-                              padding: "0.9rem 1rem",
-                              minWidth: 130,
-                            }}
-                          >
-                            <button
-                              onClick={() => toggleActivo(c)}
-                              title="Click para cambiar estado"
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "5px",
-                                padding: "3px 12px",
-                                borderRadius: "999px",
-                                fontSize: "0.78rem",
-                                fontWeight: 600,
-                                border: "none",
-                                cursor: "pointer",
-                                whiteSpace: "nowrap",
-                                background: c.activo
-                                  ? "rgba(34,197,94,0.1)"
-                                  : "rgba(239,68,68,0.1)",
-                                color: c.activo ? "#16a34a" : "#dc2626",
-                                transition: "opacity 0.2s",
-                              }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.opacity = "0.8")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.opacity = "1")
-                              }
-                            >
-                              {c.activo ? "Activo" : "Inactivo"}
-                            </button>
-                          </td>
-
-                          <td
-                            style={{
-                              padding: "0.9rem 1rem",
-                              minWidth: 180,
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "8px",
-                                flexWrap: "wrap",
-                                alignItems: "center",
-                              }}
-                            >
-                              <button
-                                onClick={() => onEdit(c)}
-                                title="Editar categoría"
-                                aria-label={`Editar categoría ${c.name}`}
-                                style={{
-                                  background: "rgba(245,166,35,0.1)",
-                                  color: "#f5a623",
-                                  border: "1px solid rgba(245,166,35,0.18)",
-                                  padding: "7px",
-                                  borderRadius: "8px",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition: "background 0.2s, transform 0.15s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(245,166,35,0.18)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(245,166,35,0.1)";
-                                }}
-                              >
-                                <Pencil size={15} />
-                              </button>
-
-                              <button
-                                onClick={() => onDelete(c.id)}
-                                title="Eliminar categoría"
-                                aria-label={`Eliminar categoría ${c.name}`}
-                                style={{
-                                  background: "rgba(220,53,69,0.08)",
-                                  color: "#dc3545",
-                                  border: "1px solid rgba(220,53,69,0.2)",
-                                  padding: "7px",
-                                  borderRadius: "8px",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition: "background 0.2s, transform 0.15s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(220,53,69,0.14)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(220,53,69,0.08)";
-                                }}
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
+          <DataTable
+            columns={[
+              { key: "nombre", label: "Nombre" },
+              { key: "slug", label: "Slug" },
+              { key: "estado", label: "Estado" },
+              { key: "acciones", label: "Acciones" },
+            ]}
+            rows={filtered}
+            minWidth={640}
+            loading={loading}
+            loadingText="Cargando categorías..."
+            emptyText={search ? "Sin resultados" : "No hay categorías aún"}
+            footer={
               <div
                 style={{
                   padding: "12px 16px",
@@ -631,8 +387,159 @@ export default function AdminCategoriasPage() {
                 {filtered.length} de {rows.length} categoría
                 {rows.length !== 1 ? "s" : ""}
               </div>
-            </div>
-          )}
+            }
+            renderRow={(c, i) => (
+              <tr
+                key={c.id}
+                style={{
+                  borderBottom:
+                    i < filtered.length - 1 ? "1px solid #f0f0f0" : "none",
+                }}
+              >
+                <td
+                  style={{
+                    padding: "0.9rem 1rem",
+                    fontWeight: 600,
+                    color: "#1a1a1a",
+                    fontSize: "0.9rem",
+                    minWidth: 180,
+                  }}
+                >
+                  {c.name}
+                </td>
+
+                <td
+                  style={{
+                    padding: "0.9rem 1rem",
+                    minWidth: 180,
+                  }}
+                >
+                  <span
+                    style={{
+                      background: "#f5f5f5",
+                      color: "#888",
+                      padding: "3px 10px",
+                      borderRadius: "6px",
+                      fontSize: "0.8rem",
+                      fontFamily: "monospace",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {c.slug}
+                  </span>
+                </td>
+
+                <td
+                  style={{
+                    padding: "0.9rem 1rem",
+                    minWidth: 130,
+                  }}
+                >
+                  <button
+                    onClick={() => toggleActivo(c)}
+                    title="Click para cambiar estado"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      padding: "3px 12px",
+                      borderRadius: "999px",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      border: "none",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      background: c.activo
+                        ? "rgba(34,197,94,0.1)"
+                        : "rgba(239,68,68,0.1)",
+                      color: c.activo ? "#16a34a" : "#dc2626",
+                      transition: "opacity 0.2s",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.opacity = "0.8")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.opacity = "1")
+                    }
+                  >
+                    {c.activo ? "Activo" : "Inactivo"}
+                  </button>
+                </td>
+
+                <td
+                  style={{
+                    padding: "0.9rem 1rem",
+                    minWidth: 180,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                    }}
+                  >
+                    <button
+                      onClick={() => onEdit(c)}
+                      title="Editar categoría"
+                      aria-label={`Editar categoría ${c.name}`}
+                      style={{
+                        background: "rgba(245,166,35,0.1)",
+                        color: "#f5a623",
+                        border: "1px solid rgba(245,166,35,0.18)",
+                        padding: "7px",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "background 0.2s, transform 0.15s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(245,166,35,0.18)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(245,166,35,0.1)";
+                      }}
+                    >
+                      <Pencil size={15} />
+                    </button>
+
+                    <button
+                      onClick={() => onDelete(c.id)}
+                      title="Eliminar categoría"
+                      aria-label={`Eliminar categoría ${c.name}`}
+                      style={{
+                        background: "rgba(220,53,69,0.08)",
+                        color: "#dc3545",
+                        border: "1px solid rgba(220,53,69,0.2)",
+                        padding: "7px",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "background 0.2s, transform 0.15s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(220,53,69,0.14)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(220,53,69,0.08)";
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
+          />
         </>
       )}
     </div>

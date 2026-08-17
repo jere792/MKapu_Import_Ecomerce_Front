@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { Eye, ChevronLeft, CheckCircle } from "lucide-react";
+import { Eye, ChevronLeft, CheckCircle, AlertCircle, Inbox, Clock3, Timer, CircleCheck } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
+import KpiCard from "@/components/layout/admin/KpiCard";
+import DataTable from "@/components/layout/admin/DataTable";
 
 type Reclamacion = {
   id: number;
@@ -161,45 +164,10 @@ export default function AdminReclamacionesPage() {
       )}
       {selected ? (
         <>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-              marginBottom: "1.5rem",
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              onClick={onBack}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                background: "#fff",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-                padding: "0.65rem 1rem",
-                fontWeight: 600,
-                fontSize: "0.875rem",
-                cursor: "pointer",
-                color: "#555",
-              }}
-            >
-              <ChevronLeft size={16} /> Volver
-            </button>
-
-            <div>
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: "1.4rem",
-                  fontWeight: 700,
-                  color: "#1a1a1a",
-                }}
-              >
-                Detalle de reclamación
-              </h1>
+            <SectionHeader
+            title="Detalle de reclamación"
+            icon={<AlertCircle size={18} />}
+            description={
               <code
                 style={{
                   display: "inline-block",
@@ -214,8 +182,28 @@ export default function AdminReclamacionesPage() {
               >
                 {selected.ticket}
               </code>
-            </div>
-          </div>
+            }
+            actions={
+              <button
+                onClick={onBack}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "#fff",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "8px",
+                  padding: "0.65rem 1rem",
+                  fontWeight: 600,
+                  fontSize: "0.875rem",
+                  cursor: "pointer",
+                  color: "#555",
+                }}
+              >
+                <ChevronLeft size={16} /> Volver
+              </button>
+            }
+          />
 
           <div
             style={{
@@ -396,27 +384,11 @@ export default function AdminReclamacionesPage() {
         </>
       ) : (
         <>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "1.4rem",
-                fontWeight: 700,
-                color: "#1a1a1a",
-              }}
-            >
-              Reclamaciones
-            </h1>
-            <p
-              style={{
-                fontSize: "0.875rem",
-                color: "#888",
-                margin: "0.25rem 0 0",
-              }}
-            >
-              Gestiona y responde los tickets de clientes
-            </p>
-          </div>
+          <SectionHeader
+            title="Reclamaciones"
+            icon={<AlertCircle size={18} />}
+            description="Gestiona y responde los tickets de clientes"
+          />
 
           <div
             style={{
@@ -427,72 +399,30 @@ export default function AdminReclamacionesPage() {
               marginBottom: "1.5rem",
             }}
           >
-            {[
-              {
-                key: "todos",
-                label: "Total",
-                color: "#1a1a1a",
-                bg: "#fff",
-                border: "1px solid #e8e8e8",
-              },
-              {
-                key: "pendiente",
-                label: "Pendientes",
-                color: "#c2410c",
-                bg: "#fff7ed",
-                border: "1px solid #fed7aa",
-              },
-              {
-                key: "en_proceso",
-                label: "En proceso",
-                color: "#b45309",
-                bg: "#fffbeb",
-                border: "1px solid #fde68a",
-              },
-              {
-                key: "resuelto",
-                label: "Resueltos",
-                color: "#15803d",
-                bg: "#f0fdf4",
-                border: "1px solid #bbf7d0",
-              },
-            ].map((s) => (
-              <div
-                key={s.key}
-                style={{
-                  background: s.bg,
-                  border: s.border,
-                  borderRadius: "12px",
-                  padding: "1rem 1.25rem",
-                  minWidth: 0,
-                }}
-              >
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "0.7rem",
-                    fontWeight: 700,
-                    color: s.color,
-                    opacity: 0.7,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  {s.label}
-                </p>
-                <p
-                  style={{
-                    margin: "6px 0 0",
-                    fontSize: "1.9rem",
-                    fontWeight: 800,
-                    color: s.color,
-                    lineHeight: 1,
-                  }}
-                >
-                  {stats[s.key as keyof typeof stats]}
-                </p>
-              </div>
-            ))}
+            <KpiCard
+              label="Total"
+              value={stats.todos}
+              color="#1a1a1a"
+              icon={<Inbox size={18} />}
+            />
+            <KpiCard
+              label="Pendientes"
+              value={stats.pendiente}
+              color="#c2410c"
+              icon={<Clock3 size={18} />}
+            />
+            <KpiCard
+              label="En proceso"
+              value={stats.en_proceso}
+              color="#b45309"
+              icon={<Timer size={18} />}
+            />
+            <KpiCard
+              label="Resueltos"
+              value={stats.resuelto}
+              color="#15803d"
+              icon={<CircleCheck size={18} />}
+            />
           </div>
 
           <div
@@ -529,343 +459,279 @@ export default function AdminReclamacionesPage() {
             ))}
           </div>
 
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #e8e8e8",
-              borderRadius: "12px",
-              overflow: "hidden",
-            }}
-          >
-            {loading ? (
+          <DataTable
+            columns={[
+              { key: "ticket", label: "Ticket" },
+              { key: "cliente", label: "Cliente" },
+              { key: "email", label: "Email" },
+              { key: "tipo", label: "Tipo" },
+              { key: "estado", label: "Estado" },
+              { key: "fecha", label: "Fecha" },
+              { key: "acciones", label: "" },
+            ]}
+            rows={rows}
+            minWidth="980px"
+            loading={loading}
+            loadingText="Cargando..."
+            emptyText="No hay reclamaciones con este filtro"
+            footer={
               <div
-                style={{ padding: "3rem", textAlign: "center", color: "#aaa" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "1rem 1.25rem",
+                  borderTop: "1px solid #e8e8e8",
+                  background: "#fafafa",
+                  fontSize: "0.875rem",
+                  color: "#888",
+                  flexWrap: "wrap",
+                  gap: "1rem",
+                }}
               >
-                Cargando...
-              </div>
-            ) : rows.length === 0 ? (
-              <div
-                style={{ padding: "3rem", textAlign: "center", color: "#aaa" }}
-              >
-                No hay reclamaciones con este filtro
-              </div>
-            ) : (
-              <>
-                <div
-                  style={{
-                    width: "100%",
-                    overflowX: "auto",
-                    overflowY: "hidden",
-                    WebkitOverflowScrolling: "touch",
-                  }}
-                >
-                  <table
-                    style={{
-                      width: "100%",
-                      minWidth: "980px",
-                      borderCollapse: "collapse",
-                    }}
-                  >
-                    <thead>
-                      <tr
-                        style={{
-                          background: "#fafafa",
-                          borderBottom: "1px solid #e8e8e8",
-                        }}
-                      >
-                        {[
-                          "Ticket",
-                          "Cliente",
-                          "Email",
-                          "Tipo",
-                          "Estado",
-                          "Fecha",
-                          "",
-                        ].map((h) => (
-                          <th
-                            key={h}
-                            style={{
-                              padding: "0.85rem 1rem",
-                              textAlign: "left",
-                              fontSize: "0.8rem",
-                              fontWeight: 600,
-                              color: "#888",
-                              textTransform: "uppercase",
-                              letterSpacing: "0.05em",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {rows.map((r, i) => {
-                        const es = estadoInfo(r.estado);
-
-                        return (
-                          <tr
-                            key={r.id}
-                            style={{
-                              borderBottom:
-                                i < rows.length - 1
-                                  ? "1px solid #f0f0f0"
-                                  : "none",
-                              cursor: "pointer",
-                              transition: "background 0.1s",
-                            }}
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.background = "#fafafa")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.background = "#fff")
-                            }
-                            onClick={() => onVer(r)}
-                          >
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <code
-                                style={{
-                                  background: "#fff8e6",
-                                  color: "#b07800",
-                                  padding: "2px 8px",
-                                  borderRadius: "4px",
-                                  fontSize: "0.78rem",
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {r.ticket}
-                              </code>
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                fontWeight: 600,
-                                color: "#1a1a1a",
-                                fontSize: "0.9rem",
-                                minWidth: 220,
-                              }}
-                            >
-                              {r.nombres} {r.apellidos}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                color: "#666",
-                                fontSize: "0.875rem",
-                                minWidth: 240,
-                              }}
-                            >
-                              {r.email}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  display: "inline-flex",
-                                  padding: "2px 10px",
-                                  borderRadius: "20px",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 700,
-                                  background: "#f0f0f0",
-                                  color: "#555",
-                                }}
-                              >
-                                {r.tipo}
-                              </span>
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                whiteSpace: "nowrap",
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <select
-                                value={r.estado || "pendiente"}
-                                onChange={(e) =>
-                                  updateEstado(r.id, e.target.value)
-                                }
-                                style={{
-                                  padding: "5px 12px",
-                                  borderRadius: "20px",
-                                  border: "none",
-                                  fontSize: "0.78rem",
-                                  fontWeight: 700,
-                                  cursor: "pointer",
-                                  background: es.bg,
-                                  color: es.color,
-                                }}
-                              >
-                                <option value="pendiente">Pendiente</option>
-                                <option value="en_proceso">En proceso</option>
-                                <option value="resuelto">Resuelto</option>
-                              </select>
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                color: "#aaa",
-                                fontSize: "0.8rem",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {new Date(r.created_at).toLocaleDateString(
-                                "es-PE",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                whiteSpace: "nowrap",
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <button
-                                onClick={() => onVer(r)}
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "5px",
-                                  background: "rgba(245,166,35,0.1)",
-                                  color: "#f5a623",
-                                  border: "1px solid rgba(245,166,35,0.18)",
-                                  padding: "5px 12px",
-                                  borderRadius: "6px",
-                                  fontSize: "0.8rem",
-                                  fontWeight: 600,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                <Eye size={12} /> Ver
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <span>
+                  Mostrando {totalItems === 0 ? 0 : startIndex + 1}–
+                  {Math.min(startIndex + itemsPerPage, totalItems)} de{" "}
+                  {totalItems}
+                </span>
 
                 <div
                   style={{
                     display: "flex",
+                    gap: "6px",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "1rem 1.25rem",
-                    borderTop: "1px solid #e8e8e8",
-                    background: "#fafafa",
-                    fontSize: "0.875rem",
-                    color: "#888",
                     flexWrap: "wrap",
-                    gap: "1rem",
                   }}
                 >
-                  <span>
-                    Mostrando {totalItems === 0 ? 0 : startIndex + 1}–
-                    {Math.min(startIndex + itemsPerPage, totalItems)} de{" "}
-                    {totalItems}
-                  </span>
-
-                  <div
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     style={{
-                      display: "flex",
-                      gap: "6px",
-                      alignItems: "center",
-                      flexWrap: "wrap",
+                      padding: "6px 10px",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "6px",
+                      background: "#fff",
+                      color: "#666",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                      opacity: currentPage === 1 ? 0.4 : 1,
                     }}
                   >
-                    <button
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    ← Anterior
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          padding: "6px 10px",
+                          border:
+                            currentPage === page
+                              ? "2px solid #f5a623"
+                              : "1px solid #e0e0e0",
+                          borderRadius: "6px",
+                          background:
+                            currentPage === page ? "#fff8e6" : "#fff",
+                          color: currentPage === page ? "#f5a623" : "#666",
+                          fontSize: "0.8rem",
+                          fontWeight: currentPage === page ? 700 : 600,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
+
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    style={{
+                      padding: "6px 10px",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "6px",
+                      background: "#fff",
+                      color: "#666",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      cursor:
+                        currentPage === totalPages
+                          ? "not-allowed"
+                          : "pointer",
+                      opacity: currentPage === totalPages ? 0.4 : 1,
+                    }}
+                  >
+                    Siguiente →
+                  </button>
+                </div>
+              </div>
+            }
+            renderRow={(r, i) => {
+              const es = estadoInfo(r.estado);
+
+              return (
+                <tr
+                  key={r.id}
+                  style={{
+                    borderBottom:
+                      i < rows.length - 1 ? "1px solid #f0f0f0" : "none",
+                    cursor: "pointer",
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "#fafafa")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "#fff")
+                  }
+                  onClick={() => onVer(r)}
+                >
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <code
                       style={{
-                        padding: "6px 10px",
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "6px",
-                        background: "#fff",
-                        color: "#666",
-                        fontSize: "0.8rem",
+                        background: "#fff8e6",
+                        color: "#b07800",
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                        fontSize: "0.78rem",
                         fontWeight: 600,
-                        cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                        opacity: currentPage === 1 ? 0.4 : 1,
                       }}
                     >
-                      ← Anterior
-                    </button>
+                      {r.ticket}
+                    </code>
+                  </td>
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (page) => (
-                        <button
-                          key={page}
-                          onClick={() => setCurrentPage(page)}
-                          style={{
-                            padding: "6px 10px",
-                            border:
-                              currentPage === page
-                                ? "2px solid #f5a623"
-                                : "1px solid #e0e0e0",
-                            borderRadius: "6px",
-                            background:
-                              currentPage === page ? "#fff8e6" : "#fff",
-                            color: currentPage === page ? "#f5a623" : "#666",
-                            fontSize: "0.8rem",
-                            fontWeight: currentPage === page ? 700 : 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          {page}
-                        </button>
-                      ),
-                    )}
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      fontWeight: 600,
+                      color: "#1a1a1a",
+                      fontSize: "0.9rem",
+                      minWidth: 220,
+                    }}
+                  >
+                    {r.nombres} {r.apellidos}
+                  </td>
 
-                    <button
-                      disabled={currentPage === totalPages}
-                      onClick={() =>
-                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      color: "#666",
+                      fontSize: "0.875rem",
+                      minWidth: 240,
+                    }}
+                  >
+                    {r.email}
+                  </td>
+
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        padding: "2px 10px",
+                        borderRadius: "20px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        background: "#f0f0f0",
+                        color: "#555",
+                      }}
+                    >
+                      {r.tipo}
+                    </span>
+                  </td>
+
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      whiteSpace: "nowrap",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <select
+                      value={r.estado || "pendiente"}
+                      onChange={(e) =>
+                        updateEstado(r.id, e.target.value)
                       }
                       style={{
-                        padding: "6px 10px",
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "6px",
-                        background: "#fff",
-                        color: "#666",
-                        fontSize: "0.8rem",
-                        fontWeight: 600,
-                        cursor:
-                          currentPage === totalPages
-                            ? "not-allowed"
-                            : "pointer",
-                        opacity: currentPage === totalPages ? 0.4 : 1,
+                        padding: "5px 12px",
+                        borderRadius: "20px",
+                        border: "none",
+                        fontSize: "0.78rem",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        background: es.bg,
+                        color: es.color,
                       }}
                     >
-                      Siguiente →
+                      <option value="pendiente">Pendiente</option>
+                      <option value="en_proceso">En proceso</option>
+                      <option value="resuelto">Resuelto</option>
+                    </select>
+                  </td>
+
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      color: "#aaa",
+                      fontSize: "0.8rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {new Date(r.created_at).toLocaleDateString(
+                      "es-PE",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )}
+                  </td>
+
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      whiteSpace: "nowrap",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => onVer(r)}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        background: "rgba(245,166,35,0.1)",
+                        color: "#f5a623",
+                        border: "1px solid rgba(245,166,35,0.18)",
+                        padding: "5px 12px",
+                        borderRadius: "6px",
+                        fontSize: "0.8rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Eye size={12} /> Ver
                     </button>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+                  </td>
+                </tr>
+              );
+            }}
+          />
         </>
       )}
     </div>

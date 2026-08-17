@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Empresa } from "@/lib/supabase";
-import { Camera, Save } from "lucide-react";
+import { Camera, Save, Building2 } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
 import { showToast } from "@/components/Toast";
 
 const inp: React.CSSProperties = {
@@ -155,16 +156,11 @@ export default function AdminEmpresaPage() {
         minHeight: "100vh",
       }}
     >
-      <h1
-        style={{
-          margin: "0 0 1.5rem",
-          fontSize: "1.4rem",
-          fontWeight: 700,
-          color: "#1a1a1a",
-        }}
-      >
-        Configuración de empresa
-      </h1>
+      <SectionHeader
+        title="Configuración de empresa"
+        icon={<Building2 size={18} />}
+        description="Datos generales, logo y redes sociales del negocio"
+      />
 
       <form onSubmit={save}>
         <div className="empresa-grid">

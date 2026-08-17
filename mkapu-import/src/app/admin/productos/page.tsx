@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
+import DataTable from "@/components/layout/admin/DataTable";
 import {
   PlusCircle,
   X,
@@ -777,43 +779,17 @@ export default function AdminProductosPage() {
         {formMode === "list" && (
           <div className="ap-fadein">
             {/* Header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "space-between",
-                marginBottom: 20,
-                gap: 12,
-                flexWrap: "wrap",
-              }}
-            >
-              <div>
-                <h1
-                  style={{
-                    margin: 0,
-                    fontSize: "1.4rem",
-                    fontWeight: 700,
-                    color: "#1a1a1a",
-                  }}
-                >
-                  Productos
-                </h1>
-                <p
-                  style={{
-                    margin: "4px 0 0",
-                    fontSize: ".875rem",
-                    color: "#aaa",
-                  }}
-                >
-                  {totalCount} producto{totalCount !== 1 ? "s" : ""} en total
-                </p>
-              </div>
-
-              <button className="ap-btn ap-btn--primary" onClick={openCreate}>
-                <PlusCircle size={15} />
-                Nuevo producto
-              </button>
-            </div>
+            <SectionHeader
+              title="Productos"
+              icon={<Package size={18} />}
+              description="Gestiona el catálogo de tus productos"
+              actions={
+                <button className="ap-btn ap-btn--primary" onClick={openCreate}>
+                  <PlusCircle size={15} />
+                  Nuevo producto
+                </button>
+              }
+            />
 
             {/* Tabs de vista */}
             <div
@@ -942,87 +918,34 @@ export default function AdminProductosPage() {
             </div>
 
             {/* Tabla */}
-            {loading ? (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  padding: "48px 0",
-                  color: "#aaa",
-                }}
-              >
-                <Loader2
-                  size={20}
-                  className="ap-spin"
-                  style={{ color: "#f5a623" }}
-                />
-                <span style={{ fontSize: ".9rem" }}>Cargando productos...</span>
-              </div>
-            ) : (
-              <div className="ap-table-wrap">
-                <table className="ap-table">
-                  <thead>
-                    <tr>
-                      {[
-                        "Img",
-                        "Código",
-                        "Nombre",
-                        "Precio unit.",
-                        "Categoría",
-                        "Badges",
-                        "Estado",
-                        "Agotado",
-                        "Media",
-                        "Acciones",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          className="ap-th"
-                          style={
-                            h === "Agotado"
-                              ? { textAlign: "center" }
-                              : undefined
-                          }
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {rows.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={10}
-                          style={{ padding: 48, textAlign: "center" }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              gap: 8,
-                              color: "#ccc",
-                            }}
-                          >
-                            <Package size={32} />
-                            <span style={{ fontSize: ".9rem" }}>
-                              {search || selectedCategory
-                                ? "Sin resultados para esa búsqueda"
-                                : viewMode === "completos"
-                                  ? "Ningún producto tiene galería y video completos aún"
-                                  : viewMode === "incompletos"
-                                    ? "Todos los productos tienen media completa"
-                                    : "No hay productos aún"}
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      rows.map((p) => {
+            <DataTable
+              columns={[
+                { key: "img", label: "Img" },
+                { key: "codigo", label: "Código" },
+                { key: "nombre", label: "Nombre" },
+                { key: "precio", label: "Precio unit." },
+                { key: "categoria", label: "Categoría" },
+                { key: "badges", label: "Badges" },
+                { key: "estado", label: "Estado" },
+                { key: "agotado", label: "Agotado", align: "center" },
+                { key: "media", label: "Media" },
+                { key: "acciones", label: "Acciones" },
+              ]}
+              rows={rows}
+              minWidth="1500px"
+              loading={loading}
+              loadingText="Cargando productos..."
+              emptyIcon={<Package size={32} />}
+              emptyText={
+                search || selectedCategory
+                  ? "Sin resultados para esa búsqueda"
+                  : viewMode === "completos"
+                    ? "Ningún producto tiene galería y video completos aún"
+                    : viewMode === "incompletos"
+                      ? "Todos los productos tienen media completa"
+                      : "No hay productos aún"
+              }
+              renderRow={(p) => {
                         const hasImg = (p.imgCount ?? 0) > 0;
                         const hasVid = (p.vidCount ?? 0) > 0;
                         const incomplete = !hasImg || !hasVid;
@@ -1307,12 +1230,8 @@ export default function AdminProductosPage() {
                             </td>
                           </tr>
                         );
-                      })
-                    )}
-                  </tbody>
-                </table>
-
-                {/* Paginación */}
+                      }}
+              footer={
                 <div className="ap-pager">
                   <span>
                     {totalCount === 0
@@ -1363,8 +1282,8 @@ export default function AdminProductosPage() {
                     </button>
                   </div>
                 </div>
-              </div>
-            )}
+              }
+            />
           </div>
         )}
       </div>

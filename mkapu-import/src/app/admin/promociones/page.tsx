@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import PageHeader from "@/components/PageHeader";
+import PageHeader from "@/components/layout/admin/SectionHeader";
+import DataTable from "@/components/layout/admin/DataTable";
 
 type Promocion = {
   id: number;
@@ -214,34 +215,6 @@ function PaginationButton({
     </button>
   );
 }
-
-const Th = ({
-  children,
-  center,
-  width,
-}: {
-  children: React.ReactNode;
-  center?: boolean;
-  width?: number;
-}) => (
-  <th
-    style={{
-      padding: "0.8rem 1rem",
-      textAlign: center ? "center" : "left",
-      fontSize: "0.75rem",
-      fontWeight: 700,
-      color: "#888",
-      textTransform: "uppercase",
-      letterSpacing: "0.07em",
-      whiteSpace: "nowrap",
-      width,
-      background: C.headerBg,
-      borderBottom: `1px solid ${C.border}`,
-    }}
-  >
-    {children}
-  </th>
-);
 
 export default function AdminPromocionesPage() {
   const [promociones, setPromociones] = useState<Promocion[]>([]);
@@ -510,7 +483,8 @@ export default function AdminPromocionesPage() {
       {successMsg && (<div style={{position:"fixed",top:"1rem",right:"1rem",zIndex:9999,background:"#16a34a",color:"#fff",padding:"0.75rem 1.25rem",borderRadius:"10px",fontWeight:600,fontSize:"0.875rem",boxShadow:"0 4px 16px rgba(0,0,0,0.12)",display:"flex",alignItems:"center",gap:"8px"}}><CheckCircle size={16}/> {successMsg}</div>)}
       <PageHeader
         title="Promociones"
-        subtitle="Gestiona descuentos de productos con paginación"
+        icon={<Tag size={18} />}
+        description="Gestiona descuentos de productos con paginación"
         actions={
           <button
             onClick={() => {
@@ -906,251 +880,24 @@ export default function AdminPromocionesPage() {
             </div>
           </div>
 
-          {loading ? (
-            <div
-              style={{
-                background: C.surface,
-                borderRadius: "12px",
-                padding: "3rem",
-                textAlign: "center",
-                color: C.textFaint,
-                border: "1px solid #e8e8e8",
-              }}
-            >
-              Cargando promociones...
-            </div>
-          ) : (
-            <div
-              style={{
-                background: C.surface,
-                borderRadius: "12px",
-                border: "1px solid #e8e8e8",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={
-                  {
-                    overflowX: "auto",
-                    WebkitOverflowScrolling: "touch",
-                  } as React.CSSProperties
-                }
-              >
-                <table
-                  style={{
-                    width: "100%",
-                    minWidth: 680,
-                    borderCollapse: "collapse",
-                  }}
-                >
-                  <thead>
-                    <tr>
-                      <Th>Producto</Th>
-                      <Th>Descuento</Th>
-                      <Th>Vigencia</Th>
-                      <Th>Estado</Th>
-                      <Th center>Acciones</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {promociones.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={5}
-                          style={{
-                            padding: "3rem",
-                            textAlign: "center",
-                            color: C.textFaint,
-                            fontSize: "0.9rem",
-                          }}
-                        >
-                          {search
-                            ? "Sin resultados para esa búsqueda"
-                            : "No hay promociones aún"}
-                        </td>
-                      </tr>
-                    ) : (
-                      promociones.map((p, i) => (
-                        <tr
-                          key={p.id}
-                          style={{
-                            borderBottom:
-                              i < promociones.length - 1
-                                ? `1px solid ${C.borderLight}`
-                                : "none",
-                            transition: "background 0.1s",
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.background = C.headerBg)
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.background = "transparent")
-                          }
-                        >
-                          <td style={{ padding: "0.95rem 1rem", minWidth: 200 }}>
-                            {p.producto_code && (
-                              <span
-                                style={{
-                                  fontFamily: "ui-monospace, monospace",
-                                  fontSize: "0.75rem",
-                                  color: C.textFaint,
-                                  marginRight: 6,
-                                  background: "#f3f4f6",
-                                  padding: "1px 6px",
-                                  borderRadius: 4,
-                                }}
-                              >
-                                {p.producto_code}
-                              </span>
-                            )}
-                            <span
-                              style={{
-                                fontWeight: 600,
-                                color: C.text,
-                                fontSize: "0.875rem",
-                              }}
-                            >
-                              {p.producto_nombre}
-                            </span>
-                          </td>
-
-                          <td
-                            style={{
-                              padding: "0.95rem 1rem",
-                              minWidth: 110,
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 5,
-                                background: C.primaryLight,
-                                color: C.primaryHover,
-                                border: `1px solid ${C.primaryBorder}`,
-                                padding: "3px 10px",
-                                borderRadius: "7px",
-                                fontSize: "0.85rem",
-                                fontWeight: 800,
-                              }}
-                            >
-                              <Tag size={12} />
-                              {formatValor(p)}
-                            </span>
-                          </td>
-
-                          <td
-                            style={{
-                              padding: "0.95rem 1rem",
-                              fontSize: "0.82rem",
-                              color: C.textMuted,
-                              minWidth: 170,
-                            }}
-                          >
-                            {p.fecha_inicio || p.fecha_fin ? (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  gap: 2,
-                                }}
-                              >
-                                <span>
-                                  <span
-                                    style={{
-                                      fontSize: "0.72rem",
-                                      color: C.textFaint,
-                                      textTransform: "uppercase",
-                                      letterSpacing: "0.05em",
-                                    }}
-                                  >
-                                    Desde:{" "}
-                                  </span>
-                                  {formatDate(p.fecha_inicio)}
-                                </span>
-                                <span>
-                                  <span
-                                    style={{
-                                      fontSize: "0.72rem",
-                                      color: C.textFaint,
-                                      textTransform: "uppercase",
-                                      letterSpacing: "0.05em",
-                                    }}
-                                  >
-                                    Hasta:{" "}
-                                  </span>
-                                  {formatDate(p.fecha_fin)}
-                                </span>
-                              </div>
-                            ) : (
-                              <span style={{ color: C.textFaint }}>
-                                Sin fecha límite
-                              </span>
-                            )}
-                          </td>
-
-                          <td style={{ padding: "0.95rem 1rem", minWidth: 110 }}>
-                            <button
-                              onClick={() => toggleActivo(p)}
-                              title="Click para cambiar estado"
-                              style={{
-                                background: "none",
-                                border: "none",
-                                padding: 0,
-                                cursor: "pointer",
-                              }}
-                            >
-                              <Badge
-                                color={p.activo ? C.success : C.danger}
-                                bg={
-                                  p.activo
-                                    ? C.successLight
-                                    : "rgba(220,38,38,0.1)"
-                                }
-                              >
-                                {p.activo ? "Activo" : "Inactivo"}
-                              </Badge>
-                            </button>
-                          </td>
-
-                          <td style={{ padding: "0.95rem 1rem", minWidth: 100 }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: 6,
-                                justifyContent: "center",
-                              }}
-                            >
-                              <IconBtn
-                                onClick={() => onEdit(p)}
-                                title="Editar"
-                                color="#f5a623"
-                                bg="rgba(245,166,35,0.1)"
-                                bgHover="rgba(245,166,35,0.18)"
-                                border="1px solid rgba(245,166,35,0.18)"
-                              >
-                                <Pencil size={14} />
-                              </IconBtn>
-
-                              <IconBtn
-                                onClick={() => onDelete(p.id)}
-                                title="Eliminar"
-                                color={C.danger}
-                                bg={C.dangerLight}
-                                bgHover={C.dangerHover}
-                              >
-                                <Trash2 size={14} />
-                              </IconBtn>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
+          <DataTable
+            columns={[
+              { key: "producto", label: "Producto" },
+              { key: "descuento", label: "Descuento" },
+              { key: "vigencia", label: "Vigencia" },
+              { key: "estado", label: "Estado" },
+              { key: "acciones", label: "Acciones", align: "center" },
+            ]}
+            rows={promociones}
+            minWidth="680px"
+            loading={loading}
+            loadingText="Cargando promociones..."
+            emptyText={
+              search
+                ? "Sin resultados para esa búsqueda"
+                : "No hay promociones aún"
+            }
+            footer={
               <div
                 style={{
                   padding: "12px 16px",
@@ -1164,7 +911,8 @@ export default function AdminPromocionesPage() {
                 }}
               >
                 <span style={{ fontSize: "0.78rem", color: C.textFaint }}>
-                  Mostrando {pageRange.from}-{pageRange.to} de {totalItems} promoción
+                  Mostrando {pageRange.from}-{pageRange.to} de {totalItems}{" "}
+                  promoción
                   {totalItems !== 1 ? "es" : ""}
                 </span>
 
@@ -1182,21 +930,201 @@ export default function AdminPromocionesPage() {
 
                   <PaginationButton
                     disabled={page <= 1}
-                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setPage((prev) => Math.max(prev - 1, 1))
+                    }
                   >
                     <ChevronLeft size={14} /> Anterior
                   </PaginationButton>
 
                   <PaginationButton
                     disabled={page >= totalPages}
-                    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                   >
                     Siguiente <ChevronRight size={14} />
                   </PaginationButton>
                 </div>
               </div>
-            </div>
-          )}
+            }
+            renderRow={(p, i) => (
+              <tr
+                key={p.id}
+                style={{
+                  borderBottom:
+                    i < promociones.length - 1
+                      ? `1px solid ${C.borderLight}`
+                      : "none",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = C.headerBg)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "transparent")
+                }
+              >
+                <td style={{ padding: "0.95rem 1rem", minWidth: 200 }}>
+                  {p.producto_code && (
+                    <span
+                      style={{
+                        fontFamily: "ui-monospace, monospace",
+                        fontSize: "0.75rem",
+                        color: C.textFaint,
+                        marginRight: 6,
+                        background: "#f3f4f6",
+                        padding: "1px 6px",
+                        borderRadius: 4,
+                      }}
+                    >
+                      {p.producto_code}
+                    </span>
+                  )}
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      color: C.text,
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    {p.producto_nombre}
+                  </span>
+                </td>
+
+                <td
+                  style={{
+                    padding: "0.95rem 1rem",
+                    minWidth: 110,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 5,
+                      background: C.primaryLight,
+                      color: C.primaryHover,
+                      border: `1px solid ${C.primaryBorder}`,
+                      padding: "3px 10px",
+                      borderRadius: "7px",
+                      fontSize: "0.85rem",
+                      fontWeight: 800,
+                    }}
+                  >
+                    <Tag size={12} />
+                    {formatValor(p)}
+                  </span>
+                </td>
+
+                <td
+                  style={{
+                    padding: "0.95rem 1rem",
+                    fontSize: "0.82rem",
+                    color: C.textMuted,
+                    minWidth: 170,
+                  }}
+                >
+                  {p.fecha_inicio || p.fecha_fin ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <span>
+                        <span
+                          style={{
+                            fontSize: "0.72rem",
+                            color: C.textFaint,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Desde:{" "}
+                        </span>
+                        {formatDate(p.fecha_inicio)}
+                      </span>
+                      <span>
+                        <span
+                          style={{
+                            fontSize: "0.72rem",
+                            color: C.textFaint,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Hasta:{" "}
+                        </span>
+                        {formatDate(p.fecha_fin)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span style={{ color: C.textFaint }}>
+                      Sin fecha límite
+                    </span>
+                  )}
+                </td>
+
+                <td style={{ padding: "0.95rem 1rem", minWidth: 110 }}>
+                  <button
+                    onClick={() => toggleActivo(p)}
+                    title="Click para cambiar estado"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Badge
+                      color={p.activo ? C.success : C.danger}
+                      bg={
+                        p.activo
+                          ? C.successLight
+                          : "rgba(220,38,38,0.1)"
+                      }
+                    >
+                      {p.activo ? "Activo" : "Inactivo"}
+                    </Badge>
+                  </button>
+                </td>
+
+                <td style={{ padding: "0.95rem 1rem", minWidth: 100 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 6,
+                      justifyContent: "center",
+                    }}
+                  >
+                    <IconBtn
+                      onClick={() => onEdit(p)}
+                      title="Editar"
+                      color="#f5a623"
+                      bg="rgba(245,166,35,0.1)"
+                      bgHover="rgba(245,166,35,0.18)"
+                      border="1px solid rgba(245,166,35,0.18)"
+                    >
+                      <Pencil size={14} />
+                    </IconBtn>
+
+                    <IconBtn
+                      onClick={() => onDelete(p.id)}
+                      title="Eliminar"
+                      color={C.danger}
+                      bg={C.dangerLight}
+                      bgHover={C.dangerHover}
+                    >
+                      <Trash2 size={14} />
+                    </IconBtn>
+                  </div>
+                </td>
+              </tr>
+            )}
+          />
         </>
       )}
     </div>

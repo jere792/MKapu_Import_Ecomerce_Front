@@ -11,7 +11,10 @@ import {
   Upload,
   Loader2,
   CheckCircle,
+  FileText,
 } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
+import DataTable from "@/components/layout/admin/DataTable";
 
 type BlogPost = {
   id: number;
@@ -352,79 +355,53 @@ export default function AdminBlogPage() {
     >
       {successMsg && (<div style={{position:"fixed",top:"1rem",right:"1rem",zIndex:9999,background:"#16a34a",color:"#fff",padding:"0.75rem 1.25rem",borderRadius:"10px",fontWeight:600,fontSize:"0.875rem",boxShadow:"0 4px 16px rgba(0,0,0,0.12)",display:"flex",alignItems:"center",gap:"8px"}}><CheckCircle size={16}/> {successMsg}</div>)}
       {/* ── Header ── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "1.4rem",
-              fontWeight: 700,
-              color: "#1a1a1a",
-            }}
-          >
-            Blog
-          </h1>
-          <p
-            style={{
-              fontSize: "0.875rem",
-              color: "#888",
-              margin: "0.25rem 0 0",
-            }}
-          >
-            {rows.length} publicación{rows.length !== 1 ? "es" : ""} registrada
-            {rows.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {savingOrder && (
-            <span
-              style={{
-                fontSize: "0.8rem",
-                color: "#c47d00",
-                background: "#fff8e6",
-                padding: "6px 10px",
-                borderRadius: "999px",
-                fontWeight: 600,
+      <SectionHeader
+        title="Blog"
+        icon={<FileText size={18} />}
+        description="Crea y gestiona las publicaciones del blog"
+        actions={
+          <>
+            {savingOrder && (
+              <span
+                style={{
+                  fontSize: "0.8rem",
+                  color: "#c47d00",
+                  background: "#fff8e6",
+                  padding: "6px 10px",
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                }}
+              >
+                Guardando orden...
+              </span>
+            )}
+            <button
+              onClick={() => {
+                setShowForm(!showForm);
+                if (showForm) cancelForm();
               }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#f5a623",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.65rem 1.1rem",
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                cursor: "pointer",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#d4891a")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "#f5a623")}
             >
-              Guardando orden...
-            </span>
-          )}
-          <button
-            onClick={() => {
-              setShowForm(!showForm);
-              if (showForm) cancelForm();
-            }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "#f5a623",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.65rem 1.1rem",
-              fontWeight: 600,
-              fontSize: "0.875rem",
-              cursor: "pointer",
-              transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d4891a")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#f5a623")}
-          >
-            {showForm ? "✕ Cancelar" : "+ Nuevo post"}
-          </button>
-        </div>
-      </div>
+              {showForm ? "✕ Cancelar" : "+ Nuevo post"}
+            </button>
+          </>
+        }
+      />
 
       {/* ── Formulario ── */}
       {showForm && (
@@ -957,422 +934,23 @@ export default function AdminBlogPage() {
             />
           </div>
 
-          {loading ? (
-            <div
-              style={{ textAlign: "center", padding: "3rem", color: "#aaa" }}
-            >
-              Cargando posts...
-            </div>
-          ) : (
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: "12px",
-                border: "1px solid #e8e8e8",
-                overflow: "hidden",
-              }}
-            >
-              {/* scroll horizontal en móvil */}
-              <div
-                style={{
-                  overflowX: "auto",
-                  WebkitOverflowScrolling: "touch" as unknown as undefined,
-                }}
-              >
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    minWidth: 700,
-                  }}
-                >
-                  <thead>
-                    <tr
-                      style={{
-                        background: "#fafafa",
-                        borderBottom: "1px solid #e8e8e8",
-                      }}
-                    >
-                      {[
-                        "Título",
-                        "Descripción",
-                        "Fecha",
-                        "Orden",
-                        "Imágenes",
-                        "Videos",
-                        "Estado",
-                        "Acciones",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "0.85rem 1rem",
-                            textAlign: "left",
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#888",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={8}
-                          style={{
-                            padding: "3rem",
-                            textAlign: "center",
-                            color: "#aaa",
-                          }}
-                        >
-                          {search ? "Sin resultados" : "No hay posts aún"}
-                        </td>
-                      </tr>
-                    ) : (
-                      filtered.map((p, i) => {
-                        const media = mediaMap[p.id] ?? { imgs: 0, vids: 0 };
-                        return (
-                          <tr
-                            key={p.id}
-                            style={{
-                              borderBottom:
-                                i < filtered.length - 1
-                                  ? "1px solid #f0f0f0"
-                                  : "none",
-                            }}
-                          >
-                            {/* Título */}
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                fontWeight: 600,
-                                color: "#1a1a1a",
-                                fontSize: "0.9rem",
-                                maxWidth: 180,
-                              }}
-                            >
-                              <span
-                                style={{
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  display: "block",
-                                }}
-                              >
-                                {p.titulo}
-                              </span>
-                            </td>
-
-                            {/* Descripción */}
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                color: "#555",
-                                fontSize: "0.875rem",
-                                maxWidth: 200,
-                              }}
-                            >
-                              <span
-                                style={{
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  display: "block",
-                                }}
-                              >
-                                {p.descripcion || (
-                                  <span style={{ color: "#ccc" }}>—</span>
-                                )}
-                              </span>
-                            </td>
-
-                            {/* Fecha */}
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                color: "#666",
-                                fontSize: "0.85rem",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {new Date(p.fecha_publicacion).toLocaleDateString(
-                                "es-ES",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )}
-                            </td>
-
-                             {/* Orden + Mover (columna fusionada) */}
-                             <td
-                               style={{
-                                 padding: "0.6rem 1rem",
-                                 textAlign: "center",
-                               }}
-                             >
-                               <div
-                                 style={{
-                                   display: "flex",
-                                   alignItems: "center",
-                                   gap: 6,
-                                 }}
-                               >
-                                 <button
-                                   type="button"
-                                   onClick={() => moveUp(i)}
-                                   disabled={i === 0 || savingOrder}
-                                   title="Subir"
-                                   style={{
-                                     width: 26,
-                                     height: 26,
-                                     borderRadius: 6,
-                                     border: "1px solid #e2e2e2",
-                                     background: "#fff",
-                                     cursor:
-                                       i === 0 || savingOrder
-                                         ? "not-allowed"
-                                         : "pointer",
-                                     opacity: i === 0 || savingOrder ? 0.35 : 1,
-                                     fontWeight: 700,
-                                     color: "#666",
-                                     fontSize: "0.85rem",
-                                     display: "flex",
-                                     alignItems: "center",
-                                     justifyContent: "center",
-                                     transition: "background 0.15s",
-                                   }}
-                                 >
-                                   ↑
-                                 </button>
-                                 <span
-                                   style={{
-                                     minWidth: 20,
-                                     textAlign: "center",
-                                     fontWeight: 700,
-                                     color: "#555",
-                                     fontSize: "0.85rem",
-                                   }}
-                                 >
-                                   {p.orden}
-                                 </span>
-                                 <button
-                                   type="button"
-                                   onClick={() => moveDown(i)}
-                                   disabled={
-                                     i === rows.length - 1 || savingOrder
-                                   }
-                                   title="Bajar"
-                                   style={{
-                                     width: 26,
-                                     height: 26,
-                                     borderRadius: 6,
-                                     border: "1px solid #e2e2e2",
-                                     background: "#fff",
-                                     cursor:
-                                       i === rows.length - 1 || savingOrder
-                                         ? "not-allowed"
-                                         : "pointer",
-                                     opacity:
-                                       i === rows.length - 1 || savingOrder
-                                         ? 0.35
-                                         : 1,
-                                     fontWeight: 700,
-                                     color: "#666",
-                                     fontSize: "0.85rem",
-                                     display: "flex",
-                                     alignItems: "center",
-                                     justifyContent: "center",
-                                     transition: "background 0.15s",
-                                   }}
-                                 >
-                                   ↓
-                                 </button>
-                               </div>
-                             </td>
-
-                            {/* Imágenes badge */}
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                textAlign: "center",
-                              }}
-                            >
-                              {media.imgs > 0 ? (
-                                <span
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "5px",
-                                    padding: "3px 10px",
-                                    borderRadius: "999px",
-                                    fontSize: "0.78rem",
-                                    fontWeight: 700,
-                                    background: "#eef2ff",
-                                    color: "#4f46e5",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  <ImagePlus size={12} strokeWidth={2} />{" "}
-                                  {media.imgs}
-                                </span>
-                              ) : (
-                                <span
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "5px",
-                                    padding: "3px 10px",
-                                    borderRadius: "999px",
-                                    fontSize: "0.78rem",
-                                    fontWeight: 600,
-                                    background: "#f5f5f5",
-                                    color: "#ccc",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  <ImageOff size={12} strokeWidth={1.5} /> Sin
-                                  fotos
-                                </span>
-                              )}
-                            </td>
-
-                            {/* Videos badge */}
-                            <td
-                              style={{
-                                padding: "0.9rem 1rem",
-                                textAlign: "center",
-                              }}
-                            >
-                              {media.vids > 0 ? (
-                                <span
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "5px",
-                                    padding: "3px 10px",
-                                    borderRadius: "999px",
-                                    fontSize: "0.78rem",
-                                    fontWeight: 700,
-                                    background: "#f0fdf4",
-                                    color: "#16a34a",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  <VideoIcon size={12} strokeWidth={2} />{" "}
-                                  {media.vids}
-                                </span>
-                              ) : (
-                                <span
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "5px",
-                                    padding: "3px 10px",
-                                    borderRadius: "999px",
-                                    fontSize: "0.78rem",
-                                    fontWeight: 600,
-                                    background: "#f5f5f5",
-                                    color: "#ccc",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  <VideoOff size={12} strokeWidth={1.5} /> Sin
-                                  videos
-                                </span>
-                              )}
-                            </td>
-
-                            {/* Estado */}
-                            <td style={{ padding: "0.9rem 1rem" }}>
-                              <span
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  padding: "3px 10px",
-                                  borderRadius: "999px",
-                                  fontSize: "0.78rem",
-                                  fontWeight: 600,
-                                  whiteSpace: "nowrap",
-                                  background: p.activo
-                                    ? "rgba(34,197,94,0.1)"
-                                    : "rgba(239,68,68,0.1)",
-                                  color: p.activo ? "#16a34a" : "#dc2626",
-                                }}
-                              >
-                                {p.activo ? "Activo" : "Inactivo"}
-                              </span>
-                            </td>
-
-                            {/* Acciones */}
-                            <td style={{ padding: "0.9rem 1rem" }}>
-                              <div style={{ display: "flex", gap: "6px" }}>
-                                <button
-                                  onClick={() => onEdit(p)}
-                                  title="Editar"
-                                  style={{
-                                    background: "rgba(245,166,35,0.1)",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                    padding: "6px",
-                                    cursor: "pointer",
-                                    color: "#f5a623",
-                                    display: "flex",
-                                    transition: "background 0.2s",
-                                  }}
-                                  onMouseEnter={(e) =>
-                                    (e.currentTarget.style.background =
-                                      "rgba(245,166,35,0.2)")
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.currentTarget.style.background =
-                                      "rgba(245,166,35,0.1)")
-                                  }
-                                >
-                                  <Pencil size={15} />
-                                </button>
-                                <button
-                                  onClick={() => onDelete(p.id)}
-                                  title="Eliminar"
-                                  style={{
-                                    background: "rgba(220,38,38,0.08)",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                    padding: "6px",
-                                    cursor: "pointer",
-                                    color: "#dc2626",
-                                    display: "flex",
-                                    transition: "background 0.2s",
-                                  }}
-                                  onMouseEnter={(e) =>
-                                    (e.currentTarget.style.background =
-                                      "rgba(220,38,38,0.18)")
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.currentTarget.style.background =
-                                      "rgba(220,38,38,0.08)")
-                                  }
-                                >
-                                  <Trash2 size={15} />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
+<DataTable
+            columns={[
+              { key: "titulo", label: "Título" },
+              { key: "descripcion", label: "Descripción" },
+              { key: "fecha", label: "Fecha" },
+              { key: "orden", label: "Orden" },
+              { key: "imagenes", label: "Imágenes" },
+              { key: "videos", label: "Videos" },
+              { key: "estado", label: "Estado" },
+              { key: "acciones", label: "Acciones" },
+            ]}
+            rows={filtered}
+            minWidth={700}
+            loading={loading}
+            loadingText="Cargando posts..."
+            emptyText={search ? "Sin resultados" : "No hay posts aún"}
+            footer={
               <div
                 style={{
                   padding: "12px 16px",
@@ -1385,8 +963,338 @@ export default function AdminBlogPage() {
                 {filtered.length} de {rows.length} publicación
                 {rows.length !== 1 ? "es" : ""}
               </div>
-            </div>
-          )}
+            }
+            renderRow={(p, i) => {
+              const media = mediaMap[p.id] ?? { imgs: 0, vids: 0 };
+              return (
+                <tr
+                  key={p.id}
+                  style={{
+                    borderBottom:
+                      i < filtered.length - 1 ? "1px solid #f0f0f0" : "none",
+                  }}
+                >
+                  {/* Título */}
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      fontWeight: 600,
+                      color: "#1a1a1a",
+                      fontSize: "0.9rem",
+                      maxWidth: 180,
+                    }}
+                  >
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        display: "block",
+                      }}
+                    >
+                      {p.titulo}
+                    </span>
+                  </td>
+
+                  {/* Descripción */}
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      color: "#555",
+                      fontSize: "0.875rem",
+                      maxWidth: 200,
+                    }}
+                  >
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        display: "block",
+                      }}
+                    >
+                      {p.descripcion || (
+                        <span style={{ color: "#ccc" }}>—</span>
+                      )}
+                    </span>
+                  </td>
+
+                  {/* Fecha */}
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      color: "#666",
+                      fontSize: "0.85rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {new Date(p.fecha_publicacion).toLocaleDateString(
+                      "es-ES",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )}
+                  </td>
+
+                   {/* Orden + Mover (columna fusionada) */}
+                   <td
+                     style={{
+                       padding: "0.6rem 1rem",
+                       textAlign: "center",
+                     }}
+                   >
+                     <div
+                       style={{
+                         display: "flex",
+                         alignItems: "center",
+                         gap: 6,
+                       }}
+                     >
+                       <button
+                         type="button"
+                         onClick={() => moveUp(i)}
+                         disabled={i === 0 || savingOrder}
+                         title="Subir"
+                         style={{
+                           width: 26,
+                           height: 26,
+                           borderRadius: 6,
+                           border: "1px solid #e2e2e2",
+                           background: "#fff",
+                           cursor:
+                             i === 0 || savingOrder
+                               ? "not-allowed"
+                               : "pointer",
+                           opacity: i === 0 || savingOrder ? 0.35 : 1,
+                           fontWeight: 700,
+                           color: "#666",
+                           fontSize: "0.85rem",
+                           display: "flex",
+                           alignItems: "center",
+                           justifyContent: "center",
+                           transition: "background 0.15s",
+                         }}
+                       >
+                         ↑
+                       </button>
+                       <span
+                         style={{
+                           minWidth: 20,
+                           textAlign: "center",
+                           fontWeight: 700,
+                           color: "#555",
+                           fontSize: "0.85rem",
+                         }}
+                       >
+                         {p.orden}
+                       </span>
+                       <button
+                         type="button"
+                         onClick={() => moveDown(i)}
+                         disabled={
+                           i === rows.length - 1 || savingOrder
+                         }
+                         title="Bajar"
+                         style={{
+                           width: 26,
+                           height: 26,
+                           borderRadius: 6,
+                           border: "1px solid #e2e2e2",
+                           background: "#fff",
+                           cursor:
+                             i === rows.length - 1 || savingOrder
+                               ? "not-allowed"
+                               : "pointer",
+                           opacity:
+                             i === rows.length - 1 || savingOrder
+                               ? 0.35
+                               : 1,
+                           fontWeight: 700,
+                           color: "#666",
+                           fontSize: "0.85rem",
+                           display: "flex",
+                           alignItems: "center",
+                           justifyContent: "center",
+                           transition: "background 0.15s",
+                         }}
+                       >
+                         ↓
+                       </button>
+                     </div>
+                   </td>
+
+                  {/* Imágenes badge */}
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    {media.imgs > 0 ? (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "3px 10px",
+                          borderRadius: "999px",
+                          fontSize: "0.78rem",
+                          fontWeight: 700,
+                          background: "#eef2ff",
+                          color: "#4f46e5",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <ImagePlus size={12} strokeWidth={2} />{" "}
+                        {media.imgs}
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "3px 10px",
+                          borderRadius: "999px",
+                          fontSize: "0.78rem",
+                          fontWeight: 600,
+                          background: "#f5f5f5",
+                          color: "#ccc",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <ImageOff size={12} strokeWidth={1.5} /> Sin
+                        fotos
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Videos badge */}
+                  <td
+                    style={{
+                      padding: "0.9rem 1rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    {media.vids > 0 ? (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "3px 10px",
+                          borderRadius: "999px",
+                          fontSize: "0.78rem",
+                          fontWeight: 700,
+                          background: "#f0fdf4",
+                          color: "#16a34a",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <VideoIcon size={12} strokeWidth={2} />{" "}
+                        {media.vids}
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "3px 10px",
+                          borderRadius: "999px",
+                          fontSize: "0.78rem",
+                          fontWeight: 600,
+                          background: "#f5f5f5",
+                          color: "#ccc",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <VideoOff size={12} strokeWidth={1.5} /> Sin
+                        videos
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Estado */}
+                  <td style={{ padding: "0.9rem 1rem" }}>
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "3px 10px",
+                        borderRadius: "999px",
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        background: p.activo
+                          ? "rgba(34,197,94,0.1)"
+                          : "rgba(239,68,68,0.1)",
+                        color: p.activo ? "#16a34a" : "#dc2626",
+                      }}
+                    >
+                      {p.activo ? "Activo" : "Inactivo"}
+                    </span>
+                  </td>
+
+                  {/* Acciones */}
+                  <td style={{ padding: "0.9rem 1rem" }}>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      <button
+                        onClick={() => onEdit(p)}
+                        title="Editar"
+                        style={{
+                          background: "rgba(245,166,35,0.1)",
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "6px",
+                          cursor: "pointer",
+                          color: "#f5a623",
+                          display: "flex",
+                          transition: "background 0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background =
+                            "rgba(245,166,35,0.2)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background =
+                            "rgba(245,166,35,0.1)")
+                        }
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        onClick={() => onDelete(p.id)}
+                        title="Eliminar"
+                        style={{
+                          background: "rgba(220,38,38,0.08)",
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "6px",
+                          cursor: "pointer",
+                          color: "#dc2626",
+                          display: "flex",
+                          transition: "background 0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background =
+                            "rgba(220,38,38,0.18)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background =
+                            "rgba(220,38,38,0.08)")
+                        }
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            }}
+          />
         </>
       )}
 

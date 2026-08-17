@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Video } from "@/lib/queries";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
+import DataTable from "@/components/layout/admin/DataTable";
 import {
   Upload,
   CheckCircle,
@@ -210,69 +212,42 @@ export default function AdminVideosPage() {
           <CheckCircle size={16} /> {successMsg}
         </div>
       )}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "1.4rem",
-              fontWeight: 700,
-              color: "#1a1a1a",
+      <SectionHeader
+        title="Videos"
+        icon={<Film size={18} />}
+        description="Gestiona los videos de tus productos"
+        actions={
+          <button
+            onClick={() => {
+              setShowForm(!showForm);
+              if (showForm) resetForm();
             }}
-          >
-            Videos
-          </h1>
-          <p
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#f5a623",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              padding: "0.65rem 1.1rem",
+              fontWeight: 600,
               fontSize: "0.875rem",
-              color: "#888",
-              margin: "0.25rem 0 0",
+              cursor: "pointer",
             }}
           >
-            {rows.length} video{rows.length !== 1 ? "s" : ""} registrado
-            {rows.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-
-        <button
-          onClick={() => {
-            setShowForm(!showForm);
-            if (showForm) resetForm();
-          }}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "#f5a623",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            padding: "0.65rem 1.1rem",
-            fontWeight: 600,
-            fontSize: "0.875rem",
-            cursor: "pointer",
-          }}
-        >
-          {showForm ? (
-            <>
-              <X size={15} /> Cancelar
-            </>
-          ) : (
-            <>
-              <PlusCircle size={15} /> Nuevo video
-            </>
-          )}
-        </button>
-      </div>
+            {showForm ? (
+              <>
+                <X size={15} /> Cancelar
+              </>
+            ) : (
+              <>
+                <PlusCircle size={15} /> Nuevo video
+              </>
+            )}
+          </button>
+        }
+      />
 
       {showForm && (
         <div
@@ -578,283 +553,212 @@ export default function AdminVideosPage() {
       )}
 
       {!showForm && (
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid #e8e8e8",
-            borderRadius: "12px",
-            overflow: "hidden",
-          }}
-        >
-          {loading ? (
+        <DataTable
+          columns={[
+            { key: "media", label: "Media" },
+            { key: "titulo", label: "Título" },
+            { key: "tipo", label: "Tipo" },
+            { key: "estado", label: "Estado" },
+            { key: "acciones", label: "Acciones" },
+          ]}
+          rows={filtered}
+          minWidth="860px"
+          loading={loading}
+          loadingText="Cargando videos..."
+          emptyIcon={<Film size={32} color="#ccc" />}
+          emptyText="No hay videos aún"
+          footer={
             <div
               style={{
-                padding: "3rem",
-                textAlign: "center",
+                padding: "12px 16px",
+                borderTop: "1px solid #e8e8e8",
+                background: "#fafafa",
+                fontSize: "0.8rem",
                 color: "#aaa",
               }}
             >
-              Cargando videos...
+              {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
+              {filterTipo
+                ? ` en ${filterTipo === "video" ? "Videos" : "Vlogs"}`
+                : ""}
             </div>
-          ) : filtered.length === 0 ? (
-            <div
+          }
+          renderRow={(v, i) => (
+            <tr
+              key={v.id}
               style={{
-                padding: "3rem",
-                textAlign: "center",
-                color: "#aaa",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "8px",
+                borderBottom:
+                  i < filtered.length - 1 ? "1px solid #f0f0f0" : "none",
+                background: "#fff",
               }}
             >
-              <Film size={32} color="#ccc" />
-              <span>No hay videos aún</span>
-            </div>
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                overflowX: "auto",
-                overflowY: "hidden",
-                WebkitOverflowScrolling: "touch",
-              }}
-            >
-              <table
+              <td
                 style={{
-                  width: "100%",
-                  minWidth: "860px",
-                  borderCollapse: "collapse",
-                  tableLayout: "fixed",
+                  padding: "0.9rem 1rem",
+                  width: 120,
+                  whiteSpace: "nowrap",
                 }}
               >
-                <thead>
-                  <tr
+                {v.video_url && isVideo(v.video_url) ? (
+                  <video
+                    src={v.video_url}
                     style={{
+                      width: 96,
+                      height: 54,
+                      borderRadius: "8px",
+                      border: "1px solid #e0e0e0",
+                      objectFit: "cover",
+                      background: "#000",
+                    }}
+                    muted
+                    playsInline
+                    preload="metadata"
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 96,
+                      height: 54,
+                      borderRadius: "8px",
+                      border: "1px solid #f0f0f0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#ddd",
                       background: "#fafafa",
-                      borderBottom: "1px solid #e8e8e8",
                     }}
                   >
-                    {["Media", "Título", "Tipo", "Estado", "Acciones"].map(
-                      (h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "0.85rem 1rem",
-                            textAlign: "left",
-                            fontSize: "0.8rem",
-                            fontWeight: 600,
-                            color: "#888",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {h}
-                        </th>
-                      ),
-                    )}
-                  </tr>
-                </thead>
+                    <Film size={20} />
+                  </div>
+                )}
+              </td>
 
-                <tbody>
-                  {filtered.map((v, i) => (
-                    <tr
-                      key={v.id}
-                      style={{
-                        borderBottom:
-                          i < filtered.length - 1
-                            ? "1px solid #f0f0f0"
-                            : "none",
-                        background: "#fff",
-                      }}
-                    >
-                      <td
-                        style={{
-                          padding: "0.9rem 1rem",
-                          width: 120,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {v.video_url && isVideo(v.video_url) ? (
-                          <video
-                            src={v.video_url}
-                            style={{
-                              width: 96,
-                              height: 54,
-                              borderRadius: "8px",
-                              border: "1px solid #e0e0e0",
-                              objectFit: "cover",
-                              background: "#000",
-                            }}
-                            muted
-                            playsInline
-                            preload="metadata"
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: 96,
-                              height: 54,
-                              borderRadius: "8px",
-                              border: "1px solid #f0f0f0",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "#ddd",
-                              background: "#fafafa",
-                            }}
-                          >
-                            <Film size={20} />
-                          </div>
-                        )}
-                      </td>
+              <td
+                style={{
+                  padding: "0.9rem 1rem",
+                  maxWidth: 320,
+                  minWidth: 260,
+                }}
+              >
+                <span
+                  style={{
+                    display: "block",
+                    fontWeight: 600,
+                    color: "#1a1a1a",
+                    fontSize: "0.9rem",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {v.title}
+                </span>
 
-                      <td
-                        style={{
-                          padding: "0.9rem 1rem",
-                          maxWidth: 320,
-                          minWidth: 260,
-                        }}
-                      >
-                        <span
-                          style={{
-                            display: "block",
-                            fontWeight: 600,
-                            color: "#1a1a1a",
-                            fontSize: "0.9rem",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {v.title}
-                        </span>
+                {v.descripcion && (
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "0.78rem",
+                      color: "#aaa",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {v.descripcion}
+                  </span>
+                )}
+              </td>
 
-                        {v.descripcion && (
-                          <span
-                            style={{
-                              display: "block",
-                              fontSize: "0.78rem",
-                              color: "#aaa",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              marginTop: "2px",
-                            }}
-                          >
-                            {v.descripcion}
-                          </span>
-                        )}
-                      </td>
+              <td
+                style={{ padding: "0.9rem 1rem", whiteSpace: "nowrap" }}
+              >
+                <span
+                  style={{
+                    display: "inline-flex",
+                    padding: "2px 10px",
+                    borderRadius: "20px",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    background:
+                      v.tipo === "vlog" ? "#f0e8ff" : "#e8f0ff",
+                    color: v.tipo === "vlog" ? "#7c3aed" : "#2563eb",
+                  }}
+                >
+                  {v.tipo}
+                </span>
+              </td>
 
-                      <td
-                        style={{ padding: "0.9rem 1rem", whiteSpace: "nowrap" }}
-                      >
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            padding: "2px 10px",
-                            borderRadius: "20px",
-                            fontSize: "0.75rem",
-                            fontWeight: 700,
-                            background:
-                              v.tipo === "vlog" ? "#f0e8ff" : "#e8f0ff",
-                            color: v.tipo === "vlog" ? "#7c3aed" : "#2563eb",
-                          }}
-                        >
-                          {v.tipo}
-                        </span>
-                      </td>
+              <td
+                style={{ padding: "0.9rem 1rem", whiteSpace: "nowrap" }}
+              >
+                <span
+                  style={{
+                    display: "inline-flex",
+                    padding: "3px 10px",
+                    borderRadius: "999px",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    background: v.activo
+                      ? "rgba(34,197,94,0.1)"
+                      : "rgba(239,68,68,0.1)",
+                    color: v.activo ? "#16a34a" : "#dc2626",
+                  }}
+                >
+                  {v.activo ? "Activo" : "Inactivo"}
+                </span>
+              </td>
 
-                      <td
-                        style={{ padding: "0.9rem 1rem", whiteSpace: "nowrap" }}
-                      >
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            padding: "3px 10px",
-                            borderRadius: "999px",
-                            fontSize: "0.78rem",
-                            fontWeight: 600,
-                            background: v.activo
-                              ? "rgba(34,197,94,0.1)"
-                              : "rgba(239,68,68,0.1)",
-                            color: v.activo ? "#16a34a" : "#dc2626",
-                          }}
-                        >
-                          {v.activo ? "Activo" : "Inactivo"}
-                        </span>
-                      </td>
+              <td
+                style={{
+                  padding: "0.9rem 1rem",
+                  minWidth: 120,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    onClick={() => onEdit(v)}
+                    title="Editar"
+                    style={{
+                      background: "rgba(245,166,35,0.1)",
+                      color: "#f5a623",
+                      border: "1px solid rgba(245,166,35,0.18)",
+                      padding: "6px 10px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "background 0.2s",
+                    }}
+                  >
+                    <Pencil size={15} />
+                  </button>
 
-                      <td
-                        style={{
-                          padding: "0.9rem 1rem",
-                          minWidth: 120,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <div style={{ display: "flex", gap: "6px" }}>
-                          <button
-                            onClick={() => onEdit(v)}
-                            title="Editar"
-                            style={{
-                              background: "rgba(245,166,35,0.1)",
-                              color: "#f5a623",
-                              border: "1px solid rgba(245,166,35,0.18)",
-                              padding: "6px 10px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              transition: "background 0.2s",
-                            }}
-                          >
-                            <Pencil size={15} />
-                          </button>
-
-                          <button
-                            onClick={() => onDelete(v.id)}
-                            title="Eliminar"
-                            style={{
-                              background: "rgba(220,53,69,0.08)",
-                              color: "#dc3545",
-                              border: "1px solid rgba(220,53,69,0.2)",
-                              padding: "6px 10px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  <button
+                    onClick={() => onDelete(v.id)}
+                    title="Eliminar"
+                    style={{
+                      background: "rgba(220,53,69,0.08)",
+                      color: "#dc3545",
+                      border: "1px solid rgba(220,53,69,0.2)",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              </td>
+            </tr>
           )}
-
-          <div
-            style={{
-              padding: "12px 16px",
-              borderTop: "1px solid #e8e8e8",
-              background: "#fafafa",
-              fontSize: "0.8rem",
-              color: "#aaa",
-            }}
-          >
-            {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
-            {filterTipo
-              ? ` en ${filterTipo === "video" ? "Videos" : "Vlogs"}`
-              : ""}
-          </div>
-        </div>
+        />
       )}
 
       <style>{`

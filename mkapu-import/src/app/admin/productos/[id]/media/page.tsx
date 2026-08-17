@@ -11,6 +11,7 @@ import {
   Image as ImageIcon,
   Video,
 } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
 
 type ProductoImagen = {
   id: number;
@@ -261,95 +262,47 @@ export default function ProductoMediaPage() {
           padding: "0 24px",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            marginBottom: 24,
-          }}
-        >
-          <button
-            onClick={() => router.back()}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 7,
-              background: "transparent",
-              color: "#888",
-              border: "1px solid #e0e0e0",
-              borderRadius: 8,
-              padding: "6px 12px",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            <ArrowLeft size={15} />
-            Volver
-          </button>
-
-          <div>
-            {loading ? (
-              <div
+        <SectionHeader
+          title="Galería & Videos"
+          icon={<ImageIcon size={18} />}
+          description={
+            <span>
+              <code
                 style={{
-                  display: "flex",
-                  gap: 8,
-                  alignItems: "center",
+                  background: "#f0f0f0",
+                  padding: "2px 7px",
+                  borderRadius: 4,
+                  fontSize: ".78rem",
+                  color: "#555",
                 }}
               >
-                <Loader2
-                  size={16}
-                  style={{
-                    color: "#f5a623",
-                    animation: "pm-spin 0.8s linear infinite",
-                  }}
-                />
-                <span
-                  style={{
-                    color: "#aaa",
-                    fontSize: ".875rem",
-                  }}
-                >
-                  Cargando...
-                </span>
-              </div>
-            ) : (
-              <>
-                <h1
-                  style={{
-                    margin: 0,
-                    fontSize: "1.5rem",
-                    fontWeight: 800,
-                    color: "#1a1a1a",
-                  }}
-                >
-                  Galería &amp; Videos
-                </h1>
-                <p
-                  style={{
-                    margin: "4px 0 0",
-                    fontSize: ".875rem",
-                    color: "#999",
-                  }}
-                >
-                  <code
-                    style={{
-                      background: "#f0f0f0",
-                      padding: "2px 7px",
-                      borderRadius: 4,
-                      fontSize: ".78rem",
-                      color: "#555",
-                    }}
-                  >
-                    {producto?.code}
-                  </code>
-                  &nbsp;{producto?.name}
-                </p>
-              </>
-            )}
-          </div>
-        </div>
+                {producto?.code}
+              </code>
+              &nbsp;{producto?.name}
+            </span>
+          }
+          actions={
+            <button
+              onClick={() => router.back()}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                background: "#fff",
+                color: "#555",
+                border: "1px solid #e0e0e0",
+                borderRadius: 8,
+                padding: "6px 12px",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <ArrowLeft size={15} />
+              Volver
+            </button>
+          }
+        >
 
         <div
           style={{
@@ -415,6 +368,7 @@ export default function ProductoMediaPage() {
             Videos ({videos.length})
           </button>
         </div>
+        </SectionHeader>
 
         {tab === "imagenes" && (
           <div style={{ animation: "pm-fadein 0.2s ease" }}>

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Pencil, Trash2, Upload, ImageIcon, CheckCircle } from "lucide-react";
+import SectionHeader from "@/components/layout/admin/SectionHeader";
+import DataTable from "@/components/layout/admin/DataTable";
 
 type BannerCarousel = {
   id: number;
@@ -325,17 +327,6 @@ export default function AdminBannersPage() {
     transition: "background 0.18s",
   };
 
-  const thStyle: React.CSSProperties = {
-    padding: "0.8rem 1rem",
-    textAlign: "left",
-    fontSize: "0.8rem",
-    fontWeight: 700,
-    color: "#888",
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    whiteSpace: "nowrap",
-  };
-
   const tdStyle: React.CSSProperties = {
     padding: "0.85rem 1rem",
     verticalAlign: "middle",
@@ -352,28 +343,18 @@ export default function AdminBannersPage() {
       {successMsg && (<div style={{position:"fixed",top:"1rem",right:"1rem",zIndex:9999,background:"#16a34a",color:"#fff",padding:"0.75rem 1.25rem",borderRadius:"10px",fontWeight:600,fontSize:"0.875rem",boxShadow:"0 4px 16px rgba(0,0,0,0.12)",display:"flex",alignItems:"center",gap:"8px"}}><CheckCircle size={16}/> {successMsg}</div>)}
 
       {/* ── Header ── */}
-      <div style={{ marginBottom: "1.75rem" }}>
-        <h1
-          style={{
-            margin: 0,
-            fontSize: "1.4rem",
-            fontWeight: 700,
-            color: "#1a1a1a",
-          }}
-        >
-          Banners
-        </h1>
-        <p style={{ fontSize: "0.85rem", color: "#888", margin: "0.3rem 0 0" }}>
-          Gestiona el carrusel principal y los banners de cada página
-        </p>
-      </div>
+      <SectionHeader
+        title="Banners"
+        icon={<ImageIcon size={18} />}
+        description="Gestiona el carrusel principal y los banners de cada página"
+      />
 
       {/* ── Tabs ── */}
       <div
         style={{
           display: "flex",
           borderBottom: "2px solid #ebebeb",
-          marginBottom: "1.75rem",
+          marginTop: "1rem",
           gap: "0.25rem",
         }}
       >
@@ -805,291 +786,242 @@ export default function AdminBannersPage() {
 
           {/* ── Tabla (se oculta cuando el formulario está abierto) ── */}
           {!showFormC && (
-            <div style={card}>
-              <div style={{ width: "100%", overflowX: "auto" }}>
-                <table
+            <DataTable
+              columns={[
+                { key: "preview", label: "Preview" },
+                { key: "titulo", label: "Título / Subtítulo" },
+                { key: "fecha", label: "Fecha / Orden" },
+                { key: "estado", label: "Estado" },
+                { key: "acciones", label: "Acciones" },
+              ]}
+              rows={carousel}
+              minWidth="700px"
+              emptyText="No hay slides todavía. Crea el primero con &quot;+ Nuevo slide&quot;."
+              renderRow={(b, i) => (
+                <tr
+                  key={b.id}
                   style={{
-                    width: "100%",
-                    minWidth: "700px",
-                    borderCollapse: "collapse",
-                    tableLayout: "fixed",
+                    borderBottom:
+                      i < carousel.length - 1 ? "1px solid #f2f2f2" : "none",
+                    transition: "background 0.15s",
                   }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "#fdfcfb")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
                 >
-                  <colgroup>
-                    <col style={{ width: "110px" }} />
-                    <col />
-                    <col style={{ width: "160px" }} />
-                    <col style={{ width: "110px" }} />
-                    <col style={{ width: "110px" }} />
-                  </colgroup>
-                  <thead>
-                    <tr
+                  {/* Preview */}
+                  <td style={tdStyle}>
+                    <ThumbImg src={b.image_url} alt={b.titulo ?? ""} />
+                  </td>
+
+                  {/* Título */}
+                  <td style={tdStyle}>
+                    <div
                       style={{
-                        background: "#fafafa",
-                        borderBottom: "1px solid #ebebeb",
+                        fontWeight: 700,
+                        color: "#111",
+                        fontSize: "0.9rem",
+                        marginBottom: "2px",
                       }}
                     >
-                      {[
-                        "Preview",
-                        "Título / Subtítulo",
-                        "Fecha / Orden",
-                        "Estado",
-                        "Acciones",
-                      ].map((h) => (
-                        <th key={h} style={thStyle}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {carousel.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={5}
-                          style={{
-                            padding: "3.5rem",
-                            textAlign: "center",
-                            color: "#bbb",
-                            fontSize: "0.875rem",
-                          }}
+                      {b.titulo ?? (
+                        <span
+                          style={{ color: "#ccc", fontWeight: 400 }}
                         >
-                          No hay slides todavía. Crea el primero con &quot;+
-                          Nuevo slide&quot;.
-                        </td>
-                      </tr>
-                    ) : (
-                      carousel.map((b, i) => (
-                        <tr
-                          key={b.id}
-                          style={{
-                            borderBottom:
-                              i < carousel.length - 1
-                                ? "1px solid #f2f2f2"
-                                : "none",
-                            transition: "background 0.15s",
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.background = "#fdfcfb")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.background = "transparent")
-                          }
-                        >
-                          {/* Preview */}
-                          <td style={tdStyle}>
-                            <ThumbImg src={b.image_url} alt={b.titulo ?? ""} />
-                          </td>
-
-                          {/* Título */}
-                          <td style={tdStyle}>
-                            <div
-                              style={{
-                                fontWeight: 700,
-                                color: "#111",
-                                fontSize: "0.9rem",
-                                marginBottom: "2px",
-                              }}
-                            >
-                              {b.titulo ?? (
-                                <span
-                                  style={{ color: "#ccc", fontWeight: 400 }}
-                                >
-                                  Sin título
-                                </span>
-                              )}
-                            </div>
-                            {b.subtitulo && (
-                              <div
-                                style={{ fontSize: "0.8rem", color: "#888" }}
-                              >
-                                {b.subtitulo}
-                              </div>
-                            )}
-                          </td>
-
-                          {/* Fecha + orden */}
-                          <td style={tdStyle}>
-                            <div
-                              style={{
-                                fontSize: "0.78rem",
-                                color: "#aaa",
-                                marginBottom: "8px",
-                              }}
-                            >
-                              {formatFecha(b.created_at)}
-                            </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                              }}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => moveUp(i)}
-                                disabled={i === 0 || savingOrder}
-                                title="Subir"
-                                style={{
-                                  width: 26,
-                                  height: 26,
-                                  borderRadius: "6px",
-                                  border: "1px solid #e2e2e2",
-                                  background: "#fff",
-                                  cursor:
-                                    i === 0 || savingOrder
-                                      ? "not-allowed"
-                                      : "pointer",
-                                  opacity: i === 0 || savingOrder ? 0.35 : 1,
-                                  fontWeight: 700,
-                                  color: "#666",
-                                  fontSize: "0.85rem",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition: "background 0.15s",
-                                }}
-                              >
-                                ↑
-                              </button>
-                              <span
-                                style={{
-                                  minWidth: "20px",
-                                  textAlign: "center",
-                                  fontWeight: 700,
-                                  color: "#555",
-                                  fontSize: "0.85rem",
-                                }}
-                              >
-                                {b.orden}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => moveDown(i)}
-                                disabled={
-                                  i === carousel.length - 1 || savingOrder
-                                }
-                                title="Bajar"
-                                style={{
-                                  width: 26,
-                                  height: 26,
-                                  borderRadius: "6px",
-                                  border: "1px solid #e2e2e2",
-                                  background: "#fff",
-                                  cursor:
-                                    i === carousel.length - 1 || savingOrder
-                                      ? "not-allowed"
-                                      : "pointer",
-                                  opacity:
-                                    i === carousel.length - 1 || savingOrder
-                                      ? 0.35
-                                      : 1,
-                                  fontWeight: 700,
-                                  color: "#666",
-                                  fontSize: "0.85rem",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition: "background 0.15s",
-                                }}
-                              >
-                                ↓
-                              </button>
-                            </div>
-                          </td>
-
-                          {/* Estado */}
-                          <td style={tdStyle}>
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                padding: "3px 10px",
-                                borderRadius: "999px",
-                                fontSize: "0.75rem",
-                                fontWeight: 700,
-                                background: b.activo
-                                  ? "rgba(34,197,94,0.09)"
-                                  : "rgba(239,68,68,0.09)",
-                                color: b.activo ? "#16a34a" : "#dc2626",
-                                border: `1px solid ${b.activo ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
-                              }}
-                            >
-                              {b.activo ? "Activo" : "Inactivo"}
-                            </span>
-                          </td>
-
-                          {/* Acciones */}
-                          <td style={tdStyle}>
-                            <div style={{ display: "flex", gap: "6px" }}>
-                              <button
-                                onClick={() => onEditCarousel(b)}
-                                title="Editar"
-                                style={{
-                                  background: "rgba(245,166,35,0.08)",
-                                  border: "1px solid rgba(245,166,35,0.2)",
-                                  borderRadius: "7px",
-                                  padding: "6px 7px",
-                                  cursor: "pointer",
-                                  color: "#f5a623",
-                                  display: "flex",
-                                  transition:
-                                    "background 0.15s, border-color 0.15s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(245,166,35,0.16)";
-                                  e.currentTarget.style.borderColor =
-                                    "rgba(245,166,35,0.4)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(245,166,35,0.08)";
-                                  e.currentTarget.style.borderColor =
-                                    "rgba(245,166,35,0.2)";
-                                }}
-                              >
-                                <Pencil size={14} />
-                              </button>
-                              <button
-                                onClick={() => onDeleteCarousel(b.id)}
-                                title="Eliminar"
-                                style={{
-                                  background: "rgba(220,38,38,0.07)",
-                                  border: "1px solid rgba(220,38,38,0.18)",
-                                  borderRadius: "7px",
-                                  padding: "6px 7px",
-                                  cursor: "pointer",
-                                  color: "#dc2626",
-                                  display: "flex",
-                                  transition:
-                                    "background 0.15s, border-color 0.15s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(220,38,38,0.14)";
-                                  e.currentTarget.style.borderColor =
-                                    "rgba(220,38,38,0.35)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(220,38,38,0.07)";
-                                  e.currentTarget.style.borderColor =
-                                    "rgba(220,38,38,0.18)";
-                                }}
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
+                          Sin título
+                        </span>
+                      )}
+                    </div>
+                    {b.subtitulo && (
+                      <div
+                        style={{ fontSize: "0.8rem", color: "#888" }}
+                      >
+                        {b.subtitulo}
+                      </div>
                     )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  </td>
+
+                  {/* Fecha + orden */}
+                  <td style={tdStyle}>
+                    <div
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "#aaa",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      {formatFecha(b.created_at)}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => moveUp(i)}
+                        disabled={i === 0 || savingOrder}
+                        title="Subir"
+                        style={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: "6px",
+                          border: "1px solid #e2e2e2",
+                          background: "#fff",
+                          cursor:
+                            i === 0 || savingOrder
+                              ? "not-allowed"
+                              : "pointer",
+                          opacity: i === 0 || savingOrder ? 0.35 : 1,
+                          fontWeight: 700,
+                          color: "#666",
+                          fontSize: "0.85rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "background 0.15s",
+                        }}
+                      >
+                        ↑
+                      </button>
+                      <span
+                        style={{
+                          minWidth: "20px",
+                          textAlign: "center",
+                          fontWeight: 700,
+                          color: "#555",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        {b.orden}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => moveDown(i)}
+                        disabled={
+                          i === carousel.length - 1 || savingOrder
+                        }
+                        title="Bajar"
+                        style={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: "6px",
+                          border: "1px solid #e2e2e2",
+                          background: "#fff",
+                          cursor:
+                            i === carousel.length - 1 || savingOrder
+                              ? "not-allowed"
+                              : "pointer",
+                          opacity:
+                            i === carousel.length - 1 || savingOrder
+                              ? 0.35
+                              : 1,
+                          fontWeight: 700,
+                          color: "#666",
+                          fontSize: "0.85rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "background 0.15s",
+                        }}
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </td>
+
+                  {/* Estado */}
+                  <td style={tdStyle}>
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "3px 10px",
+                        borderRadius: "999px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        background: b.activo
+                          ? "rgba(34,197,94,0.09)"
+                          : "rgba(239,68,68,0.09)",
+                        color: b.activo ? "#16a34a" : "#dc2626",
+                        border: `1px solid ${b.activo ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
+                      }}
+                    >
+                      {b.activo ? "Activo" : "Inactivo"}
+                    </span>
+                  </td>
+
+                  {/* Acciones */}
+                  <td style={tdStyle}>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      <button
+                        onClick={() => onEditCarousel(b)}
+                        title="Editar"
+                        style={{
+                          background: "rgba(245,166,35,0.08)",
+                          border: "1px solid rgba(245,166,35,0.2)",
+                          borderRadius: "7px",
+                          padding: "6px 7px",
+                          cursor: "pointer",
+                          color: "#f5a623",
+                          display: "flex",
+                          transition:
+                            "background 0.15s, border-color 0.15s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(245,166,35,0.16)";
+                          e.currentTarget.style.borderColor =
+                            "rgba(245,166,35,0.4)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(245,166,35,0.08)";
+                          e.currentTarget.style.borderColor =
+                            "rgba(245,166,35,0.2)";
+                        }}
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => onDeleteCarousel(b.id)}
+                        title="Eliminar"
+                        style={{
+                          background: "rgba(220,38,38,0.07)",
+                          border: "1px solid rgba(220,38,38,0.18)",
+                          borderRadius: "7px",
+                          padding: "6px 7px",
+                          cursor: "pointer",
+                          color: "#dc2626",
+                          display: "flex",
+                          transition:
+                            "background 0.15s, border-color 0.15s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(220,38,38,0.14)";
+                          e.currentTarget.style.borderColor =
+                            "rgba(220,38,38,0.35)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background =
+                            "rgba(220,38,38,0.07)";
+                          e.currentTarget.style.borderColor =
+                            "rgba(220,38,38,0.18)";
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            />
           )}
         </>
       ) : (
