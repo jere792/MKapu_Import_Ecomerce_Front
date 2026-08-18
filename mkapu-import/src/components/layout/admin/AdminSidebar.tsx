@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -49,6 +50,21 @@ export default function AdminSidebar({
   pathname,
 }: AdminSidebarProps) {
   const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
+  const [empresaLogo, setEmpresaLogo] = useState<string>("");
+
+  useEffect(() => {
+    setUserName(localStorage.getItem("admin_nombre") || "");
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/empresa")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((row) => {
+        if (row?.logo) setEmpresaLogo(row.logo);
+      })
+      .catch(() => {});
+  }, []);
 
   function logout() {
     localStorage.removeItem("admin_id");
@@ -78,20 +94,24 @@ export default function AdminSidebar({
       {/* Logo */}
       <div
         style={{
-          padding: isMobile ? "20px 16px 18px" : (sidebarOpen ? "20px 16px 18px" : "20px 0 18px"),
+          padding: isMobile ? "20px 16px 14px" : (sidebarOpen ? "20px 16px 14px" : "20px 0 14px"),
           textAlign: "center",
-          fontWeight: 800,
-          fontSize: isMobile || sidebarOpen ? "1rem" : "0.75rem",
-          color: "#f5a623",
           borderBottom: isMobile || sidebarOpen ? "1px solid #222" : "none",
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
           whiteSpace: "nowrap",
-          display: isMobile || sidebarOpen ? "block" : "block",
           visibility: isMobile || sidebarOpen ? "visible" : "hidden",
         }}
       >
-        {isMobile || sidebarOpen ? "Panel Admin" : "PA"}
+        {isMobile || sidebarOpen ? (
+          <img
+            src={empresaLogo}
+            alt="MKAPU"
+            style={{ height: "38px", maxWidth: "100%", objectFit: "contain" }}
+          />
+        ) : (
+          <span style={{ fontWeight: 800, fontSize: "0.75rem", color: "#f5a623", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            PA
+          </span>
+        )}
       </div>
 
       {/* Close button on mobile */}
@@ -179,6 +199,52 @@ export default function AdminSidebar({
           <LogOut size={16} style={{ flexShrink: 0 }} />
           {(sidebarOpen || isMobile) && "Salir"}
         </button>
+
+        {isMobile || sidebarOpen ? (
+          <div
+            style={{
+              padding: "12px 8px 4px",
+              borderTop: "1px solid #222",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "rgba(245,166,35,0.15)",
+                color: "#f5a623",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: "0.85rem",
+                flexShrink: 0,
+              }}
+            >
+              {userName ? userName.charAt(0).toUpperCase() : "?"}
+            </div>
+            <div style={{ overflow: "hidden" }}>
+              <div
+                style={{
+                  fontSize: "0.8rem",
+                  fontWeight: 700,
+                  color: "#f5a623",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {userName || "Administrador"}
+              </div>
+              <div style={{ fontSize: "0.65rem", color: "#888" }}>Administrador</div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: "none" }} />
+        )}
       </div>
     </aside>
   );

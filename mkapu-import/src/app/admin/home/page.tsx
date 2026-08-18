@@ -449,6 +449,7 @@ export default function AdminHomePage() {
                           style={{
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "center",
                             gap: 6,
                           }}
                         >

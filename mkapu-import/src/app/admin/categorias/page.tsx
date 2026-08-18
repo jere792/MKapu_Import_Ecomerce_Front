@@ -219,6 +219,17 @@ export default function AdminCategoriasPage() {
         }
       />
 
+      <div style={{ marginBottom: "1rem" }}>
+        <input
+          style={{ ...inp, width: "100%" }}
+          placeholder="Buscar por nombre o slug..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onFocus={onFocusInput}
+          onBlur={onBlurInput}
+        />
+      </div>
+
       {showForm && (
         <div
           style={{
@@ -289,9 +300,7 @@ export default function AdminCategoriasPage() {
                       style={{ ...inp, background: "#fafafa" }}
                       placeholder="electronica"
                       value={form.slug}
-                      onChange={(e) =>
-                        setForm({ ...form, slug: toSlug(e.target.value) })
-                      }
+                      readOnly
                       onFocus={onFocusInput}
                       onBlur={onBlurInput}
                     />
@@ -391,18 +400,7 @@ export default function AdminCategoriasPage() {
         </div>
       )}
 
-      <div style={{ marginBottom: "1rem" }}>
-        <input
-          style={{ ...inp, maxWidth: 380 }}
-          placeholder="Buscar por nombre o slug..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onFocus={onFocusInput}
-          onBlur={onBlurInput}
-        />
-      </div>
-
-          <DataTable
+      <DataTable
             columns={[
               { key: "nombre", label: "Nombre" },
               { key: "slug", label: "Slug" },
