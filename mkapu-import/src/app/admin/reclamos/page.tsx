@@ -31,6 +31,31 @@ function estadoInfo(estado: string) {
   return ESTADOS[estado as keyof typeof ESTADOS] ?? ESTADOS.pendiente;
 }
 
+function InfoField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | undefined;
+}) {
+  return (
+    <div>
+      <label className="ap-lbl">{label}</label>
+      <p
+        style={{
+          margin: 0,
+          fontSize: "0.9rem",
+          color: "#1a1a1a",
+          fontWeight: 500,
+          wordBreak: "break-word",
+        }}
+      >
+        {value || "—"}
+      </p>
+    </div>
+  );
+}
+
 export default function AdminReclamacionesPage() {
   const [rows, setRows] = useState<Reclamacion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -206,18 +231,16 @@ export default function AdminReclamacionesPage() {
           />
 
           <div
+            className="ap-card"
             style={{
-              background: "#fff",
-              border: "1px solid #e8e8e8",
               borderTop: "3px solid #f5a623",
-              borderRadius: "12px",
               overflow: "hidden",
             }}
           >
             <div
               style={{
                 padding: "1.25rem 1.5rem",
-                borderBottom: "1px solid #f0f0f0",
+                borderBottom: "1px solid #e8e8e8",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -226,16 +249,37 @@ export default function AdminReclamacionesPage() {
               }}
             >
               <div>
-                <p
+                <div
                   style={{
-                    margin: 0,
-                    fontSize: "1.1rem",
-                    fontWeight: 700,
-                    color: "#1a1a1a",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    flexWrap: "wrap",
                   }}
                 >
-                  {selected.nombres} {selected.apellidos}
-                </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "1.1rem",
+                      fontWeight: 700,
+                      color: "#1a1a1a",
+                    }}
+                  >
+                    {selected.nombres} {selected.apellidos}
+                  </p>
+                  <code
+                    style={{
+                      background: "#fff8e6",
+                      color: "#b07800",
+                      padding: "2px 10px",
+                      borderRadius: "4px",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {selected.ticket}
+                  </code>
+                </div>
                 <p
                   style={{
                     margin: "4px 0 0",
@@ -291,92 +335,80 @@ export default function AdminReclamacionesPage() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
-                  gap: "1rem",
-                  marginBottom: "1rem",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 16,
+                  alignItems: "start",
                 }}
               >
-                {[
-                  { label: "DNI", value: selected.dni },
-                  { label: "Teléfono", value: selected.telefono },
-                  { label: "Tipo", value: selected.tipo },
-                  {
-                    label: "Fecha",
-                    value: new Date(selected.created_at).toLocaleDateString(
-                      "es-PE",
-                      {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      },
-                    ),
-                  },
-                  {
-                    label: "Estado actual",
-                    value: estadoInfo(selected.estado).label,
-                  },
-                ].map((f) => (
-                  <div
-                    key={f.label}
-                    style={{
-                      background: "#f7f7f5",
-                      borderRadius: "8px",
-                      padding: "0.75rem 1rem",
-                    }}
-                  >
-                    <p
+                <div className="ap-fblock">
+                  <h3 className="ap-fblock__title">Cliente</h3>
+                  <div className="ap-fsub">
+                    <h4 className="ap-fsub__title">Información personal</h4>
+                    <div
                       style={{
-                        margin: 0,
-                        fontSize: "0.7rem",
-                        fontWeight: 700,
-                        color: "#aaa",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 16,
                       }}
                     >
-                      {f.label}
-                    </p>
-                    <p
-                      style={{
-                        margin: "4px 0 0",
-                        fontSize: "0.875rem",
-                        color: "#1a1a1a",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {f.value || "—"}
-                    </p>
+                      <InfoField label="DNI" value={selected.dni} />
+                      <InfoField label="Teléfono" value={selected.telefono} />
+                    </div>
                   </div>
-                ))}
+                  <div className="ap-fsub">
+                    <h4 className="ap-fsub__title">Contacto</h4>
+                    <InfoField label="Email" value={selected.email} />
+                  </div>
+                </div>
+
+                <div className="ap-fblock">
+                  <h3 className="ap-fblock__title">Reclamo</h3>
+                  <div className="ap-fsub">
+                    <h4 className="ap-fsub__title">Datos del ticket</h4>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                        gap: 16,
+                      }}
+                    >
+                      <InfoField label="Tipo" value={selected.tipo} />
+                      <InfoField
+                        label="Fecha"
+                        value={new Date(selected.created_at).toLocaleDateString(
+                          "es-PE",
+                          {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          },
+                        )}
+                      />
+                      <InfoField
+                        label="Estado actual"
+                        value={estadoInfo(selected.estado).label}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <p
-                  style={{
-                    margin: "0 0 8px",
-                    fontSize: "0.7rem",
-                    fontWeight: 700,
-                    color: "#aaa",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  Descripción
-                </p>
-
-                <div
-                  style={{
-                    background: "#f7f7f5",
-                    borderRadius: "8px",
-                    padding: "1rem",
-                    fontSize: "0.875rem",
-                    color: "#333",
-                    lineHeight: 1.7,
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {selected.descripcion || "Sin descripción"}
+              <div className="ap-fblock" style={{ marginBottom: 0 }}>
+                <h3 className="ap-fblock__title">
+                  Descripción del reclamo
+                </h3>
+                <div className="ap-fsub">
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.875rem",
+                      color: "#333",
+                      lineHeight: 1.7,
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {selected.descripcion || "Sin descripción"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -425,38 +457,50 @@ export default function AdminReclamacionesPage() {
             />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              marginBottom: "1rem",
-              flexWrap: "wrap",
-            }}
-          >
-            {[
-              { value: "todos", label: "Todas" },
-              { value: "pendiente", label: "Pendientes" },
-              { value: "en_proceso", label: "En proceso" },
-              { value: "resuelto", label: "Resueltas" },
-            ].map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setFilterEstado(f.value)}
-                style={{
-                  padding: "7px 16px",
-                  borderRadius: "20px",
-                  border:
-                    filterEstado === f.value ? "none" : "1px solid #e0e0e0",
-                  background: filterEstado === f.value ? "#f5a623" : "#fff",
-                  color: filterEstado === f.value ? "#fff" : "#666",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="ap-view-tabs">
+            <button
+              className={`ap-view-tab ${filterEstado === "todos" ? "ap-view-tab--active" : ""}`}
+              onClick={() => setFilterEstado("todos")}
+            >
+              <Inbox size={14} />
+              Todas
+              <span className="ap-count ap-count--default">
+                {stats.todos}
+              </span>
+            </button>
+
+            <button
+              className={`ap-view-tab ap-view-tab--warning ${filterEstado === "pendiente" ? "ap-view-tab--active" : ""}`}
+              onClick={() => setFilterEstado("pendiente")}
+            >
+              <Clock3 size={14} />
+              Pendientes
+              <span className="ap-count ap-count--warning">
+                {stats.pendiente}
+              </span>
+            </button>
+
+            <button
+              className={`ap-view-tab ${filterEstado === "en_proceso" ? "ap-view-tab--active" : ""}`}
+              onClick={() => setFilterEstado("en_proceso")}
+            >
+              <Timer size={14} />
+              En proceso
+              <span className="ap-count ap-count--default">
+                {stats.en_proceso}
+              </span>
+            </button>
+
+            <button
+              className={`ap-view-tab ap-view-tab--success ${filterEstado === "resuelto" ? "ap-view-tab--active" : ""}`}
+              onClick={() => setFilterEstado("resuelto")}
+            >
+              <CircleCheck size={14} />
+              Resueltas
+              <span className="ap-count ap-count--success">
+                {stats.resuelto}
+              </span>
+            </button>
           </div>
 
           <DataTable
@@ -734,6 +778,31 @@ export default function AdminReclamacionesPage() {
           />
         </>
       )}
+      <style>{`
+        .ap-view-tabs{display:flex;gap:0;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;background:#f9f9f9;margin-bottom:1rem;width:fit-content;max-width:100%;flex-wrap:wrap}
+        .ap-view-tab{display:flex;align-items:center;gap:7px;padding:9px 18px;border:none;background:transparent;font-size:.82rem;font-weight:700;color:#888;cursor:pointer;transition:all .15s;white-space:nowrap;border-right:1px solid #e0e0e0}
+        .ap-view-tab:last-child{border-right:none}
+        .ap-view-tab--active{background:#fff;color:#1a1a1a;box-shadow:inset 0 -2px 0 #f5a623}
+        .ap-view-tab:hover:not(.ap-view-tab--active){background:#f0f0f0;color:#555}
+        .ap-view-tab--warning.ap-view-tab--active{box-shadow:inset 0 -2px 0 #f59e0b;color:#b45309}
+        .ap-view-tab--success.ap-view-tab--active{box-shadow:inset 0 -2px 0 #22c55e;color:#166534}
+        .ap-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:20px;font-size:.7rem;font-weight:800;line-height:1}
+        .ap-count--default{background:#f0f0f0;color:#666}
+        .ap-count--success{background:#dcfce7;color:#166534}
+        .ap-count--warning{background:#fef3c7;color:#b45309}
+        .ap-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .ap-fblock{background:#fafafa;border:1px solid #e8e8e8;border-radius:12px;padding:16px;margin-bottom:16px}
+        .ap-fblock__title{margin:0 0 14px;font-size:.72rem;font-weight:800;color:#1a1a1a;text-transform:uppercase;letter-spacing:.08em;padding-bottom:10px;border-bottom:1px solid #e8e8e8}
+        .ap-fsub{padding:12px;background:#fff;border:1px solid #eef0f2;border-radius:8px;margin-bottom:12px}
+        .ap-fsub:last-child{margin-bottom:0}
+        .ap-fsub__title{margin:0 0 12px;font-size:.68rem;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.08em}
+        .ap-lbl{display:block;font-size:.7rem;font-weight:700;color:#aaa;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+        @media (max-width: 768px) {
+          div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

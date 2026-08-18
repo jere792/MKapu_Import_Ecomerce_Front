@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import type { Marca } from "@/lib/queries";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
+import ImageEditorModal from "@/components/layout/admin/ImageEditorModal";
 import {
   PlusCircle,
   X,
@@ -48,6 +49,8 @@ export default function AdminMarcasPage() {
   const [savingOrder, setSavingOrder] = useState(false);
   const [logoName, setLogoName] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [cropOpen, setCropOpen] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
@@ -73,15 +76,15 @@ export default function AdminMarcasPage() {
     setLogoName("");
   }
 
-  async function uploadLogo(file: File): Promise<string | null> {
+  async function uploadLogo(blob: Blob): Promise<string | null> {
     setUploading(true);
 
-    const ext = file.name.split(".").pop();
+    const ext = (blob.type.split("/")[1] || "png").split("+")[0];
     const path = `marcas/${Date.now()}.${ext}`;
 
     const { error } = await supabase.storage
       .from("imagenes")
-      .upload(path, file, { upsert: true });
+      .upload(path, blob, { upsert: true, contentType: blob.type });
 
     setUploading(false);
 
@@ -268,217 +271,226 @@ export default function AdminMarcasPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "3fr 1fr auto",
-                gap: "1rem",
-                marginBottom: "1rem",
+                gridTemplateColumns: "minmax(280px, 360px) 1fr",
+                gap: "1.25rem",
+                alignItems: "start",
               }}
             >
-              <div>
-                <label style={lbl}>Nombre *</label>
-                <input
-                  style={inp}
-                  placeholder="Nombre de la marca"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={lbl}>Orden</label>
-                <input
-                  style={inp}
-                  type="number"
-                  value={form.orden}
-                  onChange={(e) =>
-                    setForm({ ...form, orden: Number(e.target.value) })
-                  }
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                />
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-end",
-                  paddingBottom: "0.7rem",
-                }}
-              >
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    cursor: "pointer",
-                    fontSize: "0.875rem",
-                    color: "#444",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={form.activo}
-                    onChange={(e) =>
-                      setForm({ ...form, activo: e.target.checked })
-                    }
-                    style={{
-                      width: 16,
-                      height: 16,
-                      accentColor: "#f5a623",
-                      cursor: "pointer",
-                    }}
-                  />
-                  Activo
-                </label>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: "1.25rem" }}>
-              <label style={lbl}>Logo *</label>
-
-              <div
-                onClick={() => !uploading && fileRef.current?.click()}
-                style={{
-                  border: form.logo_url
-                    ? "2px dashed #22c55e"
-                    : "2px dashed #e0e0e0",
-                  borderRadius: "12px",
-                  padding: "1.75rem 1.5rem",
-                  textAlign: "center",
-                  cursor: uploading ? "not-allowed" : "pointer",
-                  background: form.logo_url ? "#f0fdf4" : "#fafafa",
-                  transition: "all 0.2s",
-                }}
-              >
-                {uploading ? (
+              {/* ── Imagen ─────────────────────────────────────────────── */}
+              <div className="ap-fblock">
+                <h3 className="ap-fblock__title">Imagen</h3>
+                <div className="ap-fsub">
+                  <h4 className="ap-fsub__title">Logo de la marca</h4>
                   <div
+                    onClick={() => !uploading && fileRef.current?.click()}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "8px",
+                      border: form.logo_url
+                        ? "2px dashed #22c55e"
+                        : "2px dashed #e0e0e0",
+                      borderRadius: "12px",
+                      padding: "1.75rem 1.5rem",
+                      textAlign: "center",
+                      cursor: uploading ? "not-allowed" : "pointer",
+                      background: form.logo_url ? "#f0fdf4" : "#fafafa",
+                      transition: "all 0.2s",
                     }}
                   >
-                    <div
-                      style={{
-                        width: 28,
-                        height: 28,
-                        border: "3px solid #f5a623",
-                        borderTopColor: "transparent",
-                        borderRadius: "50%",
-                        animation: "spin 0.8s linear infinite",
-                      }}
-                    />
-                    <p
-                      style={{
-                        margin: 0,
-                        fontWeight: 700,
-                        color: "#b37400",
-                        fontSize: "0.875rem",
-                      }}
-                    >
-                      Subiendo imagen...
-                    </p>
-                  </div>
-                ) : form.logo_url ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <img
-                      src={form.logo_url}
-                      alt="preview"
-                      style={{
-                        height: 56,
-                        objectFit: "contain",
-                        borderRadius: "6px",
-                      }}
-                    />
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <CheckCircle size={16} color="#22c55e" />
-                      <p
+                    {uploading ? (
+                      <div
                         style={{
-                          margin: 0,
-                          fontWeight: 700,
-                          color: "#16a34a",
-                          fontSize: "0.875rem",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "8px",
                         }}
                       >
-                        {logoName || "Logo cargado"}
-                      </p>
-                    </div>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: "0.75rem",
-                        color: "#22c55e",
-                      }}
-                    >
-                      Haz clic para reemplazar
-                    </p>
+                        <div
+                          style={{
+                            width: 28,
+                            height: 28,
+                            border: "3px solid #f5a623",
+                            borderTopColor: "transparent",
+                            borderRadius: "50%",
+                            animation: "spin 0.8s linear infinite",
+                          }}
+                        />
+                        <p
+                          style={{
+                            margin: 0,
+                            fontWeight: 700,
+                            color: "#b37400",
+                            fontSize: "0.875rem",
+                          }}
+                        >
+                          Subiendo imagen...
+                        </p>
+                      </div>
+                    ) : form.logo_url ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        <img
+                          src={form.logo_url}
+                          alt="preview"
+                          style={{
+                            height: 56,
+                            objectFit: "contain",
+                            borderRadius: "6px",
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <CheckCircle size={16} color="#22c55e" />
+                          <p
+                            style={{
+                              margin: 0,
+                              fontWeight: 700,
+                              color: "#16a34a",
+                              fontSize: "0.875rem",
+                            }}
+                          >
+                            {logoName || "Logo cargado"}
+                          </p>
+                        </div>
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: "0.75rem",
+                            color: "#22c55e",
+                          }}
+                        >
+                          Haz clic para reemplazar
+                        </p>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Upload size={28} color="#ccc" />
+                        <p
+                          style={{
+                            margin: 0,
+                            fontWeight: 700,
+                            color: "#666",
+                            fontSize: "0.875rem",
+                          }}
+                        >
+                          Haz clic para subir el logo
+                        </p>
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: "0.75rem",
+                            color: "#bbb",
+                          }}
+                        >
+                          PNG, JPG, SVG, WEBP · Recomendado fondo transparente
+                        </p>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "8px",
+
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (fileRef.current) fileRef.current.value = "";
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setCropSrc(
+                          typeof reader.result === "string" ? reader.result : null,
+                        );
+                        setCropOpen(true);
+                      };
+                      reader.readAsDataURL(file);
                     }}
-                  >
-                    <Upload size={28} color="#ccc" />
-                    <p
-                      style={{
-                        margin: 0,
-                        fontWeight: 700,
-                        color: "#666",
-                        fontSize: "0.875rem",
-                      }}
-                    >
-                      Haz clic para subir el logo
-                    </p>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: "0.75rem",
-                        color: "#bbb",
-                      }}
-                    >
-                      PNG, JPG, SVG, WEBP · Recomendado fondo transparente
-                    </p>
-                  </div>
-                )}
+                  />
+                </div>
               </div>
 
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  setLogoName(file.name);
-                  const url = await uploadLogo(file);
-                  if (url) setForm((f) => ({ ...f, logo_url: url }));
-                  if (fileRef.current) fileRef.current.value = "";
-                }}
-              />
+              {/* ── Datos ──────────────────────────────────────────────── */}
+              <div>
+                <div className="ap-fblock">
+                  <h3 className="ap-fblock__title">Datos de la marca</h3>
+                  <div className="ap-fsub">
+                    <h4 className="ap-fsub__title">Información básica</h4>
+                    <label style={lbl}>Nombre *</label>
+                    <input
+                      style={inp}
+                      placeholder="Nombre de la marca"
+                      value={form.name}
+                      onChange={(e) =>
+                        setForm({ ...form, name: e.target.value })
+                      }
+                      onFocus={onFocusInput}
+                      onBlur={onBlurInput}
+                      required
+                    />
+                  </div>
+
+                  {editId && (
+                    <>
+                      <div className="ap-fsub">
+                        <h4 className="ap-fsub__title">Orden</h4>
+                        <input
+                          style={inp}
+                          type="number"
+                          value={form.orden}
+                          onChange={(e) =>
+                            setForm({ ...form, orden: Number(e.target.value) })
+                          }
+                          onFocus={onFocusInput}
+                          onBlur={onBlurInput}
+                        />
+                      </div>
+
+                      <div className="ap-fsub">
+                        <h4 className="ap-fsub__title">Estado</h4>
+                        <label className="ap-toggle">
+                          <input
+                            type="checkbox"
+                            checked={form.activo}
+                            onChange={(e) =>
+                              setForm({ ...form, activo: e.target.checked })
+                            }
+                          />
+                          <span className="ap-toggle__slider" />
+                          <span>{form.activo ? "Activo" : "Inactivo"}</span>
+                        </label>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+                justifyContent: "flex-end",
+              }}
+            >
               <button
                 type="submit"
                 disabled={uploading}
@@ -532,19 +544,18 @@ export default function AdminMarcasPage() {
         </div>
       )}
 
-      {!showForm &&
-        (loading ? (
-          <div
-            style={{
-              padding: "3rem",
-              textAlign: "center",
-              color: "#aaa",
-            }}
-          >
-            Cargando marcas...
-          </div>
-        ) : (
-          <DataTable
+      {loading ? (
+        <div
+          style={{
+            padding: "3rem",
+            textAlign: "center",
+            color: "#aaa",
+          }}
+        >
+          Cargando marcas...
+        </div>
+      ) : (
+        <DataTable
             columns={[
               { key: "logo", label: "Logo" },
               { key: "nombre", label: "Nombre" },
@@ -793,15 +804,45 @@ export default function AdminMarcasPage() {
               </tr>
             )}
           />
-        ))}
+        )}
+
+      <ImageEditorModal
+        open={cropOpen}
+        imageSrc={cropSrc}
+        onCancel={() => {
+          setCropOpen(false);
+          setCropSrc(null);
+        }}
+        onConfirm={async (blob) => {
+          const url = await uploadLogo(blob);
+          if (url) {
+            setForm((f) => ({ ...f, logo_url: url }));
+            setLogoName("Logo listo para guardar");
+          }
+          setCropOpen(false);
+          setCropSrc(null);
+        }}
+      />
 
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
 
+        .ap-fblock{background:#fafafa;border:1px solid #e8e8e8;border-radius:12px;padding:16px;margin-bottom:16px}
+        .ap-fblock__title{margin:0 0 14px;font-size:.72rem;font-weight:800;color:#1a1a1a;text-transform:uppercase;letter-spacing:.08em;padding-bottom:10px;border-bottom:1px solid #e8e8e8}
+        .ap-fsub{padding:12px;background:#fff;border:1px solid #eef0f2;border-radius:8px;margin-bottom:12px}
+        .ap-fsub:last-child{margin-bottom:0}
+        .ap-fsub__title{margin:0 0 12px;font-size:.68rem;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.08em}
+        .ap-toggle{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:.875rem;color:#555;user-select:none}
+        .ap-toggle input{display:none}
+        .ap-toggle__slider{width:44px;height:24px;background:#e0e0e0;border-radius:12px;position:relative;transition:background .2s;flex-shrink:0}
+        .ap-toggle__slider::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+        .ap-toggle input:checked+.ap-toggle__slider{background:#22c55e}
+        .ap-toggle input:checked+.ap-toggle__slider::after{transform:translateX(20px)}
+
         @media (max-width: 768px) {
-          form > div[style*="grid-template-columns: 3fr 1fr auto"] {
+          form > div[style*="grid-template-columns: minmax(280px, 360px) 1fr"] {
             grid-template-columns: 1fr !important;
           }
         }

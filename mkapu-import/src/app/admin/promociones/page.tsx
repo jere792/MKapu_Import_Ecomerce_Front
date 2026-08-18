@@ -1,20 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
-  Search,
   Pencil,
   Trash2,
   Tag,
-  CheckCircle,
-  CheckCircle2,
-  XCircle,
   ChevronLeft,
   ChevronRight,
+  List,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 import PageHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
+import ProductFiltersBar, {
+  type FilterCategory,
+} from "@/components/layout/admin/ProductFiltersBar";
 
 type Promocion = {
   id: number;
@@ -29,12 +32,6 @@ type Promocion = {
   created_at: string;
 };
 
-type ProductoSimple = {
-  id: number;
-  code: string;
-  name: string;
-};
-
 type PromocionRow = Omit<Promocion, "producto_nombre" | "producto_code"> & {
   productos?: {
     name?: string | null;
@@ -43,26 +40,6 @@ type PromocionRow = Omit<Promocion, "producto_nombre" | "producto_code"> & {
 };
 
 const PAGE_SIZE = 10;
-
-const initialForm: {
-  producto_id: number;
-  producto_code: string;
-  producto_nombre: string;
-  tipo_descuento: "porcentaje" | "monto_fijo";
-  valor_descuento: number;
-  fecha_inicio: string;
-  fecha_fin: string;
-  activo: boolean;
-} = {
-  producto_id: 0,
-  producto_code: "",
-  producto_nombre: "",
-  tipo_descuento: "porcentaje",
-  valor_descuento: 0,
-  fecha_inicio: "",
-  fecha_fin: "",
-  activo: true,
-};
 
 const C = {
   primary: "#f5a623",
@@ -74,9 +51,6 @@ const C = {
   dangerHover: "rgba(220,38,38,0.16)",
   success: "#16a34a",
   successLight: "rgba(34,197,94,0.1)",
-  blue: "#2563eb",
-  blueLight: "rgba(37,99,235,0.08)",
-  blueHover: "rgba(37,99,235,0.15)",
   text: "#1a1a1a",
   textMuted: "#6b7280",
   textFaint: "#9ca3af",
@@ -85,33 +59,6 @@ const C = {
   border: "#e5e7eb",
   borderLight: "#f0f0f0",
   headerBg: "#fafafa",
-};
-
-const shadow = {
-  card: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)",
-};
-
-const inp: React.CSSProperties = {
-  width: "100%",
-  padding: "0.68rem 0.9rem",
-  border: `1px solid ${C.border}`,
-  borderRadius: "8px",
-  fontSize: "0.875rem",
-  background: C.surface,
-  color: C.text,
-  outline: "none",
-  boxSizing: "border-box",
-  transition: "border-color 0.15s, box-shadow 0.15s",
-};
-
-const lbl: React.CSSProperties = {
-  display: "block",
-  fontSize: "0.8rem",
-  fontWeight: 600,
-  color: C.textMuted,
-  marginBottom: "0.35rem",
-  textTransform: "uppercase",
-  letterSpacing: "0.04em",
 };
 
 function Badge({
@@ -140,47 +87,6 @@ function Badge({
     >
       {children}
     </span>
-  );
-}
-
-function IconBtn({
-  onClick,
-  title,
-  color,
-  bg,
-  bgHover,
-  border,
-  children,
-}: {
-  onClick: () => void;
-  title: string;
-  color: string;
-  bg: string;
-  bgHover: string;
-  border?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      style={{
-        background: bg,
-        border: border || "none",
-        borderRadius: 7,
-        padding: "6px 7px",
-        cursor: "pointer",
-        color,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        transition: "background 0.15s",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = bgHover)}
-      onMouseLeave={(e) => (e.currentTarget.style.background = bg)}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -218,21 +124,49 @@ function PaginationButton({
 
 export default function AdminPromocionesPage() {
   const [promociones, setPromociones] = useState<Promocion[]>([]);
-  const [productos, setProductos] = useState<ProductoSimple[]>([]);
-  const [form, setForm] = useState<typeof initialForm>(initialForm);
-  const [codeSearch, setCodeSearch] = useState("");
-  const [codeStatus, setCodeStatus] = useState<
-    "idle" | "found" | "not_found" | "searching"
-  >("idle");
-  const [editId, setEditId] = useState<number | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [categorias, setCategorias] = useState<FilterCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [viewMode, setViewMode] = useState<"todas" | "activas" | "vencidas">(
+    "todas",
+  );
+  const [totalActivas, setTotalActivas] = useState(0);
+  const [totalVencidas, setTotalVencidas] = useState(0);
+  const [totalTodas, setTotalTodas] = useState(0);
+
+  const nowISO = new Date().toISOString().replace(/\.\d{3}/, "");
+
+  useEffect(() => {
+    supabase
+      .from("categorias")
+      .select("id, name")
+      .then(({ data }) => {
+        if (data) setCategorias(data as FilterCategory[]);
+      });
+  }, []);
+
+  useEffect(() => {
+    supabase
+      .from("promociones")
+      .select("id", { count: "exact", head: true })
+      .then(({ count }) => setTotalTodas(count ?? 0));
+
+    supabase
+      .from("promociones")
+      .select("id", { count: "exact", head: true })
+      .eq("activo", true)
+      .or(`fecha_fin.is.null,fecha_fin.gte.${nowISO}`)
+      .then(({ count }) => setTotalActivas(count ?? 0));
+
+    supabase
+      .from("promociones")
+      .select("id", { count: "exact", head: true })
+      .lt("fecha_fin", nowISO)
+      .then(({ count }) => setTotalVencidas(count ?? 0));
+  }, []);
 
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
 
@@ -242,7 +176,12 @@ export default function AdminPromocionesPage() {
     return { from, to };
   }, [page, totalItems]);
 
-  async function loadPromociones(pageToLoad = page, currentSearch = search) {
+  async function loadPromociones(
+    pageToLoad = page,
+    currentSearch = search,
+    currentView = viewMode,
+    currentCategory = selectedCategory,
+  ) {
     setLoading(true);
 
     const from = (pageToLoad - 1) * PAGE_SIZE;
@@ -253,10 +192,22 @@ export default function AdminPromocionesPage() {
       .select("*, productos(name, code)", { count: "exact" })
       .order("id", { ascending: false });
 
+    if (currentView === "activas") {
+      query = query
+        .eq("activo", true)
+        .or(`fecha_fin.is.null,fecha_fin.gte.${nowISO}`);
+    } else if (currentView === "vencidas") {
+      query = query.lt("fecha_fin", nowISO);
+    }
+
     if (currentSearch.trim()) {
       query = query.or(
-        `tipo_descuento.ilike.%${currentSearch}%,productos.name.ilike.%${currentSearch}%,productos.code.ilike.%${currentSearch}%`,
+        `productos.name.ilike.%${currentSearch}%,productos.code.ilike.%${currentSearch}%`,
       );
+    }
+
+    if (currentCategory) {
+      query = query.eq("productos.category", currentCategory);
     }
 
     const { data, count, error } = await query.range(from, to);
@@ -281,127 +232,13 @@ export default function AdminPromocionesPage() {
     setLoading(false);
   }
 
-  async function loadProductos() {
-    const { data, error } = await supabase
-      .from("productos")
-      .select("id, code, name")
-      .order("code");
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    setProductos(data ?? []);
-  }
+  useEffect(() => {
+    loadPromociones(page, search, viewMode, selectedCategory);
+  }, [page, search, viewMode, selectedCategory]);
 
   useEffect(() => {
-    loadProductos();
-  }, []);
-
-  useEffect(() => {
-    loadPromociones(page, search);
-  }, [page, search]);
-
-  async function buscarPorCodigo(code: string) {
-    const trimmed = code.trim().toUpperCase();
-
-    if (!trimmed) {
-      setCodeStatus("idle");
-      setForm((f) => ({
-        ...f,
-        producto_id: 0,
-        producto_nombre: "",
-        producto_code: "",
-      }));
-      return;
-    }
-
-    setCodeStatus("searching");
-
-    const { data } = await supabase
-      .from("productos")
-      .select("id, code, name")
-      .ilike("code", trimmed)
-      .single();
-
-    if (data) {
-      setCodeStatus("found");
-      setForm((f) => ({
-        ...f,
-        producto_id: data.id,
-        producto_nombre: data.name,
-        producto_code: data.code,
-      }));
-    } else {
-      setCodeStatus("not_found");
-      setForm((f) => ({
-        ...f,
-        producto_id: 0,
-        producto_nombre: "",
-        producto_code: "",
-      }));
-    }
-  }
-
-  async function save(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (!confirm("¿Guardar estos cambios?")) return;
-
-    if (!form.producto_id) return alert("Ingresa un código de producto válido");
-    if (!form.valor_descuento || form.valor_descuento <= 0)
-      return alert("Valor de descuento inválido");
-    if (form.tipo_descuento === "porcentaje" && form.valor_descuento > 100)
-      return alert("El porcentaje no puede ser mayor a 100");
-
-    const payload: Record<string, any> = {
-      producto_id: form.producto_id,
-      tipo_descuento: form.tipo_descuento,
-      valor_descuento: form.valor_descuento,
-      activo: form.activo,
-    };
-
-    if (form.fecha_inicio) payload.fecha_inicio = form.fecha_inicio;
-    if (form.fecha_fin) payload.fecha_fin = form.fecha_fin;
-
-    setSaving(true);
-
-    const { error } = editId
-      ? await supabase.from("promociones").update(payload).eq("id", editId)
-      : await supabase.from("promociones").insert(payload);
-
-    setSaving(false);
-
-    if (error) return alert(error.message);
-
-    cancelForm();
-    setSuccessMsg("Promoción guardada correctamente");
-    setTimeout(() => setSuccessMsg(""), 3000);
     setPage(1);
-    loadPromociones(1, search);
-  }
-
-  function onEdit(p: Promocion) {
-    const prod = productos.find((pr) => pr.id === p.producto_id);
-
-    setEditId(p.id);
-    setCodeSearch(prod?.code ?? p.producto_code ?? "");
-    setCodeStatus(prod || p.producto_code ? "found" : "idle");
-    setForm({
-      producto_id: p.producto_id,
-      producto_code: prod?.code ?? p.producto_code ?? "",
-      producto_nombre: p.producto_nombre ?? "",
-      tipo_descuento: p.tipo_descuento,
-      valor_descuento: p.valor_descuento,
-      fecha_inicio: p.fecha_inicio?.slice(0, 16) ?? "",
-      fecha_fin: p.fecha_fin?.slice(0, 16) ?? "",
-      activo: p.activo,
-    });
-
-    setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  }, [viewMode, search, selectedCategory]);
 
   async function onDelete(id: number) {
     if (!confirm("¿Eliminar esta promoción?")) return;
@@ -425,28 +262,6 @@ export default function AdminPromocionesPage() {
     loadPromociones(page, search);
   }
 
-  function cancelForm() {
-    setEditId(null);
-    setForm(initialForm);
-    setCodeSearch("");
-    setCodeStatus("idle");
-    setShowForm(false);
-  }
-
-  function onFocusInput(
-    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>,
-  ) {
-    e.currentTarget.style.borderColor = C.primary;
-    e.currentTarget.style.boxShadow = "0 0 0 3px rgba(245,166,35,0.12)";
-  }
-
-  function onBlurInput(
-    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>,
-  ) {
-    e.currentTarget.style.borderColor = C.border;
-    e.currentTarget.style.boxShadow = "none";
-  }
-
   function formatDate(d: string | null) {
     if (!d) return "—";
 
@@ -463,670 +278,375 @@ export default function AdminPromocionesPage() {
       : `S/ ${p.valor_descuento.toFixed(2)}`;
   }
 
-  const codeInputBorderColor =
-    codeStatus === "found"
-      ? C.success
-      : codeStatus === "not_found"
-        ? C.danger
-        : C.border;
-
   return (
     <div
       style={{
         padding: "1.5rem 1.25rem 2.5rem",
         background: C.bg,
         minHeight: "100vh",
-        fontFamily:
-          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
-      {successMsg && (<div style={{position:"fixed",top:"1rem",right:"1rem",zIndex:9999,background:"#16a34a",color:"#fff",padding:"0.75rem 1.25rem",borderRadius:"10px",fontWeight:600,fontSize:"0.875rem",boxShadow:"0 4px 16px rgba(0,0,0,0.12)",display:"flex",alignItems:"center",gap:"8px"}}><CheckCircle size={16}/> {successMsg}</div>)}
+      <style>{`
+        .ap-view-tabs{display:flex;gap:0;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;background:#f9f9f9}
+        .ap-view-tab{display:flex;align-items:center;gap:7px;padding:9px 18px;border:none;background:transparent;font-size:.82rem;font-weight:700;color:#888;cursor:pointer;transition:all .15s;white-space:nowrap;border-right:1px solid #e0e0e0}
+        .ap-view-tab:last-child{border-right:none}
+        .ap-view-tab--active{background:#fff;color:#1a1a1a;box-shadow:inset 0 -2px 0 #f5a623}
+        .ap-view-tab:hover:not(.ap-view-tab--active){background:#f0f0f0;color:#555}
+        .ap-view-tab--success.ap-view-tab--active{box-shadow:inset 0 -2px 0 #22c55e;color:#166534}
+        .ap-view-tab--warning.ap-view-tab--active{box-shadow:inset 0 -2px 0 #f59e0b;color:#b45309}
+        .ap-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:20px;font-size:.7rem;font-weight:800;line-height:1}
+        .ap-count--default{background:#f0f0f0;color:#666}
+        .ap-count--success{background:#dcfce7;color:#166534}
+        .ap-count--warning{background:#fef3c7;color:#b45309}
+      `}</style>
+
       <PageHeader
         title="Promociones"
         icon={<Tag size={18} />}
-        description="Gestiona descuentos de productos con paginación"
+        description="Gestiona descuentos de productos"
         actions={
-          <button
-            onClick={() => {
-              setShowForm(!showForm);
-              if (showForm) cancelForm();
-            }}
+          <Link
+            href="/admin/promociones/nuevo"
             style={{
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              background: showForm ? "#f3f4f6" : C.primary,
-              color: showForm ? C.textMuted : "#fff",
-              border: showForm ? `1px solid ${C.border}` : "none",
+              background: C.primary,
+              color: "#fff",
+              border: "none",
               borderRadius: "10px",
               padding: "0.65rem 1.2rem",
               fontWeight: 700,
               fontSize: "0.875rem",
               cursor: "pointer",
-              transition: "all 0.18s",
-              boxShadow: showForm ? "none" : "0 2px 8px rgba(245,166,35,0.35)",
+              textDecoration: "none",
+              boxShadow: "0 2px 8px rgba(245,166,35,0.35)",
+              transition: "background 0.18s",
             }}
-            onMouseEnter={(e) => {
-              if (!showForm) e.currentTarget.style.background = C.primaryHover;
-            }}
-            onMouseLeave={(e) => {
-              if (!showForm) e.currentTarget.style.background = C.primary;
-            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = C.primaryHover)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = C.primary)}
           >
-            {showForm ? (
-              <>✕ Cancelar</>
-            ) : (
-              <>
-                <Tag size={15} /> + Nueva promoción
-              </>
-            )}
-          </button>
+            <Tag size={15} /> + Nueva promoción
+          </Link>
         }
       />
 
-      {showForm && (
-        <div
-          style={{
-            background: C.surface,
-            borderRadius: "12px",
-            padding: "1.75rem",
-            marginBottom: "1.5rem",
-            border: "1px solid #e8e8e8",
-            borderTop: `3px solid ${C.primary}`,
-          }}
-        >
-          <h2
-            style={{
-              margin: "0 0 1.4rem",
-              fontSize: "1rem",
-              fontWeight: 700,
-              color: C.text,
-            }}
+      {/* Tabs de vista */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          marginBottom: 20,
+          flexWrap: "wrap",
+        }}
+      >
+        <div className="ap-view-tabs">
+          <button
+            className={`ap-view-tab ${viewMode === "todas" ? "ap-view-tab--active" : ""}`}
+            onClick={() => setViewMode("todas")}
           >
-            {editId ? "Editar promoción" : "Nueva promoción"}
-          </h2>
+            <List size={14} />
+            Todas
+            <span className="ap-count ap-count--default">{totalTodas}</span>
+          </button>
 
-          <form onSubmit={save}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                gap: "1rem",
-                marginBottom: "1rem",
-              }}
-            >
-              <div>
-                <label style={lbl}>Código de producto *</label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    style={{
-                      ...inp,
-                      fontFamily: "ui-monospace, monospace",
-                      borderColor: codeInputBorderColor,
-                      paddingRight: "2.2rem",
-                      ...(codeStatus === "found"
-                        ? { boxShadow: "0 0 0 3px rgba(22,163,74,0.1)" }
-                        : {}),
-                      ...(codeStatus === "not_found"
-                        ? { boxShadow: "0 0 0 3px rgba(220,38,38,0.1)" }
-                        : {}),
-                    }}
-                    placeholder="Ej: PRD-001"
-                    value={codeSearch}
-                    onChange={(e) => {
-                      setCodeSearch(e.target.value);
-                      setCodeStatus("idle");
-                      setForm((f) => ({
-                        ...f,
-                        producto_id: 0,
-                        producto_nombre: "",
-                      }));
-                    }}
-                    onBlur={() => buscarPorCodigo(codeSearch)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        buscarPorCodigo(codeSearch);
-                      }
-                    }}
-                  />
+          <button
+            className={`ap-view-tab ap-view-tab--success ${viewMode === "activas" ? "ap-view-tab--active" : ""}`}
+            onClick={() => setViewMode("activas")}
+          >
+            <CheckCircle2 size={14} />
+            Activas
+            <span className="ap-count ap-count--success">{totalActivas}</span>
+          </button>
 
-                  <div
-                    style={{
-                      position: "absolute",
-                      right: 10,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    {codeStatus === "found" && (
-                      <CheckCircle2 size={16} color={C.success} />
-                    )}
-                    {codeStatus === "not_found" && (
-                      <XCircle size={16} color={C.danger} />
-                    )}
-                    {codeStatus === "searching" && (
-                      <span style={{ fontSize: "0.7rem", color: C.textFaint }}>
-                        ...
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {codeStatus === "found" && (
-                  <p
-                    style={{
-                      margin: "0.3rem 0 0",
-                      fontSize: "0.78rem",
-                      color: C.success,
-                      fontWeight: 600,
-                    }}
-                  >
-                    ✓ {form.producto_nombre}
-                  </p>
-                )}
-
-                {codeStatus === "not_found" && (
-                  <p
-                    style={{
-                      margin: "0.3rem 0 0",
-                      fontSize: "0.78rem",
-                      color: C.danger,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Código no encontrado
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label style={lbl}>Tipo descuento</label>
-                <select
-                  style={inp}
-                  value={form.tipo_descuento}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      tipo_descuento: e.target.value as
-                        | "porcentaje"
-                        | "monto_fijo",
-                    })
-                  }
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                >
-                  <option value="porcentaje">Porcentaje (%)</option>
-                  <option value="monto_fijo">Monto fijo (S/)</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={lbl}>
-                  Valor <span style={{ color: C.textFaint, fontWeight: 400 }}>({form.tipo_descuento === "porcentaje" ? "%" : "S/"})</span>
-                </label>
-                <input
-                  style={inp}
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0"
-                  value={form.valor_descuento || ""}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      valor_descuento: Number(e.target.value),
-                    })
-                  }
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                  required
-                />
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                gap: "1rem",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <div>
-                <label style={lbl}>
-                  Fecha inicio <span style={{ color: C.textFaint, fontWeight: 400, textTransform: "none" }}>(opcional)</span>
-                </label>
-                <input
-                  style={inp}
-                  type="datetime-local"
-                  value={form.fecha_inicio}
-                  onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                />
-              </div>
-
-              <div>
-                <label style={lbl}>
-                  Fecha fin <span style={{ color: C.textFaint, fontWeight: 400, textTransform: "none" }}>(opcional)</span>
-                </label>
-                <input
-                  style={inp}
-                  type="datetime-local"
-                  value={form.fecha_fin}
-                  onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                />
-              </div>
-
-              <div>
-                <label style={lbl}>Estado</label>
-                <select
-                  style={inp}
-                  value={form.activo ? "true" : "false"}
-                  onChange={(e) =>
-                    setForm({ ...form, activo: e.target.value === "true" })
-                  }
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                >
-                  <option value="true">Activo</option>
-                  <option value="false">Inactivo</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              <button
-                type="submit"
-                disabled={saving}
-                style={{
-                  background: C.primary,
-                  color: "#fff",
-                  border: "none",
-                  padding: "0.65rem 1.5rem",
-                  borderRadius: "9px",
-                  fontWeight: 700,
-                  fontSize: "0.875rem",
-                  cursor: saving ? "not-allowed" : "pointer",
-                  opacity: saving ? 0.65 : 1,
-                  boxShadow: "0 2px 8px rgba(245,166,35,0.3)",
-                  transition: "background 0.18s",
-                }}
-                onMouseEnter={(e) => {
-                  if (!saving) e.currentTarget.style.background = C.primaryHover;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = C.primary;
-                }}
-              >
-                {saving
-                  ? "Guardando..."
-                  : editId
-                    ? "Guardar cambios"
-                    : "Crear promoción"}
-              </button>
-
-              <button
-                type="button"
-                onClick={cancelForm}
-                style={{
-                  padding: "0.65rem 1.2rem",
-                  borderRadius: "9px",
-                  border: `1px solid ${C.border}`,
-                  background: C.surface,
-                  color: C.textMuted,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = C.headerBg)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = C.surface)
-                }
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
+          <button
+            className={`ap-view-tab ap-view-tab--warning ${viewMode === "vencidas" ? "ap-view-tab--active" : ""}`}
+            onClick={() => setViewMode("vencidas")}
+          >
+            <Clock size={14} />
+            Vencidas
+            <span className="ap-count ap-count--warning">{totalVencidas}</span>
+          </button>
         </div>
-      )}
+      </div>
 
-      {!showForm && (
-        <>
+      <div
+        style={{
+          marginBottom: "1rem",
+        }}
+      >
+        <ProductFiltersBar
+          categories={categorias}
+          search={search}
+          onSearch={setSearch}
+          category={selectedCategory}
+          onCategory={setSelectedCategory}
+          placeholder="Buscar por nombre o código del producto..."
+        />
+      </div>
+
+      <DataTable
+        columns={[
+          { key: "producto", label: "Producto" },
+          { key: "descuento", label: "Descuento" },
+          { key: "vigencia", label: "Vigencia" },
+          { key: "estado", label: "Estado" },
+          { key: "acciones", label: "Acciones", align: "center" },
+        ]}
+        rows={promociones}
+        minWidth="680px"
+        loading={loading}
+        loadingText="Cargando promociones..."
+        emptyText={
+          search
+            ? "Sin resultados para esa búsqueda"
+            : viewMode === "activas"
+              ? "No hay promociones activas"
+              : viewMode === "vencidas"
+                ? "No hay promociones vencidas"
+                : "No hay promociones aún"
+        }
+        footer={
           <div
             style={{
+              padding: "12px 16px",
+              borderTop: `1px solid ${C.border}`,
+              background: C.headerBg,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              gap: "1rem",
+              gap: "0.75rem",
               flexWrap: "wrap",
-              marginBottom: "1rem",
             }}
           >
-            <div style={{ position: "relative", maxWidth: 380, width: "100%" }}>
-              <Search
-                size={15}
-                style={{
-                  position: "absolute",
-                  left: 11,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: C.textFaint,
-                  pointerEvents: "none",
-                }}
-              />
-              <input
-                style={{ ...inp, paddingLeft: "34px" }}
-                placeholder="Buscar por producto, código o tipo..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onFocus={onFocusInput}
-                onBlur={onBlurInput}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    setPage(1);
-                    setSearch(searchInput.trim());
-                  }
-                }}
-              />
-            </div>
+            <span style={{ fontSize: "0.78rem", color: C.textFaint }}>
+              Mostrando {pageRange.from}-{pageRange.to} de {totalItems} promoción
+              {totalItems !== 1 ? "es" : ""}
+            </span>
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button
-                onClick={() => {
-                  setPage(1);
-                  setSearch(searchInput.trim());
-                }}
-                style={{
-                  padding: "0.65rem 1rem",
-                  borderRadius: "9px",
-                  border: "none",
-                  background: C.primary,
-                  color: "#fff",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+              }}
+            >
+              <span style={{ fontSize: "0.8rem", color: C.textMuted }}>
+                Página {page} de {totalPages}
+              </span>
+
+              <PaginationButton
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               >
-                Buscar
-              </button>
+                <ChevronLeft size={14} /> Anterior
+              </PaginationButton>
 
-              {search && (
-                <button
-                  onClick={() => {
-                    setSearchInput("");
-                    setSearch("");
-                    setPage(1);
-                  }}
-                  style={{
-                    padding: "0.65rem 1rem",
-                    borderRadius: "9px",
-                    border: `1px solid ${C.border}`,
-                    background: C.surface,
-                    color: C.textMuted,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Limpiar
-                </button>
-              )}
+              <PaginationButton
+                disabled={page >= totalPages}
+                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              >
+                Siguiente <ChevronRight size={14} />
+              </PaginationButton>
             </div>
           </div>
-
-          <DataTable
-            columns={[
-              { key: "producto", label: "Producto" },
-              { key: "descuento", label: "Descuento" },
-              { key: "vigencia", label: "Vigencia" },
-              { key: "estado", label: "Estado" },
-              { key: "acciones", label: "Acciones", align: "center" },
-            ]}
-            rows={promociones}
-            minWidth="680px"
-            loading={loading}
-            loadingText="Cargando promociones..."
-            emptyText={
-              search
-                ? "Sin resultados para esa búsqueda"
-                : "No hay promociones aún"
+        }
+        renderRow={(p, i) => (
+          <tr
+            key={p.id}
+            style={{
+              borderBottom:
+                i < promociones.length - 1
+                  ? `1px solid ${C.borderLight}`
+                  : "none",
+              transition: "background 0.1s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = C.headerBg)}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "transparent")
             }
-            footer={
-              <div
+          >
+            <td style={{ padding: "0.95rem 1rem", minWidth: 200 }}>
+              {p.producto_code && (
+                <span
+                  style={{
+                    fontFamily: "ui-monospace, monospace",
+                    fontSize: "0.75rem",
+                    color: C.textFaint,
+                    marginRight: 6,
+                    background: "#f3f4f6",
+                    padding: "1px 6px",
+                    borderRadius: 4,
+                  }}
+                >
+                  {p.producto_code}
+                </span>
+              )}
+              <span
                 style={{
-                  padding: "12px 16px",
-                  borderTop: `1px solid ${C.border}`,
-                  background: C.headerBg,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                  flexWrap: "wrap",
+                  fontWeight: 600,
+                  color: C.text,
+                  fontSize: "0.875rem",
                 }}
               >
-                <span style={{ fontSize: "0.78rem", color: C.textFaint }}>
-                  Mostrando {pageRange.from}-{pageRange.to} de {totalItems}{" "}
-                  promoción
-                  {totalItems !== 1 ? "es" : ""}
-                </span>
+                {p.producto_nombre}
+              </span>
+            </td>
 
+            <td
+              style={{
+                padding: "0.95rem 1rem",
+                minWidth: 110,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  background: C.primaryLight,
+                  color: C.primaryHover,
+                  border: `1px solid ${C.primaryBorder}`,
+                  padding: "3px 10px",
+                  borderRadius: "7px",
+                  fontSize: "0.85rem",
+                  fontWeight: 800,
+                }}
+              >
+                <Tag size={12} />
+                {formatValor(p)}
+              </span>
+            </td>
+
+            <td
+              style={{
+                padding: "0.95rem 1rem",
+                fontSize: "0.82rem",
+                color: C.textMuted,
+                minWidth: 170,
+              }}
+            >
+              {p.fecha_inicio || p.fecha_fin ? (
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    flexWrap: "wrap",
+                    flexDirection: "column",
+                    gap: 2,
                   }}
                 >
-                  <span style={{ fontSize: "0.8rem", color: C.textMuted }}>
-                    Página {page} de {totalPages}
-                  </span>
-
-                  <PaginationButton
-                    disabled={page <= 1}
-                    onClick={() =>
-                      setPage((prev) => Math.max(prev - 1, 1))
-                    }
-                  >
-                    <ChevronLeft size={14} /> Anterior
-                  </PaginationButton>
-
-                  <PaginationButton
-                    disabled={page >= totalPages}
-                    onClick={() =>
-                      setPage((prev) => Math.min(prev + 1, totalPages))
-                    }
-                  >
-                    Siguiente <ChevronRight size={14} />
-                  </PaginationButton>
-                </div>
-              </div>
-            }
-            renderRow={(p, i) => (
-              <tr
-                key={p.id}
-                style={{
-                  borderBottom:
-                    i < promociones.length - 1
-                      ? `1px solid ${C.borderLight}`
-                      : "none",
-                  transition: "background 0.1s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = C.headerBg)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
-              >
-                <td style={{ padding: "0.95rem 1rem", minWidth: 200 }}>
-                  {p.producto_code && (
+                  <span>
                     <span
                       style={{
-                        fontFamily: "ui-monospace, monospace",
-                        fontSize: "0.75rem",
+                        fontSize: "0.72rem",
                         color: C.textFaint,
-                        marginRight: 6,
-                        background: "#f3f4f6",
-                        padding: "1px 6px",
-                        borderRadius: 4,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
                       }}
                     >
-                      {p.producto_code}
+                      Desde:{" "}
                     </span>
-                  )}
-                  <span
-                    style={{
-                      fontWeight: 600,
-                      color: C.text,
-                      fontSize: "0.875rem",
-                    }}
-                  >
-                    {p.producto_nombre}
+                    {formatDate(p.fecha_inicio)}
                   </span>
-                </td>
-
-                <td
-                  style={{
-                    padding: "0.95rem 1rem",
-                    minWidth: 110,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 5,
-                      background: C.primaryLight,
-                      color: C.primaryHover,
-                      border: `1px solid ${C.primaryBorder}`,
-                      padding: "3px 10px",
-                      borderRadius: "7px",
-                      fontSize: "0.85rem",
-                      fontWeight: 800,
-                    }}
-                  >
-                    <Tag size={12} />
-                    {formatValor(p)}
-                  </span>
-                </td>
-
-                <td
-                  style={{
-                    padding: "0.95rem 1rem",
-                    fontSize: "0.82rem",
-                    color: C.textMuted,
-                    minWidth: 170,
-                  }}
-                >
-                  {p.fecha_inicio || p.fecha_fin ? (
-                    <div
+                  <span>
+                    <span
                       style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
+                        fontSize: "0.72rem",
+                        color: C.textFaint,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
                       }}
                     >
-                      <span>
-                        <span
-                          style={{
-                            fontSize: "0.72rem",
-                            color: C.textFaint,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                          }}
-                        >
-                          Desde:{" "}
-                        </span>
-                        {formatDate(p.fecha_inicio)}
-                      </span>
-                      <span>
-                        <span
-                          style={{
-                            fontSize: "0.72rem",
-                            color: C.textFaint,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                          }}
-                        >
-                          Hasta:{" "}
-                        </span>
-                        {formatDate(p.fecha_fin)}
-                      </span>
-                    </div>
-                  ) : (
-                    <span style={{ color: C.textFaint }}>
-                      Sin fecha límite
+                      Hasta:{" "}
                     </span>
-                  )}
-                </td>
+                    {formatDate(p.fecha_fin)}
+                  </span>
+                </div>
+              ) : (
+                <span style={{ color: C.textFaint }}>Sin fecha límite</span>
+              )}
+            </td>
 
-                <td style={{ padding: "0.95rem 1rem", minWidth: 110 }}>
-                  <button
-                    onClick={() => toggleActivo(p)}
-                    title="Click para cambiar estado"
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <Badge
-                      color={p.activo ? C.success : C.danger}
-                      bg={
-                        p.activo
-                          ? C.successLight
-                          : "rgba(220,38,38,0.1)"
-                      }
-                    >
-                      {p.activo ? "Activo" : "Inactivo"}
-                    </Badge>
-                  </button>
-                </td>
+            <td style={{ padding: "0.95rem 1rem", minWidth: 110 }}>
+              <button
+                onClick={() => toggleActivo(p)}
+                title="Click para cambiar estado"
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
+                <Badge
+                  color={p.activo ? C.success : C.danger}
+                  bg={p.activo ? C.successLight : "rgba(220,38,38,0.1)"}
+                >
+                  {p.activo ? "Activo" : "Inactivo"}
+                </Badge>
+              </button>
+            </td>
 
-                <td style={{ padding: "0.95rem 1rem", minWidth: 100 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 6,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <IconBtn
-                      onClick={() => onEdit(p)}
-                      title="Editar"
-                      color="#f5a623"
-                      bg="rgba(245,166,35,0.1)"
-                      bgHover="rgba(245,166,35,0.18)"
-                      border="1px solid rgba(245,166,35,0.18)"
-                    >
-                      <Pencil size={14} />
-                    </IconBtn>
+            <td style={{ padding: "0.95rem 1rem", minWidth: 100 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 6,
+                  justifyContent: "center",
+                }}
+              >
+                <Link
+                  href={`/admin/promociones/${p.id}/editar`}
+                  title="Editar"
+                  style={{
+                    display: "flex",
+                    background: "rgba(245,166,35,0.1)",
+                    border: "1px solid rgba(245,166,35,0.18)",
+                    borderRadius: 7,
+                    padding: "6px 7px",
+                    cursor: "pointer",
+                    color: "#f5a623",
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "rgba(245,166,35,0.18)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "rgba(245,166,35,0.1)")
+                  }
+                >
+                  <Pencil size={14} />
+                </Link>
 
-                    <IconBtn
-                      onClick={() => onDelete(p.id)}
-                      title="Eliminar"
-                      color={C.danger}
-                      bg={C.dangerLight}
-                      bgHover={C.dangerHover}
-                    >
-                      <Trash2 size={14} />
-                    </IconBtn>
-                  </div>
-                </td>
-              </tr>
-            )}
-          />
-        </>
-      )}
+                <button
+                  onClick={() => onDelete(p.id)}
+                  title="Eliminar"
+                  style={{
+                    display: "flex",
+                    background: C.dangerLight,
+                    border: "none",
+                    borderRadius: 7,
+                    padding: "6px 7px",
+                    cursor: "pointer",
+                    color: C.danger,
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = C.dangerHover)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = C.dangerLight)
+                  }
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </td>
+          </tr>
+        )}
+      />
     </div>
   );
 }

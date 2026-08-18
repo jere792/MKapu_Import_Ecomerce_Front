@@ -14,81 +14,62 @@ export default function KpiCard({ label, value, color, icon }: KpiCardProps) {
     <div
       style={{
         background: "#fff",
-        border: "1px solid #ececec",
+        border: "1px solid #efefef",
         borderRadius: "14px",
-        padding: "1rem 1.1rem",
+        padding: "1.2rem 1.3rem",
         minWidth: 0,
         position: "relative",
         overflow: "hidden",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
       }}
     >
-      <span
+      {icon && (
+        <span
+          style={{
+            position: "absolute",
+            top: "-8px",
+            right: "-6px",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 64,
+            height: 64,
+            color,
+            opacity: 0.12,
+            transform: "rotate(-8deg)",
+          }}
+        >
+          {icon}
+        </span>
+      )}
+      <p
         style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 4,
-          background: color,
-          borderTopLeftRadius: 14,
-          borderBottomLeftRadius: 14,
-        }}
-      />
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "0.75rem",
+          position: "relative",
+          margin: 0,
+          fontSize: "2.2rem",
+          fontWeight: 800,
+          color: "#1a1a1a",
+          lineHeight: 1,
         }}
       >
-        <div style={{ minWidth: 0 }}>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "0.72rem",
-              fontWeight: 700,
-              color: "#8a8a8a",
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {label}
-          </p>
-          <p
-            style={{
-              margin: "6px 0 0",
-              fontSize: "1.9rem",
-              fontWeight: 800,
-              color: color,
-              lineHeight: 1,
-            }}
-          >
-            {value}
-          </p>
-        </div>
-        {icon && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              background: `color-mix(in srgb, ${color} 12%, transparent)`,
-              color,
-              flexShrink: 0,
-            }}
-          >
-            {icon}
-          </span>
-        )}
-      </div>
+        {value}
+      </p>
+      <p
+        style={{
+          position: "relative",
+          margin: "8px 0 0",
+          fontSize: "0.72rem",
+          fontWeight: 700,
+          color: "#9a9a9a",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {label}
+      </p>
     </div>
   );
 }

@@ -276,7 +276,11 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
         )}
 
         <SectionHeader
-          title={mode === "create" ? "Nuevo producto" : `Editar producto #${productId}`}
+          title={
+            mode === "create"
+              ? "Nuevo producto"
+              : `Editar producto #${productId}`
+          }
           icon={<Package size={18} />}
           description={
             mode === "create"
@@ -295,8 +299,15 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
         />
 
         {loading ? (
-          <div className="ap-card" style={{ textAlign: "center", padding: "60px 0", color: "#888" }}>
-            <Loader2 size={28} className="ap-spin" style={{ marginBottom: 8 }} />
+          <div
+            className="ap-card"
+            style={{ textAlign: "center", padding: "60px 0", color: "#888" }}
+          >
+            <Loader2
+              size={28}
+              className="ap-spin"
+              style={{ marginBottom: 8 }}
+            />
             <p style={{ margin: 0, fontSize: ".9rem" }}>Cargando producto...</p>
           </div>
         ) : (
@@ -331,7 +342,8 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
                         src={form.image_url}
                         alt="Vista previa"
                         onError={(e) =>
-                          ((e.target as HTMLImageElement).style.display = "none")
+                          ((e.target as HTMLImageElement).style.display =
+                            "none")
                         }
                       />
                     ) : (
@@ -452,7 +464,10 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
                             step="0.01"
                             value={form.price}
                             onChange={(e) =>
-                              setForm({ ...form, price: Number(e.target.value) })
+                              setForm({
+                                ...form,
+                                price: Number(e.target.value),
+                              })
                             }
                             required
                           />

@@ -1,7 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { CheckCircle, Pencil, Trash2, FolderTree } from "lucide-react";
+import {
+  CheckCircle,
+  Pencil,
+  PlusCircle,
+  Trash2,
+  FolderTree,
+  X,
+} from "lucide-react";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
 
@@ -25,14 +32,6 @@ const inp: React.CSSProperties = {
   outline: "none",
   boxSizing: "border-box",
   transition: "border-color 0.15s, box-shadow 0.15s",
-};
-
-const lbl: React.CSSProperties = {
-  display: "block",
-  fontSize: "0.82rem",
-  fontWeight: 600,
-  color: "#444",
-  marginBottom: "0.4rem",
 };
 
 function toSlug(text: string) {
@@ -156,6 +155,20 @@ export default function AdminCategoriasPage() {
         minHeight: "100vh",
       }}
     >
+      <style>{`
+        .ap-fblock{background:#fafafa;border:1px solid #e8e8e8;border-radius:12px;padding:16px;margin-bottom:16px}
+        .ap-fblock__title{margin:0 0 14px;font-size:.72rem;font-weight:800;color:#1a1a1a;text-transform:uppercase;letter-spacing:.08em;padding-bottom:10px;border-bottom:1px solid #e8e8e8}
+        .ap-fsub{padding:12px;background:#fff;border:1px solid #eef0f2;border-radius:8px;margin-bottom:12px}
+        .ap-fsub:last-child{margin-bottom:0}
+        .ap-fsub__title{margin:0 0 12px;font-size:.68rem;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.08em}
+        .ap-toggle{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:.875rem;color:#555;user-select:none}
+        .ap-toggle input{display:none}
+        .ap-toggle__slider{width:44px;height:24px;background:#e0e0e0;border-radius:12px;position:relative;transition:background .2s;flex-shrink:0}
+        .ap-toggle__slider::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+        .ap-toggle input:checked+.ap-toggle__slider{background:#22c55e}
+        .ap-toggle input:checked+.ap-toggle__slider::after{transform:translateX(20px)}
+      `}</style>
+
       {successMsg && (
         <div style={{
           position: "fixed", top: "1rem", right: "1rem", zIndex: 9999,
@@ -193,7 +206,15 @@ export default function AdminCategoriasPage() {
             onMouseEnter={(e) => (e.currentTarget.style.background = "#d4891a")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#f5a623")}
           >
-            {showForm ? "✕ Cancelar" : "+ Nueva categoría"}
+            {showForm ? (
+              <>
+                <X size={15} /> Cancelar
+              </>
+            ) : (
+              <>
+                <PlusCircle size={15} /> Nueva categoría
+              </>
+            )}
           </button>
         }
       />
@@ -203,10 +224,10 @@ export default function AdminCategoriasPage() {
           style={{
             background: "#fff",
             border: "1px solid #e8e8e8",
+            borderTop: "3px solid #f5a623",
             borderRadius: "12px",
             padding: "1.5rem",
-            marginBottom: "1.5rem",
-            borderTop: "3px solid #f5a623",
+            marginBottom: "1.75rem",
           }}
         >
           <h2
@@ -221,90 +242,104 @@ export default function AdminCategoriasPage() {
           </h2>
 
           <form onSubmit={save}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: "1rem",
-                marginBottom: "1rem",
-              }}
-            >
-              <div>
-                <label style={lbl}>Nombre *</label>
-                <input
-                  style={inp}
-                  placeholder="Ej: Electrónica"
-                  value={form.name}
-                  onChange={(e) => {
-                    const name = e.target.value;
-                    setForm({ ...form, name, slug: toSlug(name) });
+            <div className="ap-fblock">
+              <h3 className="ap-fblock__title">Datos de la categoría</h3>
+
+              <div className="ap-fsub">
+                <h4 className="ap-fsub__title">Información básica</h4>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                    gap: "1rem",
                   }}
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={lbl}>
-                  Slug{" "}
-                  <span
-                    style={{
-                      color: "#bbb",
-                      textTransform: "none",
-                      fontWeight: 400,
-                    }}
-                  >
-                    (auto-generado)
-                  </span>
-                </label>
-                <input
-                  style={{ ...inp, background: "#fafafa" }}
-                  placeholder="electronica"
-                  value={form.slug}
-                  onChange={(e) =>
-                    setForm({ ...form, slug: toSlug(e.target.value) })
-                  }
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
-                />
-              </div>
-
-              <div>
-                <label style={lbl}>Estado</label>
-                <select
-                  style={inp}
-                  value={form.activo ? "true" : "false"}
-                  onChange={(e) =>
-                    setForm({ ...form, activo: e.target.value === "true" })
-                  }
-                  onFocus={onFocusInput}
-                  onBlur={onBlurInput}
                 >
-                  <option value="true">Activo</option>
-                  <option value="false">Inactivo</option>
-                </select>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "#444", marginBottom: "0.4rem" }}>
+                      Nombre *
+                    </label>
+                    <input
+                      style={inp}
+                      placeholder="Ej: Electrónica"
+                      value={form.name}
+                      onChange={(e) => {
+                        const name = e.target.value;
+                        setForm({ ...form, name, slug: toSlug(name) });
+                      }}
+                      onFocus={onFocusInput}
+                      onBlur={onBlurInput}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, color: "#444", marginBottom: "0.4rem" }}>
+                      Slug{" "}
+                      <span
+                        style={{
+                          color: "#bbb",
+                          textTransform: "none",
+                          fontWeight: 400,
+                        }}
+                      >
+                        (auto-generado)
+                      </span>
+                    </label>
+                    <input
+                      style={{ ...inp, background: "#fafafa" }}
+                      placeholder="electronica"
+                      value={form.slug}
+                      onChange={(e) =>
+                        setForm({ ...form, slug: toSlug(e.target.value) })
+                      }
+                      onFocus={onFocusInput}
+                      onBlur={onBlurInput}
+                    />
+                  </div>
+                </div>
+
+                {form.slug && (
+                  <div style={{ marginTop: "0.9rem", wordBreak: "break-all" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#aaa" }}>
+                      Vista previa URL:{" "}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "#f5a623",
+                        fontWeight: 600,
+                      }}
+                    >
+                      /categoria/<strong>{form.slug}</strong>
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="ap-fsub">
+                <h4 className="ap-fsub__title">Configuración</h4>
+                <label className="ap-toggle">
+                  <input
+                    type="checkbox"
+                    checked={form.activo}
+                    onChange={(e) =>
+                      setForm({ ...form, activo: e.target.checked })
+                    }
+                  />
+                  <span className="ap-toggle__slider" />
+                  <span>{form.activo ? "Activo" : "Inactivo"}</span>
+                </label>
               </div>
             </div>
 
-            {form.slug && (
-              <div style={{ marginBottom: "1.25rem", wordBreak: "break-all" }}>
-                <span style={{ fontSize: "0.78rem", color: "#aaa" }}>
-                  Vista previa URL:{" "}
-                </span>
-                <span
-                  style={{
-                    fontSize: "0.78rem",
-                    color: "#f5a623",
-                    fontWeight: 600,
-                  }}
-                >
-                  /categoria/<strong>{form.slug}</strong>
-                </span>
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+                justifyContent: "flex-end",
+              }}
+            >
               <button
                 type="submit"
                 style={{
@@ -316,16 +351,20 @@ export default function AdminCategoriasPage() {
                   fontWeight: 600,
                   fontSize: "0.875rem",
                   cursor: "pointer",
-                  transition: "background 0.2s",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#d4891a")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "#f5a623")
-                }
               >
-                {editId ? "Guardar cambios" : "Crear categoría"}
+                {editId ? (
+                  <>
+                    <CheckCircle size={15} /> Guardar cambios
+                  </>
+                ) : (
+                  <>
+                    <PlusCircle size={15} /> Crear categoría
+                  </>
+                )}
               </button>
 
               <button
@@ -340,27 +379,28 @@ export default function AdminCategoriasPage() {
                   fontWeight: 600,
                   fontSize: "0.875rem",
                   cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
                 }}
               >
-                Cancelar
+                <X size={15} /> Cancelar
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {!showForm && (
-        <>
-          <div style={{ marginBottom: "1rem" }}>
-            <input
-              style={{ ...inp, maxWidth: 380 }}
-              placeholder="Buscar por nombre o slug..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onFocus={onFocusInput}
-              onBlur={onBlurInput}
-            />
-          </div>
+      <div style={{ marginBottom: "1rem" }}>
+        <input
+          style={{ ...inp, maxWidth: 380 }}
+          placeholder="Buscar por nombre o slug..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onFocus={onFocusInput}
+          onBlur={onBlurInput}
+        />
+      </div>
 
           <DataTable
             columns={[
@@ -527,8 +567,6 @@ export default function AdminCategoriasPage() {
               </tr>
             )}
           />
-        </>
-      )}
     </div>
   );
 }

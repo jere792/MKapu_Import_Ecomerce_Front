@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
+import ProductFiltersBar from "@/components/layout/admin/ProductFiltersBar";
 import {
   AlertCircle,
   Image as ImageIcon,
@@ -14,11 +15,9 @@ import {
   Package,
   Pencil,
   PlusCircle,
-  Search,
   Trash2,
   Video,
   VideoOff,
-  X,
 } from "lucide-react";
 
 type Producto = {
@@ -53,14 +52,11 @@ export default function AdminProductosPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("todos");
   const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCompletos, setTotalCompletos] = useState(0);
   const [totalIncompletos, setTotalIncompletos] = useState(0);
-
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     supabase
@@ -152,14 +148,6 @@ export default function AdminProductosPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [search, selectedCategory, viewMode]);
-
-  function handleSearchInput(value: string) {
-    setSearchInput(value);
-    if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => {
-      setSearch(value);
-    }, 350);
-  }
 
   async function onDelete(id: number) {
     if (!confirm("¿Eliminar producto?")) return;
@@ -327,63 +315,15 @@ export default function AdminProductosPage() {
         </div>
 
         {/* Filtros */}
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            marginBottom: 16,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ position: "relative", flex: 1, minWidth: 240 }}>
-            <Search
-              size={14}
-              style={{
-                position: "absolute",
-                left: 11,
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "#ccc",
-                pointerEvents: "none",
-              }}
-            />
-            <input
-              className="ap-inp"
-              style={{ paddingLeft: 32 }}
-              placeholder="Buscar por nombre o código..."
-              value={searchInput}
-              onChange={(e) => handleSearchInput(e.target.value)}
-            />
-          </div>
-
-          <select
-            className="ap-inp"
-            style={{ minWidth: 220, width: "auto" }}
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            {categorias.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-
-          {(search || selectedCategory) && (
-            <button
-              className="ap-btn ap-btn--ghost ap-btn--sm"
-              onClick={() => {
-                setSearch("");
-                setSearchInput("");
-                setSelectedCategory("");
-              }}
-            >
-              <X size={14} />
-              Limpiar
-            </button>
-          )}
+        <div style={{ marginBottom: 16 }}>
+          <ProductFiltersBar
+            categories={categorias}
+            search={search}
+            onSearch={setSearch}
+            category={selectedCategory}
+            onCategory={setSelectedCategory}
+            placeholder="Buscar por nombre o código..."
+          />
         </div>
 
         {/* Tabla */}
