@@ -553,6 +553,7 @@ export default function AdminMarcasPage() {
               { key: "acciones", label: "Acciones" },
             ]}
             rows={rows}
+            pageSize={10}
             minWidth="860px"
             banner={
               savingOrder && (
@@ -572,20 +573,6 @@ export default function AdminMarcasPage() {
             }
             emptyIcon={<Tag size={32} />}
             emptyText="No hay marcas aún"
-            footer={
-              <div
-                style={{
-                  padding: "12px 16px",
-                  borderTop: "1px solid #e8e8e8",
-                  background: "#fafafa",
-                  fontSize: "0.8rem",
-                  color: "#aaa",
-                }}
-              >
-                {rows.length} marca{rows.length !== 1 ? "s" : ""} registrada
-                {rows.length !== 1 ? "s" : ""}
-              </div>
-            }
             renderRow={(m, i) => (
               <tr
                 key={m.id}

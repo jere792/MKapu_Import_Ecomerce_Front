@@ -989,18 +989,6 @@ export default function AdminSobreNosotrosPage() {
               </table>
             </div>
 
-            <div
-              style={{
-                padding: "12px 16px",
-                borderTop: "1px solid #e8e8e8",
-                background: "#fafafa",
-                fontSize: "0.8rem",
-                color: "#aaa",
-              }}
-            >
-              {rows.length} sección{rows.length !== 1 ? "es" : ""} registrada
-              {rows.length !== 1 ? "s" : ""}
-            </div>
           </div>
         ))}
     </div>

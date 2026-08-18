@@ -946,24 +946,11 @@ export default function AdminBlogPage() {
               { key: "acciones", label: "Acciones" },
             ]}
             rows={filtered}
+            pageSize={10}
             minWidth={700}
             loading={loading}
             loadingText="Cargando posts..."
             emptyText={search ? "Sin resultados" : "No hay posts aún"}
-            footer={
-              <div
-                style={{
-                  padding: "12px 16px",
-                  borderTop: "1px solid #e8e8e8",
-                  background: "#fafafa",
-                  fontSize: "0.8rem",
-                  color: "#aaa",
-                }}
-              >
-                {filtered.length} de {rows.length} publicación
-                {rows.length !== 1 ? "es" : ""}
-              </div>
-            }
             renderRow={(p, i) => {
               const media = mediaMap[p.id] ?? { imgs: 0, vids: 0 };
               return (

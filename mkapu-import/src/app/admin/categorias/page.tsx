@@ -370,24 +370,11 @@ export default function AdminCategoriasPage() {
               { key: "acciones", label: "Acciones" },
             ]}
             rows={filtered}
+            pageSize={10}
             minWidth={640}
             loading={loading}
             loadingText="Cargando categorías..."
             emptyText={search ? "Sin resultados" : "No hay categorías aún"}
-            footer={
-              <div
-                style={{
-                  padding: "12px 16px",
-                  borderTop: "1px solid #e8e8e8",
-                  background: "#fafafa",
-                  fontSize: "0.8rem",
-                  color: "#aaa",
-                }}
-              >
-                {filtered.length} de {rows.length} categoría
-                {rows.length !== 1 ? "s" : ""}
-              </div>
-            }
             renderRow={(c, i) => (
               <tr
                 key={c.id}

@@ -987,6 +987,7 @@ export default function AdminColaboradoresPage() {
               { key: "acciones", label: "Acciones" },
             ]}
             rows={rows}
+            pageSize={10}
             minWidth="980px"
             loading={loading}
             loadingText="Cargando colaboradores..."
@@ -1008,21 +1009,6 @@ export default function AdminColaboradoresPage() {
             }
             emptyIcon={<Users size={32} />}
             emptyText="No hay colaboradores aún"
-            footer={
-              <div
-                style={{
-                  padding: "12px 16px",
-                  borderTop: "1px solid #e8e8e8",
-                  background: "#fafafa",
-                  fontSize: "0.8rem",
-                  color: "#aaa",
-                }}
-              >
-                {rows.length} colaborador{rows.length !== 1 ? "es" : ""}{" "}
-                registrado
-                {rows.length !== 1 ? "s" : ""}
-              </div>
-            }
             renderRow={(c, i) => {
               const m = mediaMap[c.id] ?? { imgs: 0, vids: 0 };
 

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   Loader2,
-  GripVertical,
   Eye,
   EyeOff,
   Trash2,
@@ -13,6 +12,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
+import DataTable from "@/components/layout/admin/DataTable";
 
 type Categoria = { id: number; name: string; slug: string; activo: boolean };
 type Seccion = {
@@ -330,128 +330,64 @@ export default function AdminHomePage() {
       </section>
 
       {/* Tabla de secciones */}
-      <section
-        style={{
-          background: "#fff",
-          borderRadius: "12px",
-          border: "1px solid #e8e8e8",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            padding: "1rem 1.25rem",
-            background: "#fafafa",
-            borderBottom: "1px solid #e8e8e8",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "0.5rem",
-          }}
-        >
-          <div>
+      <DataTable
+        columns={[
+          { key: "categoria", label: "Categoría" },
+          { key: "orden", label: "Orden", align: "center" },
+          { key: "estado", label: "Estado" },
+          { key: "acciones", label: "Acciones", align: "center" },
+        ]}
+        rows={secciones}
+        pageSize={10}
+        loading={loading}
+        loadingText="Cargando secciones…"
+        emptyText="Aún no has configurado secciones. Añade una categoría arriba."
+        banner={
+          <div
+            style={{
+              padding: "1rem 1.25rem",
+              background: "#fafafa",
+              borderBottom: "1px solid #e8e8e8",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "0.5rem",
+            }}
+          >
+            <div>
+              <span
+                style={{
+                  fontSize: "0.8rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "#888",
+                }}
+              >
+                Secciones en el home
+              </span>
+              <span
+                style={{ marginLeft: 8, fontSize: "0.78rem", color: "#aaa" }}
+              >
+                ({secciones.length})
+              </span>
+            </div>
             <span
               style={{
-                fontSize: "0.8rem",
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "#888",
+                fontSize: "0.78rem",
+                color: "#aaa",
+                whiteSpace: "nowrap",
               }}
             >
-              Secciones en el home
-            </span>
-            <span style={{ marginLeft: 8, fontSize: "0.78rem", color: "#aaa" }}>
-              ({secciones.length})
+              Arrastra o usa las flechas para reordenar
             </span>
           </div>
-          <span
-            style={{
-              fontSize: "0.78rem",
-              color: "#aaa",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Arrastra o usa las flechas para reordenar
-          </span>
-        </div>
-
-        {loading ? (
-          <div
-            style={{
-              padding: 48,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              color: "#aaa",
-            }}
-          >
-            <Loader2
-              size={20}
-              style={{ animation: "spin 0.8s linear infinite" }}
-              color="#f5a623"
-            />
-            <span style={{ fontSize: "0.88rem" }}>Cargando secciones…</span>
-          </div>
-        ) : secciones.length === 0 ? (
-          <div
-            style={{
-              padding: 48,
-              textAlign: "center",
-              color: "#aaa",
-              fontSize: "0.9rem",
-            }}
-          >
-            Aún no has configurado secciones. Añade una categoría arriba.
-          </div>
-        ) : (
-          <div
-            style={{
-              overflowX: "auto",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
-            <table
-              style={{
-                width: "100%",
-                minWidth: 580,
-                borderCollapse: "collapse",
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    background: "#fafafa",
-                    borderBottom: "1px solid #e8e8e8",
-                  }}
-                >
-                  {["Categoría", "Orden", "Estado", "Acciones"].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: "0.85rem 1rem",
-                        textAlign: h === "Orden" || h === "Acciones" ? "center" : "left",
-                        fontSize: "0.8rem",
-                        fontWeight: 600,
-                        color: "#888",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {secciones.map((sec, idx) => {
-                  const cat = catMap[sec.categoria_id];
-                  const isFirst = idx === 0;
-                  const isLast = idx === secciones.length - 1;
+        }
+        renderRow={(sec, idx) => {
+          const cat = catMap[sec.categoria_id];
+          const isFirst = idx === 0;
+          const isLast = idx === secciones.length - 1;
 
                   return (
                     <tr
@@ -671,14 +607,10 @@ export default function AdminHomePage() {
                           </button>
                         </div>
                       </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+</tr>
+          );
+        }}
+      />
     </div>
   );
 }

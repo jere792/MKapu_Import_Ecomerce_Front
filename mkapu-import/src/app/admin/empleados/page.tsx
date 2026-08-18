@@ -486,6 +486,7 @@ export default function EmpleadosPage() {
           { key: "acciones", label: "Acciones" },
         ]}
         rows={empleados}
+        pageSize={10}
         minWidth="760px"
         loading={loading}
         loadingText="Cargando empleados..."

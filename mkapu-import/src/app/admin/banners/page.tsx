@@ -347,6 +347,40 @@ export default function AdminBannersPage() {
         title="Banners"
         icon={<ImageIcon size={18} />}
         description="Gestiona el carrusel principal y los banners de cada página"
+        actions={
+          tab === "carousel" && (
+            <button
+              style={showFormC ? { ...btnSecondary } : { ...btnPrimary }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = showFormC
+                  ? "#f0f0f0"
+                  : "#d4891a";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = showFormC
+                  ? "#fafafa"
+                  : "#f5a623";
+              }}
+              onClick={() => {
+                if (showFormC) {
+                  setShowFormC(false);
+                  setEditCId(null);
+                  setFormC(initialCarousel);
+                } else {
+                  setEditCId(null);
+                  setFormC({
+                    ...initialCarousel,
+                    orden: carousel.length + 1,
+                  });
+                  setShowFormC(true);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+            >
+              {showFormC ? "✕ Cancelar" : "+ Nuevo slide"}
+            </button>
+          )
+        }
       />
 
       {/* ── Tabs ── */}
@@ -423,69 +457,6 @@ export default function AdminBannersPage() {
               TAB: CARRUSEL
            ══════════════════════════════ */
         <>
-          {/* Barra superior */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "1.25rem",
-              flexWrap: "wrap",
-              gap: "0.75rem",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span
-                style={{ fontSize: "0.875rem", color: "#666", fontWeight: 600 }}
-              >
-                {carousel.length} slide{carousel.length !== 1 ? "s" : ""}
-              </span>
-              {savingOrder && (
-                <span
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "#c47d00",
-                    background: "#fff8e6",
-                    padding: "4px 10px",
-                    borderRadius: "999px",
-                    fontWeight: 600,
-                    border: "1px solid #ffe5a0",
-                  }}
-                >
-                  Guardando orden...
-                </span>
-              )}
-            </div>
-
-            <button
-              style={showFormC ? { ...btnSecondary } : { ...btnPrimary }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = showFormC
-                  ? "#f0f0f0"
-                  : "#d4891a";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = showFormC
-                  ? "#fafafa"
-                  : "#f5a623";
-              }}
-              onClick={() => {
-                if (showFormC) {
-                  setShowFormC(false);
-                  setEditCId(null);
-                  setFormC(initialCarousel);
-                } else {
-                  setEditCId(null);
-                  setFormC({ ...initialCarousel, orden: carousel.length + 1 });
-                  setShowFormC(true);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }
-              }}
-            >
-              {showFormC ? "✕ Cancelar" : "+ Nuevo slide"}
-            </button>
-          </div>
-
           {/* ── Formulario crear/editar ── */}
           {showFormC && (
             <div
@@ -795,7 +766,29 @@ export default function AdminBannersPage() {
                 { key: "acciones", label: "Acciones" },
               ]}
               rows={carousel}
+              pageSize={10}
               minWidth="700px"
+              banner={
+                savingOrder && (
+                  <div
+                    style={{
+                      padding: "0.6rem 1.25rem",
+                      background: "#fff8e6",
+                      borderBottom: "1px solid #ffe5a0",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "#c47d00",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Guardando orden...
+                    </span>
+                  </div>
+                )
+              }
               emptyText="No hay slides todavía. Crea el primero con &quot;+ Nuevo slide&quot;."
               renderRow={(b, i) => (
                 <tr

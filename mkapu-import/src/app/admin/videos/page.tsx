@@ -562,27 +562,12 @@ export default function AdminVideosPage() {
             { key: "acciones", label: "Acciones" },
           ]}
           rows={filtered}
+          pageSize={10}
           minWidth="860px"
           loading={loading}
           loadingText="Cargando videos..."
           emptyIcon={<Film size={32} color="#ccc" />}
           emptyText="No hay videos aún"
-          footer={
-            <div
-              style={{
-                padding: "12px 16px",
-                borderTop: "1px solid #e8e8e8",
-                background: "#fafafa",
-                fontSize: "0.8rem",
-                color: "#aaa",
-              }}
-            >
-              {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
-              {filterTipo
-                ? ` en ${filterTipo === "video" ? "Videos" : "Vlogs"}`
-                : ""}
-            </div>
-          }
           renderRow={(v, i) => (
             <tr
               key={v.id}

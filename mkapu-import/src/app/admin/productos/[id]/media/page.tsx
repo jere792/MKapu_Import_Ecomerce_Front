@@ -459,63 +459,6 @@ export default function ProductoMediaPage() {
               />
             </div>
 
-            {producto?.image_url && (
-              <div
-                style={{
-                  marginBottom: 20,
-                  padding: 14,
-                  background: "#fff8e6",
-                  border: "1px solid #f5a62333",
-                  borderRadius: 10,
-                }}
-              >
-                <p
-                  style={{
-                    display: "block",
-                    fontSize: ".7rem",
-                    fontWeight: 700,
-                    color: "#aaa",
-                    marginBottom: 10,
-                    textTransform: "uppercase",
-                    letterSpacing: ".06em",
-                  }}
-                >
-                  Imagen principal actual
-                </p>
-
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                  }}
-                >
-                  <img
-                    src={producto.image_url}
-                    alt="principal"
-                    style={{
-                      height: 64,
-                      width: 64,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                      border: "2px solid #f5a623",
-                    }}
-                  />
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: ".8rem",
-                      color: "#888",
-                      flex: 1,
-                      wordBreak: "break-all",
-                    }}
-                  >
-                    {producto.image_url}
-                  </p>
-                </div>
-              </div>
-            )}
-
             {imagenes.length === 0 ? (
               <div
                 style={{

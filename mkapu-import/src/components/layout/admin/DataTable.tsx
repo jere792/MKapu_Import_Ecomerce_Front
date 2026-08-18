@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -21,6 +22,7 @@ interface DataTableProps<T> {
   emptyIcon?: ReactNode;
   footer?: ReactNode;
   banner?: ReactNode;
+  pageSize?: number;
 }
 
 const thStyle: CSSProperties = {
@@ -46,7 +48,19 @@ export default function DataTable<T>({
   emptyIcon,
   footer,
   banner,
+  pageSize,
 }: DataTableProps<T>) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = pageSize
+    ? Math.max(1, Math.ceil(rows.length / pageSize))
+    : 1;
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStart = pageSize ? (safePage - 1) * pageSize : 0;
+  const visibleRows = pageSize
+    ? rows.slice(pageStart, pageStart + pageSize)
+    : rows;
+
   return (
     <div
       style={{
@@ -139,12 +153,105 @@ export default function DataTable<T>({
                     </td>
                   </tr>
                 ) : (
-                  rows.map((row, i) => renderRow(row, i))
+                  visibleRows.map((row, i) => renderRow(row, pageStart + i))
                 )}
               </tbody>
             </table>
           </div>
           {footer}
+          {pageSize && rows.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "1rem 1.25rem",
+                borderTop: "1px solid #e8e8e8",
+                background: "#fafafa",
+                fontSize: "0.875rem",
+                color: "#888",
+                flexWrap: "wrap",
+                gap: "1rem",
+              }}
+            >
+              <span>
+                Mostrando {pageStart + 1}–
+                {Math.min(pageStart + pageSize, rows.length)} de {rows.length}
+              </span>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "6px",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                <button
+                  disabled={safePage === 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  style={{
+                    padding: "6px 10px",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "6px",
+                    background: "#fff",
+                    color: "#666",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    cursor: safePage === 1 ? "not-allowed" : "pointer",
+                    opacity: safePage === 1 ? 0.4 : 1,
+                  }}
+                >
+                  ← Anterior
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      style={{
+                        padding: "6px 10px",
+                        border:
+                          safePage === page
+                            ? "2px solid #f5a623"
+                            : "1px solid #e0e0e0",
+                        borderRadius: "6px",
+                        background: safePage === page ? "#fff8e6" : "#fff",
+                        color: safePage === page ? "#f5a623" : "#666",
+                        fontSize: "0.8rem",
+                        fontWeight: safePage === page ? 700 : 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  disabled={safePage === totalPages}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  style={{
+                    padding: "6px 10px",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "6px",
+                    background: "#fff",
+                    color: "#666",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    cursor:
+                      safePage === totalPages ? "not-allowed" : "pointer",
+                    opacity: safePage === totalPages ? 0.4 : 1,
+                  }}
+                >
+                  Siguiente →
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
