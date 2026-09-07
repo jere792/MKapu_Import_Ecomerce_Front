@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Check } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
 
 interface Product {
@@ -23,13 +23,47 @@ interface Product {
 
 interface Props {
   product: Product;
+  revealDelay?: number;
 }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product, revealDelay = 0 }: Props) {
   const router = useRouter();
   const { addItem, items, removeItem } = useCart();
   const [imgError, setImgError] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
+  const ref = useRef<HTMLElement | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setRevealed(true);
+      return;
+    }
+    if (!("IntersectionObserver" in window)) {
+      setRevealed(true);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setRevealed(true);
+          obs.unobserve(e.target);
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -30px 0px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!justAdded) return;
+    const t = setTimeout(() => setJustAdded(false), 1200);
+    return () => clearTimeout(t);
+  }, [justAdded]);
 
   const cartItem = items.find((i) => i.id === String(product.id));
   const isAgotado = product.agotado === true;
@@ -67,6 +101,7 @@ export default function ProductCard({ product }: Props) {
         emoji: "📦",
         product: { price: product.price },
       });
+      setJustAdded(true);
     }
   }
 
@@ -108,18 +143,39 @@ export default function ProductCard({ product }: Props) {
 
   return (
     <article
+      ref={ref as any}
       onClick={handleCardClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="pc-card"
       style={{
         cursor: "pointer",
         display: "flex",
         flexDirection: "column",
         background: "#fff",
-        border: "none",
+        border: "1px solid #ede8e1",
+        borderRadius: "14px",
+        overflow: "hidden",
         position: "relative",
+        opacity: revealed ? 1 : 0,
+        transform: revealed ? "translateY(0)" : "translateY(8px)",
+        transition: `opacity 340ms ease ${Math.min(revealDelay, 200)}ms, transform 340ms ease ${Math.min(revealDelay, 200)}ms, border-color 200ms ease, box-shadow 220ms ease, translate 200ms ease`,
+        willChange: revealed ? "auto" : "opacity, transform",
       }}
     >
+      <style>{`
+        .pc-card:hover{border-color:#e8ddd0;box-shadow:0 8px 22px rgba(78,52,24,.08);transform:translateY(-2px)}
+        .pc-card:active{transform:translateY(0) scale(.985);box-shadow:0 2px 8px rgba(78,52,24,.06)}
+        .pc-card:focus-visible{outline:2px solid #f5a623;outline-offset:2px}
+        .pc-heart{transition:background 180ms ease, transform 180ms ease, color 180ms ease, box-shadow 180ms ease}
+        .pc-heart:hover{transform:scale(1.06);box-shadow:0 4px 14px rgba(0,0,0,.12)}
+        .pc-heart:active{transform:scale(.92)}
+        @media (prefers-reduced-motion: reduce){
+          .pc-card{transition:none!important;opacity:1!important;transform:none!important}
+          .pc-card:hover{transform:none!important;box-shadow:none!important}
+          .pc-heart{transition:none!important}
+        }
+      `}</style>
       {/* ── Imagen ── */}
       <div
         style={{
@@ -134,14 +190,15 @@ export default function ProductCard({ product }: Props) {
             src={product.image_url}
             alt={product.name}
             loading="lazy"
+            decoding="async"
             onError={() => setImgError(true)}
             style={{
               width: "100%",
               height: "100%",
               objectFit: "cover",
               display: "block",
-              transition: "transform 0.4s ease",
-              transform: hovered ? "scale(1.04)" : "scale(1)",
+              transition: "transform 220ms ease",
+              transform: hovered ? "scale(1.02)" : "scale(1)",
             }}
           />
         ) : (
@@ -159,11 +216,12 @@ export default function ProductCard({ product }: Props) {
           </div>
         )}
 
-        {/* Corazón */}
+        {/* Corazón / add feedback */}
         <button
           onClick={handleHeartClick}
           disabled={isAgotado}
           aria-label={inCart ? "Quitar del carrito" : "Agregar al carrito"}
+          className="pc-heart"
           style={{
             position: "absolute",
             top: 10,
@@ -183,16 +241,20 @@ export default function ProductCard({ product }: Props) {
             flexShrink: 0,
           }}
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill={inCart ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
+          {justAdded && !isAgotado ? (
+            <Check size={18} strokeWidth={2.5} />
+          ) : (
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill={inCart ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          )}
         </button>
 
         {/* ✅ Tags arriba-izquierda — fila horizontal, se envuelven si no caben */}

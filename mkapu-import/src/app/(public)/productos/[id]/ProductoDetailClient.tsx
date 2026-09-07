@@ -232,14 +232,17 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                   <video
                     src={currentMedia.url}
                     controls
-                    className="w-auto h-full max-w-full object-contain block bg-black mx-auto static transform-none"
+                    className="w-auto h-full max-w-full object-contain block bg-black mx-auto static transform-none animate-[fadeIn_.22s_ease]"
                     key={currentMedia.url}
                   />
                 ) : (
                   <img
                     src={currentMedia.url}
                     alt={producto.name}
-                    className="w-auto h-full max-w-full object-contain block bg-black mx-auto static transform-none"
+                    loading="eager"
+                    decoding="async"
+                    className="w-auto h-full max-w-full object-contain block bg-black mx-auto static transform-none animate-[fadeIn_.22s_ease]"
+                    key={currentMedia.url}
                     onError={() => setImgError(true)}
                   />
                 )
@@ -298,21 +301,27 @@ export default function ProductoDetailClient({ producto, sugeridos, promocionesM
                       type="button"
                     >
                       {media.type === "video" ? (
-                        <div className="w-full h-full relative overflow-hidden">
-                          <video
-                            src={media.url || ""}
-                            muted
-                            preload="metadata"
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-                            <Play size={24} color="#fff" />
+                        media.url ? (
+                          <div className="w-full h-full relative overflow-hidden">
+                            <video
+                              src={media.url}
+                              muted
+                              preload="metadata"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+                              <Play size={24} color="#fff" />
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#b4aaa3]">
+                            <ImageOff size={14} />
+                          </div>
+                        )
                       ) : media.url ? (
                         <img src={media.url} alt="" className="w-full h-full object-cover block" />
                       ) : (

@@ -144,22 +144,28 @@ export default function BlogDetailClient({ post, imagenes, videos }: Props) {
                     onClick={() => setActiveMediaIdx(i)}
                   >
                     {media.type === "video" ? (
-                      <div className="w-full h-full relative">
-                        <video
-                          src={media.url || ""}
-                          muted
-                          preload="metadata"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-                          <Play size={20} color="#fff" />
-                        </div>
-                      </div>
-                    ) : media.url ? (
+                        media.url ? (
+                          <div className="w-full h-full relative">
+                            <video
+                              src={media.url}
+                              muted
+                              preload="metadata"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+                              <Play size={20} color="#fff" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#b4aaa3]">
+                            <ImageOff size={14} />
+                          </div>
+                        )
+                      ) : media.url ? (
                       <img src={media.url} alt="" className="w-full h-full object-cover block" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#b4aaa3]">

@@ -166,3 +166,14 @@
 
 @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
 
+@keyframes cartBadgePop { 0%{transform:scale(0.6)} 40%{transform:scale(1.18)} 100%{transform:scale(1)} }
+@keyframes btnPress{0%{transform:scale(1)}50%{transform:scale(.97)}100%{transform:scale(1)}}
+.cart-badge--pop{animation:cartBadgePop 260ms cubic-bezier(.34,1.56,.64,1)}
+.btn-press:active{transform:scale(.98)}
+@media (prefers-reduced-motion: reduce){
+  .cart-drawer{transition:none!important}
+  .cart-drawer-overlay{transition:none!important}
+  .cart-badge--pop{animation:none!important}
+  html{scroll-behavior:auto!important}
+}
+

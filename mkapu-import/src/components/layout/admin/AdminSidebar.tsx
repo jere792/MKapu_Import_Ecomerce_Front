@@ -51,7 +51,9 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
-  const [empresaLogo, setEmpresaLogo] = useState<string>("");
+  const [empresaLogo, setEmpresaLogo] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState(false);
+  const [fallbackError, setFallbackError] = useState(false);
 
   useEffect(() => {
     setUserName(localStorage.getItem("admin_nombre") || "");
@@ -61,9 +63,12 @@ export default function AdminSidebar({
     fetch("/api/empresa")
       .then((res) => (res.ok ? res.json() : null))
       .then((row) => {
-        if (row?.logo) setEmpresaLogo(row.logo);
+        const url = typeof row?.logo === "string" ? row.logo.trim() : "";
+        setEmpresaLogo(url ? url : null);
       })
-      .catch(() => {});
+      .catch(() => {
+        setEmpresaLogo(null);
+      });
   }, []);
 
   function logout() {
@@ -102,11 +107,37 @@ export default function AdminSidebar({
         }}
       >
         {isMobile || sidebarOpen ? (
-          <img
-            src={empresaLogo}
-            alt="MKAPU"
-            style={{ height: "38px", maxWidth: "100%", objectFit: "contain" }}
-          />
+          empresaLogo && empresaLogo.trim() && !logoError ? (
+            <img
+              src={empresaLogo}
+              alt="MKAPU"
+              style={{ height: "38px", maxWidth: "100%", objectFit: "contain" }}
+              loading="eager"
+              decoding="async"
+              onError={() => setLogoError(true)}
+            />
+          ) : !fallbackError ? (
+            <img
+              src="/logo.jpg"
+              alt="MKAPU"
+              style={{ height: "38px", maxWidth: "100%", objectFit: "contain" }}
+              loading="eager"
+              decoding="async"
+              onError={() => setFallbackError(true)}
+            />
+          ) : (
+            <span
+              style={{
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                color: "#f5a623",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+              }}
+            >
+              MKAPU
+            </span>
+          )
         ) : (
           <span style={{ fontWeight: 800, fontSize: "0.75rem", color: "#f5a623", letterSpacing: "0.08em", textTransform: "uppercase" }}>
             PA

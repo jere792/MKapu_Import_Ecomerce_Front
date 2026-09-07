@@ -79,6 +79,18 @@ export default function Navbar({ categories = [] }: NavbarProps) {
   const [loadingSuggest, setLoadingSuggest] = useState(false);
   const searchBoxRef = useRef<HTMLDivElement | null>(null);
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [cartPop, setCartPop] = useState(false);
+  const prevCount = useRef(count);
+
+  useEffect(() => {
+    if (count !== prevCount.current && count > 0) {
+      setCartPop(true);
+      const t = setTimeout(() => setCartPop(false), 300);
+      prevCount.current = count;
+      return () => clearTimeout(t);
+    }
+    prevCount.current = count;
+  }, [count]);
 
   // ✅ FIX: useEffect que faltaba para verificar auth desde localStorage
   useEffect(() => {
@@ -436,7 +448,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
             </div>
 
             <button
-              className="relative inline-flex items-center gap-2.5 border-0 bg-[#fff7f1] text-[#d2691e] px-4 py-2.5 font-extrabold cursor-pointer rounded-[10px] transition-all hover:bg-[#f5ede4] hover:-translate-y-px whitespace-nowrap"
+              className="relative inline-flex items-center gap-2.5 border-0 bg-[#fff7f1] text-[#d2691e] px-4 py-2.5 font-extrabold cursor-pointer rounded-[10px] transition-all hover:bg-[#f5ede4] hover:-translate-y-px active:scale-[.98] duration-150 whitespace-nowrap"
               onClick={() => setCartOpen(true)}
               aria-label="Carrito"
               type="button"
@@ -444,7 +456,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               <span className="relative w-[22px] h-[22px] inline-flex items-center justify-center shrink-0">
                 <ShoppingCartIcon className="w-5 h-5" />
                 {count > 0 && (
-                  <span className="absolute -top-[7px] -right-[9px] min-w-[18px] h-[18px] rounded-full bg-[#e05c2a] text-white inline-flex items-center justify-center text-[0.68rem] font-extrabold px-[5px] leading-none">
+                  <span className={`absolute -top-[7px] -right-[9px] min-w-[18px] h-[18px] rounded-full bg-[#e05c2a] text-white inline-flex items-center justify-center text-[0.68rem] font-extrabold px-[5px] leading-none ${cartPop ? "cart-badge--pop" : ""}`}>
                     {count}
                   </span>
                 )}

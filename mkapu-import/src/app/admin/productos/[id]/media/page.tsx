@@ -884,18 +884,37 @@ export default function ProductoMediaPage() {
                       </button>
                     </div>
 
-                    <video
-                      src={v.video_url ?? ""}
-                      controls
-                      style={{
-                        width: 120,
-                        height: 70,
-                        objectFit: "cover",
-                        borderRadius: 8,
-                        background: "#000",
-                        flexShrink: 0,
-                      }}
-                    />
+                    {v.video_url?.trim() ? (
+                      <video
+                        src={v.video_url}
+                        controls
+                        style={{
+                          width: 120,
+                          height: 70,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                          background: "#000",
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 120,
+                          height: 70,
+                          borderRadius: 8,
+                          background: "#f5f5f5",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#bbb",
+                          fontSize: "0.7rem",
+                          flexShrink: 0,
+                        }}
+                      >
+                        Sin video
+                      </div>
+                    )}
 
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p

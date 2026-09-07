@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import ProductCard from "@/components/productCard";
+import { ProductGridSkeleton } from "@/components/ui/ProductCardSkeleton";
 import type { Producto } from "@/lib/supabase";
 import { supabase } from "@/lib/supabase";
 import { getPromocionesActivasMap } from "@/lib/queries";
@@ -591,31 +592,7 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
             )}
 
             {loading ? (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 10,
-                  padding: "60px 0",
-                  color: "#888",
-                }}
-              >
-                <div
-                  style={{
-                    width: 28,
-                    height: 28,
-                    border: "3px solid #f0ebe4",
-                    borderTop: "3px solid #f5a623",
-                    borderRadius: "50%",
-                    animation: "spin 0.8s linear infinite",
-                  }}
-                />
-                <span style={{ fontSize: "0.9rem" }}>
-                  Buscando productos...
-                </span>
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              </div>
+              <ProductGridSkeleton count={12} />
             ) : totalCount === 0 ? (
               <div className="flex flex-col items-center justify-center gap-5 px-6 py-20 text-center bg-white rounded-[24px] border border-dashed border-[#e6ddd2] shadow-[0_8px_32px_rgba(78,52,24,0.05)]">
                 <div className="relative w-24 h-24 flex items-center justify-center">
@@ -653,9 +630,10 @@ export default function ProductosClient({ allCats: ALL_CATS, banner }: Props) {
             ) : (
               <>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 max-[768px]:grid-cols-[repeat(auto-fill,minmax(155px,1fr))]">
-                  {productos.map((p) => (
+                  {productos.map((p, i) => (
                     <ProductCard
                       key={p.id}
+                      revealDelay={Math.min(i * 28, 180)}
                       product={{
                         ...p,
                         description: p.description ?? "",

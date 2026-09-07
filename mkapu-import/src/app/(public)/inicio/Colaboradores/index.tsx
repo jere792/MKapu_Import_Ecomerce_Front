@@ -282,13 +282,17 @@ function MediaModal({
                     boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
                   }}
                 >
-                  <Image
-                    src={items[activeIdx]?.url ?? ""}
-                    alt={items[activeIdx]?.titulo ?? ""}
-                    fill
-                    style={{ objectFit: "contain" }}
-                    sizes="900px"
-                  />
+                  {items[activeIdx]?.url?.trim() ? (
+                    <Image
+                      src={items[activeIdx].url}
+                      alt={items[activeIdx]?.titulo ?? ""}
+                      fill
+                      style={{ objectFit: "contain" }}
+                      sizes="900px"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#888] text-sm">Sin imagen</div>
+                  )}
                 </div>
 
                 {items.length > 1 && (

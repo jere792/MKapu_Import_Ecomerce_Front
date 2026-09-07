@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { sendToWhatsApp } from "@/app/lib/whatsapp";
 
@@ -11,22 +11,49 @@ interface Props {
 
 export default function CartDrawer({ open, onClose }: Props) {
   const { items, updateQty, removeItem, total, count, setIsOpen } = useCart();
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   // Sincroniza el estado del contexto con la prop open
   useEffect(() => {
     setIsOpen(open);
   }, [open, setIsOpen]);
 
+  // Escape para cerrar
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  // Bloqueo de scroll del body cuando está abierto
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    // Enfocar botón cerrar para accesibilidad
+    const t = setTimeout(() => closeBtnRef.current?.focus(), 50);
+    return () => {
+      clearTimeout(t);
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   return (
     <>
       <div
-        className={`${open ? "block" : "hidden"} fixed inset-0 bg-black/45 z-[200]`}
+        className={`cart-drawer-overlay fixed inset-0 bg-black/45 z-[200] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         onClick={onClose}
         aria-hidden="true"
       />
 
       <aside
-        className={`fixed top-0 right-0 bottom-0 w-full max-w-[420px] bg-white z-[201] flex flex-col translate-x-full transition-transform duration-[280ms] ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[-4px_0_24px_rgba(0,0,0,0.12)]${open ? " translate-x-0" : ""}`}
+        className="cart-drawer fixed top-0 right-0 bottom-0 w-full max-w-[420px] bg-white z-[201] flex flex-col transition-transform duration-[280ms] ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[-4px_0_24px_rgba(0,0,0,0.12)]"
+        style={{
+          transform: open ? "translateX(0)" : "translateX(100%)",
+        }}
         role="dialog"
         aria-modal="true"
         aria-label="Carrito de compras"
@@ -34,9 +61,10 @@ export default function CartDrawer({ open, onClose }: Props) {
         <div className="flex items-center justify-between px-5 py-[18px] border-b border-line shrink-0">
           <h2 className="text-[17px] font-bold">🛒 Tu carrito</h2>
           <button
-            className="bg-transparent border-0 text-2xl cursor-pointer text-muted leading-none px-1.5 py-0.5 rounded-md hover:bg-[#f0f0f0]"
+            ref={closeBtnRef}
+            className="bg-transparent border-0 text-2xl cursor-pointer text-muted leading-none px-1.5 py-0.5 rounded-md hover:bg-[#f0f0f0] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label="Cerrar carrito"
           >
             ×
           </button>
@@ -54,12 +82,14 @@ export default function CartDrawer({ open, onClose }: Props) {
           <>
             <ul className="flex-1 overflow-y-auto px-4 py-3 list-none flex flex-col gap-2">
               {items.map((item) => (
-                <li key={item.id} className="flex items-center gap-2.5 p-2.5 bg-bg rounded-[10px]">
+                <li key={item.id} className="flex items-center gap-2.5 p-2.5 bg-bg rounded-[10px] transition-colors duration-150 hover:bg-[#fff1ec]">
                   {item.imageUrl ? (
                     <img
                       src={item.imageUrl}
                       alt={item.name}
-                      className="cart-item__img"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-[46px] h-[46px] object-cover rounded-lg shrink-0"
                     />
                   ) : (
                     <span className="text-[28px] w-[46px] h-[46px] bg-white rounded-lg flex items-center justify-center shrink-0">{item.emoji}</span>
@@ -75,15 +105,15 @@ export default function CartDrawer({ open, onClose }: Props) {
 
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
-                      className="w-6 h-6 rounded-full border-[1.5px] border-brand bg-transparent text-brand-dark text-sm font-bold cursor-pointer flex items-center justify-center hover:bg-brand-light"
+                      className="w-6 h-6 rounded-full border-[1.5px] border-brand bg-transparent text-brand-dark text-sm font-bold cursor-pointer flex items-center justify-center hover:bg-brand-light active:scale-90 transition-transform duration-150"
                       onClick={() => updateQty(item.id, item.qty - 1)}
                       aria-label="Reducir"
                     >
                       −
                     </button>
-                    <span className="text-[13px] font-bold min-w-[18px] text-center">{item.qty}</span>
+                    <span className="text-[13px] font-bold min-w-[18px] text-center tabular-nums">{item.qty}</span>
                     <button
-                      className="w-6 h-6 rounded-full border-[1.5px] border-brand bg-transparent text-brand-dark text-sm font-bold cursor-pointer flex items-center justify-center hover:bg-brand-light"
+                      className="w-6 h-6 rounded-full border-[1.5px] border-brand bg-transparent text-brand-dark text-sm font-bold cursor-pointer flex items-center justify-center hover:bg-brand-light active:scale-90 transition-transform duration-150"
                       onClick={() => updateQty(item.id, item.qty + 1)}
                       aria-label="Aumentar"
                     >
