@@ -93,7 +93,7 @@ export default function Footer() {
         <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-6 flex-wrap">
           <p>© {new Date().getFullYear()} {empresa?.razon_social || "MKAPU IMPORT S.A.C."} Todos los derechos reservados.</p>
           <a
-            href="https://www.instagram.com/solvegrades.com_/"
+            href="https://solvegrades.com/services/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex opacity-70 transition-opacity hover:opacity-100"
