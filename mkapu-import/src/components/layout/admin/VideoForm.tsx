@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import ImageEditorModal from "@/components/layout/admin/ImageEditorModal";
+import { useAppModal } from "@/context/AppModalContext";
 import {
   ArrowLeft,
   CheckCircle,
@@ -33,6 +34,7 @@ interface VideoFormProps {
 
 export default function VideoForm({ mode, videoId }: VideoFormProps) {
   const router = useRouter();
+  const { confirm, alert: showAlert } = useAppModal();
 
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(mode === "edit");
@@ -79,9 +81,11 @@ export default function VideoForm({ mode, videoId }: VideoFormProps) {
     const MAX_MB = 50;
 
     if (file.size > MAX_MB * 1024 * 1024) {
-      alert(
-        `El archivo supera los ${MAX_MB}MB. Comprime el video e intenta de nuevo.`,
-      );
+      await showAlert({
+        title: "Archivo demasiado grande",
+        message: `El archivo supera los ${MAX_MB}MB. Comprime el video e intenta de nuevo.`,
+        variant: "warning",
+      });
       return null;
     }
 
@@ -99,7 +103,11 @@ export default function VideoForm({ mode, videoId }: VideoFormProps) {
 
     if (error) {
       setUploadProgress("");
-      alert("Error al subir: " + error.message);
+      await showAlert({
+        title: "Error al subir",
+        message: error.message,
+        variant: "danger",
+      });
       return null;
     }
 
@@ -123,7 +131,11 @@ export default function VideoForm({ mode, videoId }: VideoFormProps) {
     setUploadingThumb(false);
 
     if (error) {
-      alert("Error: " + error.message);
+      await showAlert({
+        title: "Error",
+        message: error.message,
+        variant: "danger",
+      });
       return null;
     }
 
@@ -133,10 +145,31 @@ export default function VideoForm({ mode, videoId }: VideoFormProps) {
   async function save(e: React.FormEvent, closeAfter = false) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const confirmed = await confirm({
+      title: "¿Guardar estos cambios?",
+      message: "Se guardarán los cambios realizados.",
+      confirmText: "Guardar",
+      cancelText: "Cancelar",
+      variant: "primary",
+    });
+    if (!confirmed) return;
 
-    if (!form.title.trim()) return alert("Título requerido");
-    if (!form.video_url.trim()) return alert("Sube un archivo de video");
+    if (!form.title.trim()) {
+      await showAlert({
+        title: "Campo requerido",
+        message: "Título requerido",
+        variant: "warning",
+      });
+      return;
+    }
+    if (!form.video_url.trim()) {
+      await showAlert({
+        title: "Campo requerido",
+        message: "Sube un archivo de video",
+        variant: "warning",
+      });
+      return;
+    }
 
     const payload = {
       title: form.title,
@@ -155,7 +188,14 @@ export default function VideoForm({ mode, videoId }: VideoFormProps) {
         : await supabase.from("videos").insert(payload);
 
     setSaving(false);
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({
+        title: "Error al guardar",
+        message: error.message,
+        variant: "danger",
+      });
+      return;
+    }
 
     setSuccessMsg(
       mode === "create"

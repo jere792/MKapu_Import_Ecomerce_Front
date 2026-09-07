@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import ImageEditorModal from "@/components/layout/admin/ImageEditorModal";
 import {
@@ -51,6 +52,7 @@ export default function ColaboradorForm({
   colaboradorId,
 }: ColaboradorFormProps) {
   const router = useRouter();
+  const { confirm, alert: showAlert } = useAppModal();
 
   const [form, setForm] = useState<ColaboradorFormData>(initialForm);
   const [loading, setLoading] = useState(mode === "edit");
@@ -121,7 +123,7 @@ export default function ColaboradorForm({
       .upload(path, blob, { upsert: true, contentType: blob.type });
 
     if (error) {
-      alert("Error: " + error.message);
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
       return null;
     }
 
@@ -179,7 +181,7 @@ export default function ColaboradorForm({
 
     const id = await ensureCreated();
     if (!id) {
-      alert("Completa primero el nombre y el logo del colaborador");
+      await showAlert({ title: "Campo incompleto", message: "Completa primero el nombre y el logo del colaborador", variant: "warning" });
       return;
     }
 
@@ -197,7 +199,7 @@ export default function ColaboradorForm({
 
     const id = await ensureCreated();
     if (!id) {
-      alert("Completa primero el nombre y el logo del colaborador");
+      await showAlert({ title: "Campo incompleto", message: "Completa primero el nombre y el logo del colaborador", variant: "warning" });
       return;
     }
 
@@ -222,7 +224,8 @@ export default function ColaboradorForm({
   }
 
   async function deleteMedia(id: number) {
-    if (!confirm("¿Eliminar este archivo?")) return;
+    const _confirmDelete = await confirm({ title: "¿Eliminar este archivo?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_confirmDelete) return;
     await supabase.from("colaborador_media").delete().eq("id", id);
     if (activeId) {
       await loadMedia(activeId);
@@ -232,10 +235,17 @@ export default function ColaboradorForm({
   async function save(e: React.FormEvent, closeAfter = false) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const _confirmSave = await confirm({ title: "¿Guardar estos cambios?", message: "Se guardarán los cambios realizados.", confirmText: "Guardar", cancelText: "Cancelar", variant: "primary" });
+    if (!_confirmSave) return;
 
-    if (!form.name.trim()) return alert("Nombre requerido");
-    if (!form.logo_url.trim()) return alert("Sube un logo para el colaborador");
+    if (!form.name.trim()) {
+      await showAlert({ title: "Campo requerido", message: "Nombre requerido", variant: "warning" });
+      return;
+    }
+    if (!form.logo_url.trim()) {
+      await showAlert({ title: "Campo requerido", message: "Sube un logo para el colaborador", variant: "warning" });
+      return;
+    }
 
     setSaving(true);
 
@@ -251,7 +261,10 @@ export default function ColaboradorForm({
         .eq("id", activeId);
 
       setSaving(false);
-      if (error) return alert(error.message);
+      if (error) {
+        await showAlert({ title: "Error", message: error.message, variant: "danger" });
+        return;
+      }
 
       setSuccessMsg(
         mode === "create"
@@ -280,7 +293,10 @@ export default function ColaboradorForm({
       .single();
 
     setSaving(false);
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
 
     setCreatedId(data.id);
     setSuccessMsg("Colaborador creado correctamente");

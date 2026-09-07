@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import ImageEditorModal from "@/components/layout/admin/ImageEditorModal";
 import {
@@ -52,6 +53,7 @@ interface BlogFormProps {
 
 export default function BlogForm({ mode, postId }: BlogFormProps) {
   const router = useRouter();
+  const { confirm, alert: showAlert } = useAppModal();
 
   const [form, setForm] = useState<BlogFormData>(initialForm);
   const [loading, setLoading] = useState(mode === "edit");
@@ -125,7 +127,7 @@ export default function BlogForm({ mode, postId }: BlogFormProps) {
       .upload(path, blob, { upsert: true, contentType: blob.type });
 
     if (error) {
-      alert("Error: " + error.message);
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
       return null;
     }
 
@@ -176,7 +178,7 @@ export default function BlogForm({ mode, postId }: BlogFormProps) {
 
     const id = await ensureCreated();
     if (!id) {
-      alert("Escribe primero el título del post");
+      await showAlert({ title: "Campo incompleto", message: "Escribe primero el título del post", variant: "warning" });
       return;
     }
 
@@ -193,7 +195,7 @@ export default function BlogForm({ mode, postId }: BlogFormProps) {
 
     const id = await ensureCreated();
     if (!id) {
-      alert("Escribe primero el título del post");
+      await showAlert({ title: "Campo incompleto", message: "Escribe primero el título del post", variant: "warning" });
       return;
     }
 
@@ -217,13 +219,15 @@ export default function BlogForm({ mode, postId }: BlogFormProps) {
   }
 
   async function deleteImagen(id: number) {
-    if (!confirm("¿Eliminar imagen?")) return;
+    const _confirmDelete = await confirm({ title: "¿Eliminar imagen?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_confirmDelete) return;
     await supabase.from("vlog_imagenes").delete().eq("id", id);
     if (activeId) await loadMedia(activeId);
   }
 
   async function deleteVideo(id: number) {
-    if (!confirm("¿Eliminar video?")) return;
+    const _confirmDelete = await confirm({ title: "¿Eliminar video?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_confirmDelete) return;
     await supabase.from("vlog_videos").delete().eq("id", id);
     if (activeId) await loadMedia(activeId);
   }
@@ -231,8 +235,12 @@ export default function BlogForm({ mode, postId }: BlogFormProps) {
   async function save(e: React.FormEvent, closeAfter = false) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
-    if (!form.titulo.trim()) return alert("Título requerido");
+    const _confirmSave = await confirm({ title: "¿Guardar estos cambios?", message: "Se guardarán los cambios realizados.", confirmText: "Guardar", cancelText: "Cancelar", variant: "primary" });
+    if (!_confirmSave) return;
+    if (!form.titulo.trim()) {
+      await showAlert({ title: "Campo requerido", message: "Título requerido", variant: "warning" });
+      return;
+    }
 
     setSaving(true);
 
@@ -248,7 +256,10 @@ export default function BlogForm({ mode, postId }: BlogFormProps) {
         .eq("id", activeId);
 
       setSaving(false);
-      if (error) return alert(error.message);
+      if (error) {
+        await showAlert({ title: "Error", message: error.message, variant: "danger" });
+        return;
+      }
 
       setSuccessMsg(
         mode === "create"
@@ -278,7 +289,10 @@ export default function BlogForm({ mode, postId }: BlogFormProps) {
       .single();
 
     setSaving(false);
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
 
     setCreatedId(data.id);
     setSuccessMsg("Post creado correctamente");

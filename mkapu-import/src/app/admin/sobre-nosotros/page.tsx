@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
 import {
@@ -27,6 +28,7 @@ export default function AdminSobreNosotrosPage() {
   const [loading, setLoading] = useState(true);
   const [imagenesMap, setImagenesMap] = useState<Record<number, number>>({});
   const [savingOrder, setSavingOrder] = useState(false);
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -84,11 +86,13 @@ export default function AdminSobreNosotrosPage() {
   }
 
   async function onDelete(id: number) {
-    if (
-      !confirm("¿Eliminar esta sección? También se eliminarán sus imágenes.")
-    ) {
-      return;
-    }
+    const ok = await confirm({
+      title: "¿Eliminar esta sección?",
+      message: "También se eliminarán sus imágenes.",
+      variant: "danger",
+      confirmText: "Eliminar",
+    });
+    if (!ok) return;
 
     await supabase.from("quienes_somos_imagenes").delete().eq("seccion_id", id);
     await supabase.from("quienes_somos_secciones").delete().eq("id", id);

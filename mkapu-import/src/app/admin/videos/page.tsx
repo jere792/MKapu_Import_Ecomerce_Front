@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import type { Video } from "@/lib/queries";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
@@ -20,6 +21,7 @@ export default function AdminVideosPage() {
   const [rows, setRows] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterTipo, setFilterTipo] = useState<"" | "video" | "vlog">("");
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -38,7 +40,8 @@ export default function AdminVideosPage() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!confirm("¿Eliminar video?")) return;
+    const _ok = await confirm({ title: "¿Eliminar video?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
     await supabase.from("videos").delete().eq("id", id);
     await load();
   }

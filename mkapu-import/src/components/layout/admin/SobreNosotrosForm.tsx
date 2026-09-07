@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import ImageEditorModal from "@/components/layout/admin/ImageEditorModal";
 import {
@@ -45,6 +46,7 @@ export default function SobreNosotrosForm({
   seccionId,
 }: SobreNosotrosFormProps) {
   const router = useRouter();
+  const { confirm, alert: showAlert } = useAppModal();
 
   const [form, setForm] = useState<SeccionFormData>(initialForm);
   const [loading, setLoading] = useState(mode === "edit");
@@ -105,7 +107,7 @@ export default function SobreNosotrosForm({
       .upload(path, blob, { upsert: true, contentType: blob.type });
 
     if (error) {
-      alert("Error: " + error.message);
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
       return null;
     }
 
@@ -153,7 +155,7 @@ export default function SobreNosotrosForm({
 
     const id = await ensureCreated();
     if (!id) {
-      alert("Completa primero los datos de la sección");
+      await showAlert({ title: "Campo incompleto", message: "Completa primero los datos de la sección", variant: "warning" });
       return;
     }
 
@@ -165,7 +167,8 @@ export default function SobreNosotrosForm({
   }
 
   async function deleteImagen(id: number) {
-    if (!confirm("¿Eliminar imagen?")) return;
+    const _confirmDelete = await confirm({ title: "¿Eliminar imagen?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_confirmDelete) return;
     await supabase.from("quienes_somos_imagenes").delete().eq("id", id);
     if (activeId) await loadImagenes(activeId);
   }
@@ -173,7 +176,8 @@ export default function SobreNosotrosForm({
   async function save(e: React.FormEvent, closeAfter = false) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const _confirmSave = await confirm({ title: "¿Guardar estos cambios?", message: "Se guardarán los cambios realizados.", confirmText: "Guardar", cancelText: "Cancelar", variant: "primary" });
+    if (!_confirmSave) return;
 
     setSaving(true);
 
@@ -188,7 +192,10 @@ export default function SobreNosotrosForm({
         .eq("id", activeId);
 
       setSaving(false);
-      if (error) return alert(error.message);
+      if (error) {
+        await showAlert({ title: "Error", message: error.message, variant: "danger" });
+        return;
+      }
 
       setSuccessMsg(
         mode === "create"
@@ -216,7 +223,10 @@ export default function SobreNosotrosForm({
       .single();
 
     setSaving(false);
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
 
     setCreatedId(data.id);
     setSuccessMsg("Sección creada correctamente");

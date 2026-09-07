@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
+import { useAppModal } from "@/context/AppModalContext";
 import {
   ArrowLeft,
   CheckCircle,
@@ -45,6 +46,7 @@ export default function EmpleadoForm({
   empleadoId,
 }: EmpleadoFormProps) {
   const router = useRouter();
+  const { confirm } = useAppModal();
 
   const [form, setForm] = useState<FormData>(FORM_INICIAL);
   const [loading, setLoading] = useState(mode === "edit");
@@ -79,7 +81,14 @@ export default function EmpleadoForm({
 
   async function guardar(e: React.FormEvent, closeAfter = false) {
     e.preventDefault();
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const confirmed = await confirm({
+      title: "¿Guardar estos cambios?",
+      message: "Se guardarán los cambios realizados.",
+      confirmText: "Guardar",
+      cancelText: "Cancelar",
+      variant: "primary",
+    });
+    if (!confirmed) return;
     setError("");
 
     if (!form.nombre || !form.email) {

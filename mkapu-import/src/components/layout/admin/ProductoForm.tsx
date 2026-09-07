@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import ImageCropperModal from "@/components/layout/admin/ImageCropperModal";
+import { useAppModal } from "@/context/AppModalContext";
 import {
   ArrowLeft,
   CheckCircle,
@@ -43,13 +43,13 @@ interface ProductoFormProps {
 
 export default function ProductoForm({ mode, productId }: ProductoFormProps) {
   const router = useRouter();
+  const { confirm, alert: showAlert } = useAppModal();
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(mode === "edit");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [savedId, setSavedId] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const [cropOpen, setCropOpen] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -106,7 +106,11 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
     setUploading(false);
 
     if (error) {
-      alert(`Error: ${error.message}`);
+      await showAlert({
+        title: "Error al subir imagen",
+        message: error.message,
+        variant: "danger",
+      });
       return null;
     }
 
@@ -129,12 +133,20 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
 
   async function saveProducto(): Promise<number | null> {
     if (!form.name.trim()) {
-      alert("Nombre requerido");
+      await showAlert({
+        title: "Campo requerido",
+        message: "Ingresa un nombre antes de guardar el producto.",
+        variant: "warning",
+      });
       return null;
     }
 
     if (!form.code.trim()) {
-      alert("Código requerido");
+      await showAlert({
+        title: "Campo requerido",
+        message: "Ingresa el código del producto antes de guardar.",
+        variant: "warning",
+      });
       return null;
     }
 
@@ -163,7 +175,7 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
       setSaving(false);
 
       if (error) {
-        alert(error.message);
+        await showAlert({ title: "Error al guardar", message: error.message, variant: "danger" });
         return null;
       }
 
@@ -178,7 +190,7 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
       setSaving(false);
 
       if (error) {
-        alert(error.message);
+        await showAlert({ title: "Error al guardar", message: error.message, variant: "danger" });
         return null;
       }
 
@@ -186,10 +198,17 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
     }
   }
 
-  async function handleSave(e: React.FormEvent, closeAfter = false) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const confirmed = await confirm({
+      title: "¿Guardar estos cambios?",
+      message: "Se actualizará la información de este producto.",
+      confirmText: "Guardar cambios",
+      cancelText: "Cancelar",
+      variant: "primary",
+    });
+    if (!confirmed) return;
 
     const id = await saveProducto();
     if (!id) return;
@@ -200,9 +219,6 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
         : "Producto creado correctamente",
     );
     setTimeout(() => setSuccessMsg(""), 3000);
-    setSavedId(id);
-
-    if (closeAfter) router.push("/admin/productos");
   }
 
   return (
@@ -279,7 +295,7 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
           title={
             mode === "create"
               ? "Nuevo producto"
-              : `Editar producto #${productId}`
+              : `Editar producto ${form.code ? form.code : `#${productId}`}`
           }
           icon={<Package size={18} />}
           description={
@@ -312,7 +328,7 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
           </div>
         ) : (
           <div className="ap-card ap-fadein">
-            <form onSubmit={(e) => handleSave(e, false)}>
+            <form onSubmit={handleSave}>
               <div
                 style={{
                   display: "grid",
@@ -583,18 +599,6 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
 
                 <button
                   type="button"
-                  className="ap-btn ap-btn--secondary"
-                  onClick={(e) =>
-                    handleSave(e as unknown as React.FormEvent, true)
-                  }
-                  disabled={saving}
-                >
-                  <CheckCircle size={15} />
-                  Guardar y cerrar
-                </button>
-
-                <button
-                  type="button"
                   className="ap-btn ap-btn--ghost ap-btn--sm"
                   onClick={() => router.push("/admin/productos")}
                 >
@@ -604,34 +608,7 @@ export default function ProductoForm({ mode, productId }: ProductoFormProps) {
               </div>
             </form>
 
-            {savedId && (
-              <div
-                className="ap-section ap-fadein"
-                style={{
-                  marginTop: 20,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  flexWrap: "wrap",
-                }}
-              >
-                <p style={{ margin: 0, fontSize: ".875rem", color: "#555" }}>
-                  Producto guardado. Ahora puedes gestionar su galería y videos.
-                </p>
-
-                <Link
-                  href={`/admin/productos/${savedId}/media`}
-                  className="ap-btn ap-btn--primary ap-btn--sm"
-                  style={{ textDecoration: "none" }}
-                >
-                  <ImageIcon size={14} />
-                  Ir a galería & videos
-                </Link>
-              </div>
-            )}
-
-            {!savedId && mode === "create" && (
+            {mode === "create" && (
               <div className="ap-info-box" style={{ marginTop: 16 }}>
                 Primero guarda el producto para habilitar la galería de imágenes
                 y videos.

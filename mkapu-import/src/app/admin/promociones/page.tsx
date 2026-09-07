@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import {
   Pencil,
   Trash2,
@@ -136,6 +137,7 @@ export default function AdminPromocionesPage() {
   const [totalActivas, setTotalActivas] = useState(0);
   const [totalVencidas, setTotalVencidas] = useState(0);
   const [totalTodas, setTotalTodas] = useState(0);
+  const { confirm, alert: showAlert } = useAppModal();
 
   const nowISO = new Date().toISOString().replace(/\.\d{3}/, "");
 
@@ -213,7 +215,7 @@ export default function AdminPromocionesPage() {
     const { data, count, error } = await query.range(from, to);
 
     if (error) {
-      alert(error.message);
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
       setPromociones([]);
       setTotalItems(0);
       setLoading(false);
@@ -241,10 +243,11 @@ export default function AdminPromocionesPage() {
   }, [viewMode, search, selectedCategory]);
 
   async function onDelete(id: number) {
-    if (!confirm("¿Eliminar esta promoción?")) return;
+    const _ok = await confirm({ title: "¿Eliminar esta promoción?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
 
     const { error } = await supabase.from("promociones").delete().eq("id", id);
-    if (error) return alert(error.message);
+    if (error) { await showAlert({ title: "Error", message: error.message, variant: "danger" }); return; }
 
     const nextPage = promociones.length === 1 && page > 1 ? page - 1 : page;
     setPage(nextPage);
@@ -257,7 +260,7 @@ export default function AdminPromocionesPage() {
       .update({ activo: !p.activo })
       .eq("id", p.id);
 
-    if (error) return alert(error.message);
+    if (error) { await showAlert({ title: "Error", message: error.message, variant: "danger" }); return; }
 
     loadPromociones(page, search);
   }

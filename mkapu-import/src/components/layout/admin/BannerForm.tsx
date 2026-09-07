@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import {
   ArrowLeft,
@@ -33,6 +34,7 @@ interface BannerFormProps {
 
 export default function BannerForm({ mode, bannerId }: BannerFormProps) {
   const router = useRouter();
+  const { confirm, alert: showAlert } = useAppModal();
 
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(mode === "edit");
@@ -91,7 +93,7 @@ export default function BannerForm({ mode, bannerId }: BannerFormProps) {
       const data = await res.json();
       return data.url;
     } catch (error) {
-      alert("Error subiendo imagen: " + error);
+      await showAlert({ title: "Error al subir imagen", message: String(error), variant: "danger" });
       return null;
     } finally {
       setUploading(false);
@@ -101,8 +103,12 @@ export default function BannerForm({ mode, bannerId }: BannerFormProps) {
   async function save(e: React.FormEvent, closeAfter = false) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
-    if (!form.image_url) return alert("Imagen requerida");
+    const _confirmSave = await confirm({ title: "¿Guardar estos cambios?", message: "Se guardarán los cambios realizados.", confirmText: "Guardar", cancelText: "Cancelar", variant: "primary" });
+    if (!_confirmSave) return;
+    if (!form.image_url) {
+      await showAlert({ title: "Campo requerido", message: "Imagen requerida", variant: "warning" });
+      return;
+    }
 
     const payload = {
       titulo: form.titulo || null,
@@ -126,7 +132,10 @@ export default function BannerForm({ mode, bannerId }: BannerFormProps) {
         : await supabase.from("banners_carousel").insert(payload);
 
     setSaving(false);
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
 
     setSuccessMsg(
       mode === "create"

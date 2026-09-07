@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
 import ProductFiltersBar from "@/components/layout/admin/ProductFiltersBar";
@@ -57,6 +58,7 @@ export default function AdminProductosPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCompletos, setTotalCompletos] = useState(0);
   const [totalIncompletos, setTotalIncompletos] = useState(0);
+  const { confirm, alert: showAlert } = useAppModal();
 
   useEffect(() => {
     supabase
@@ -150,7 +152,8 @@ export default function AdminProductosPage() {
   }, [search, selectedCategory, viewMode]);
 
   async function onDelete(id: number) {
-    if (!confirm("¿Eliminar producto?")) return;
+    const _ok = await confirm({ title: "¿Eliminar producto?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
     await supabase.from("productos").delete().eq("id", id);
     await load();
   }

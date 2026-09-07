@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
+import { useAppModal } from "@/context/AppModalContext";
 import {
   AlertCircle,
   ArrowLeft,
@@ -60,6 +61,7 @@ interface PromocionFormProps {
 
 export default function PromocionForm({ mode, promocionId }: PromocionFormProps) {
   const router = useRouter();
+  const { confirm, alert: showAlert } = useAppModal();
 
   const [form, setForm] = useState<PromocionFormData>(initialForm);
   const [loading, setLoading] = useState(mode === "edit");
@@ -186,13 +188,39 @@ export default function PromocionForm({ mode, promocionId }: PromocionFormProps)
   async function save(e: React.FormEvent, closeAfter = false) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const confirmed = await confirm({
+      title: "¿Guardar estos cambios?",
+      message: "Se guardarán los cambios realizados.",
+      confirmText: "Guardar",
+      cancelText: "Cancelar",
+      variant: "primary",
+    });
+    if (!confirmed) return;
 
-    if (!form.producto_id) return alert("Selecciona un producto");
-    if (!form.valor_descuento || form.valor_descuento <= 0)
-      return alert("Valor de descuento inválido");
-    if (form.tipo_descuento === "porcentaje" && form.valor_descuento > 100)
-      return alert("El porcentaje no puede ser mayor a 100");
+    if (!form.producto_id) {
+      await showAlert({
+        title: "Selección requerida",
+        message: "Selecciona un producto",
+        variant: "warning",
+      });
+      return;
+    }
+    if (!form.valor_descuento || form.valor_descuento <= 0) {
+      await showAlert({
+        title: "Valor inválido",
+        message: "Valor de descuento inválido",
+        variant: "warning",
+      });
+      return;
+    }
+    if (form.tipo_descuento === "porcentaje" && form.valor_descuento > 100) {
+      await showAlert({
+        title: "Valor inválido",
+        message: "El porcentaje no puede ser mayor a 100",
+        variant: "warning",
+      });
+      return;
+    }
 
     const payload: Record<string, unknown> = {
       producto_id: form.producto_id,
@@ -213,7 +241,14 @@ export default function PromocionForm({ mode, promocionId }: PromocionFormProps)
 
     setSaving(false);
 
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({
+        title: "Error al guardar",
+        message: error.message,
+        variant: "danger",
+      });
+      return;
+    }
 
     setSuccessMsg("Promoción guardada correctamente");
     setTimeout(() => setSuccessMsg(""), 3000);

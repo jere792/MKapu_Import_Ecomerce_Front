@@ -7,6 +7,7 @@ import Toast from "@/components/Toast";
 import AdminSidebar from "@/components/layout/admin/AdminSidebar";
 import AdminTopbar from "@/components/layout/admin/AdminTopbar";
 import AdminBreadcrumbs from "@/components/layout/admin/AdminBreadcrumbs";
+import { AppModalProvider } from "@/context/AppModalContext";
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
@@ -106,7 +107,7 @@ export default function AdminLayout({
   if (!isAuthenticated) return null;
 
   return (
-    <>
+    <AppModalProvider>
       <style>{`
         * { box-sizing: border-box; }
         .admin-layout { display: flex; height: 100vh; overflow: hidden; background: #0f0f0f; }
@@ -169,6 +170,6 @@ export default function AdminLayout({
         </main>
       </div>
       <Toast />
-    </>
+    </AppModalProvider>
   );
 }

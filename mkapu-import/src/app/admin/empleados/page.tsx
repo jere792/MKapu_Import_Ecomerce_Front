@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import { Pencil, Trash2, Users, PlusCircle } from "lucide-react";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
@@ -19,6 +20,7 @@ interface Empleado {
 export default function EmpleadosPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loading, setLoading] = useState(true);
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function fetchEmpleados() {
     setLoading(true);
@@ -36,9 +38,8 @@ export default function EmpleadosPage() {
   }, []);
 
   async function eliminar(id: number) {
-    if (!confirm("¿Eliminar este empleado? Esta acción no se puede deshacer.")) {
-      return;
-    }
+    const _ok = await confirm({ title: "¿Eliminar este empleado?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
 
     await supabase.from("empleados").delete().eq("id", id);
     await fetchEmpleados();

@@ -1,7 +1,10 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Home } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface AdminBreadcrumbsProps {
   pathname: string;
@@ -23,7 +26,11 @@ const LABELS: Record<string, string> = {
   "/admin/empresa": "Configuración de empresa",
 };
 
-function getSegments(pathname: string): { label: string; href: string }[] {
+function getSegments(
+  pathname: string,
+  productCode: string | null,
+  productId: string | null,
+): { label: string; href: string }[] {
   if (pathname === "/admin") return [{ label: "Panel", href: "/admin" }];
 
   const parts = pathname.split("/").filter(Boolean); // ["admin", "productos", ...]
@@ -32,9 +39,25 @@ function getSegments(pathname: string): { label: string; href: string }[] {
   for (let i = 1; i < parts.length; i++) {
     const href = "/" + parts.slice(0, i + 1).join("/");
     const key = "/" + parts.slice(0, i + 1).join("/");
-    const label =
-      LABELS[key] ??
-      parts[i].charAt(0).toUpperCase() + parts[i].slice(1);
+    let label: string;
+    if (
+      productId &&
+      productCode &&
+      parts[i] === productId &&
+      parts[i - 1] === "productos"
+    ) {
+      label = productCode;
+    } else if (
+      productId &&
+      parts[i] === productId &&
+      parts[i - 1] === "productos"
+    ) {
+      label = `Producto #${productId}`;
+    } else {
+      label =
+        LABELS[key] ??
+        parts[i].charAt(0).toUpperCase() + parts[i].slice(1);
+    }
     segments.push({ label, href });
   }
 
@@ -42,7 +65,45 @@ function getSegments(pathname: string): { label: string; href: string }[] {
 }
 
 export default function AdminBreadcrumbs({ pathname }: AdminBreadcrumbsProps) {
-  const segments = getSegments(pathname);
+  const [productCode, setProductCode] = useState<string | null>(null);
+  const [productId, setProductId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const parts = pathname.split("/").filter(Boolean);
+    const isProductoRoute =
+      parts.length >= 3 && parts[0] === "admin" && parts[1] === "productos";
+    const candidateId = isProductoRoute ? parts[2] : null;
+    const isNumericId = candidateId ? /^\d+$/.test(candidateId) : false;
+
+    if (!isNumericId || !candidateId) {
+      setProductId(null);
+      setProductCode(null);
+      return;
+    }
+
+    if (productId === candidateId && productCode !== null) return;
+
+    setProductId(candidateId);
+    setProductCode(null);
+
+    let cancelled = false;
+    supabase
+      .from("productos")
+      .select("code")
+      .eq("id", Number(candidateId))
+      .single()
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data?.code) setProductCode(data.code as string);
+        else setProductCode(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname, productId, productCode]);
+
+  const segments = getSegments(pathname, productCode, productId);
 
   if (segments.length === 0) return null;
 

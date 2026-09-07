@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import {
   CheckCircle,
   Pencil,
@@ -52,6 +53,7 @@ export default function AdminCategoriasPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -66,9 +68,16 @@ export default function AdminCategoriasPage() {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!confirm("¿Guardar estos cambios?")) return;
-    if (!form.name.trim()) return alert("Nombre requerido");
-    if (!form.slug.trim()) return alert("Slug requerido");
+    const _c = await confirm({ title: "¿Guardar estos cambios?", message: "Se guardarán los cambios realizados.", confirmText: "Guardar", cancelText: "Cancelar", variant: "primary" });
+    if (!_c) return;
+    if (!form.name.trim()) {
+      await showAlert({ title: "Campo requerido", message: "Ingresa un nombre antes de guardar.", variant: "warning" });
+      return;
+    }
+    if (!form.slug.trim()) {
+      await showAlert({ title: "Campo requerido", message: "El slug es requerido.", variant: "warning" });
+      return;
+    }
 
     const payload = {
       name: form.name.trim(),
@@ -80,7 +89,10 @@ export default function AdminCategoriasPage() {
       ? await supabase.from("categorias").update(payload).eq("id", editId)
       : await supabase.from("categorias").insert(payload);
 
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
     cancelForm();
     await load();
     setSuccessMsg(editId ? "Categoría actualizada correctamente" : "Categoría creada correctamente");
@@ -99,16 +111,14 @@ export default function AdminCategoriasPage() {
   }
 
   async function onDelete(id: number) {
-    if (
-      !confirm(
-        "¿Eliminar esta categoría? Los productos asociados quedarán sin categoría.",
-      )
-    ) {
-      return;
-    }
+    const _del = await confirm({ title: "¿Eliminar categoría?", message: "Los productos asociados quedarán sin categoría. Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_del) return;
 
     const { error } = await supabase.from("categorias").delete().eq("id", id);
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
     load();
   }
 

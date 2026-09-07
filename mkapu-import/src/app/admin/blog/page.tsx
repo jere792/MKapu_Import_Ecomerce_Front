@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
 import {
@@ -47,6 +48,7 @@ export default function AdminBlogPage() {
     Record<number, { imgs: number; vids: number }>
   >({});
   const [savingOrder, setSavingOrder] = useState(false);
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -102,12 +104,8 @@ export default function AdminBlogPage() {
   }
 
   async function onDelete(id: number) {
-    if (
-      !confirm(
-        "¿Eliminar este post? También se eliminarán sus imágenes y videos.",
-      )
-    )
-      return;
+    const _ok = await confirm({ title: "¿Eliminar este post?", message: "También se eliminarán sus imágenes y videos. Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
     await supabase.from("vlog_imagenes").delete().eq("vlog_post_id", id);
     await supabase.from("vlog_videos").delete().eq("vlog_post_id", id);
     await supabase.from("vlog_posts").delete().eq("id", id);

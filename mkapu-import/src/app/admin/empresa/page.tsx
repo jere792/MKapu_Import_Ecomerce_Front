@@ -13,6 +13,7 @@ import {
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import ImageEditorModal from "@/components/layout/admin/ImageEditorModal";
 import { showToast } from "@/components/Toast";
+import { useAppModal } from "@/context/AppModalContext";
 
 const defaultData: Empresa = {
   id: 1,
@@ -41,6 +42,7 @@ export default function AdminEmpresaPage() {
   const [cropOpen, setCropOpen] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { confirm, alert: showAlert } = useAppModal();
 
   useEffect(() => {
     load();
@@ -85,7 +87,12 @@ export default function AdminEmpresaPage() {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const ok = await confirm({
+      title: "¿Guardar estos cambios?",
+      variant: "primary",
+      confirmText: "Guardar",
+    });
+    if (!ok) return;
     if (!data.nombre.trim()) return showToast("El nombre es requerido", "error");
 
     setSaving(true);

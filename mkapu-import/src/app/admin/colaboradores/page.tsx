@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import type { Colaborador } from "@/lib/queries";
 import {
   Pencil,
@@ -28,6 +29,7 @@ export default function AdminColaboradoresPage() {
     Record<number, { imgs: number; vids: number }>
   >({});
   const [savingOrder, setSavingOrder] = useState(false);
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -60,9 +62,8 @@ export default function AdminColaboradoresPage() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!confirm("¿Eliminar colaborador? También se eliminará su media.")) {
-      return;
-    }
+    const _ok = await confirm({ title: "¿Eliminar colaborador?", message: "También se eliminará su media. Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
 
     await supabase.from("colaborador_media").delete().eq("colaborador_id", id);
     await supabase.from("colaboradores").delete().eq("id", id);

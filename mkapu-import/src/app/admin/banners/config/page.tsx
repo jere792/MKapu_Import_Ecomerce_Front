@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import BannerTabs from "@/components/layout/admin/BannerTabs";
 import {
@@ -34,6 +35,7 @@ export default function AdminBannersConfigPage() {
   const fileRefCfg = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -63,7 +65,11 @@ export default function AdminBannersConfigPage() {
       const data = await res.json();
       return data.url;
     } catch (error) {
-      alert("Error subiendo imagen: " + error);
+      await showAlert({
+        title: "Error",
+        message: String(error),
+        variant: "danger",
+      });
       return null;
     } finally {
       setUploadingCfg(false);
@@ -72,7 +78,12 @@ export default function AdminBannersConfigPage() {
 
   async function saveConfig(e: React.FormEvent) {
     e.preventDefault();
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const ok = await confirm({
+      title: "¿Guardar estos cambios?",
+      variant: "primary",
+      confirmText: "Guardar",
+    });
+    if (!ok) return;
     if (!editConfig) return;
     const { error } = await supabase
       .from("banners_config")
@@ -83,7 +94,10 @@ export default function AdminBannersConfigPage() {
         activo: editConfig.activo,
       })
       .eq("id", editConfig.id);
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
     setSuccessMsg("Banner de página actualizado correctamente");
     setTimeout(() => setSuccessMsg(""), 3000);
     setEditConfig(null);

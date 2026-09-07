@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import {
   Loader2,
   Eye,
@@ -29,6 +30,7 @@ export default function AdminHomePage() {
   const [saving, setSaving] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [mostrarTodas, setMostrarTodas] = useState(false);
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -72,7 +74,8 @@ export default function AdminHomePage() {
   }
 
   async function eliminar(sec: Seccion) {
-    if (!confirm("¿Quitar esta sección del home?")) return;
+    const _ok = await confirm({ title: "¿Quitar esta sección del home?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
     await supabase.from("home_secciones").delete().eq("id", sec.id);
     setSecciones((prev) => prev.filter((s) => s.id !== sec.id));
   }

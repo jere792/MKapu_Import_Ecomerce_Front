@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -51,6 +52,7 @@ export default function ProductoMediaPage() {
   const [videoTitulo, setVideoTitulo] = useState("");
   const [loading, setLoading] = useState(true);
   const [vidError, setVidError] = useState<string | null>(null);
+  const { confirm, alert: showAlert } = useAppModal();
   const [vidSuccess, setVidSuccess] = useState(false);
 
   const imgRef = useRef<HTMLInputElement>(null);
@@ -119,7 +121,8 @@ export default function ProductoMediaPage() {
   }
 
   async function deleteImagen(imgId: number) {
-    if (!confirm("¿Eliminar imagen?")) return;
+    const _ok = await confirm({ title: "¿Eliminar imagen?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
     await supabase.from("producto_imagenes").delete().eq("id", imgId);
     await loadAll();
   }
@@ -210,7 +213,8 @@ export default function ProductoMediaPage() {
   }
 
   async function deleteVideo(vidId: number) {
-    if (!confirm("¿Eliminar video?")) return;
+    const _ok = await confirm({ title: "¿Eliminar video?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_ok) return;
     await supabase.from("producto_videos").delete().eq("id", vidId);
     await loadAll();
   }

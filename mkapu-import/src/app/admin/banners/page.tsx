@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
 import BannerTabs from "@/components/layout/admin/BannerTabs";
@@ -84,6 +85,7 @@ export default function AdminBannersPage() {
   const [carousel, setCarousel] = useState<BannerCarousel[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingOrder, setSavingOrder] = useState(false);
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -132,7 +134,13 @@ export default function AdminBannersPage() {
   }
 
   async function onDeleteCarousel(id: number) {
-    if (!confirm("¿Eliminar banner?")) return;
+    const ok = await confirm({
+      title: "¿Eliminar banner?",
+      message: "Esta acción no se puede deshacer.",
+      variant: "danger",
+      confirmText: "Eliminar",
+    });
+    if (!ok) return;
     await supabase.from("banners_carousel").delete().eq("id", id);
     await load();
   }

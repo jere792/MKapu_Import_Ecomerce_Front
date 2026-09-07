@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAppModal } from "@/context/AppModalContext";
 import type { Marca } from "@/lib/queries";
 import SectionHeader from "@/components/layout/admin/SectionHeader";
 import DataTable from "@/components/layout/admin/DataTable";
@@ -52,6 +53,7 @@ export default function AdminMarcasPage() {
   const [cropOpen, setCropOpen] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { confirm, alert: showAlert } = useAppModal();
 
   async function load() {
     setLoading(true);
@@ -89,7 +91,7 @@ export default function AdminMarcasPage() {
     setUploading(false);
 
     if (error) {
-      alert("Error: " + error.message);
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
       return null;
     }
 
@@ -99,10 +101,17 @@ export default function AdminMarcasPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!confirm("¿Guardar estos cambios?")) return;
+    const _c = await confirm({ title: "¿Guardar estos cambios?", message: "Se guardarán los cambios realizados.", confirmText: "Guardar", cancelText: "Cancelar", variant: "primary" });
+    if (!_c) return;
 
-    if (!form.name.trim()) return alert("Nombre requerido");
-    if (!form.logo_url.trim()) return alert("Sube un logo para la marca");
+    if (!form.name.trim()) {
+      await showAlert({ title: "Campo requerido", message: "Ingresa un nombre antes de guardar.", variant: "warning" });
+      return;
+    }
+    if (!form.logo_url.trim()) {
+      await showAlert({ title: "Campo requerido", message: "Sube un logo para la marca antes de guardar.", variant: "warning" });
+      return;
+    }
 
     const payload = {
       name: form.name,
@@ -115,7 +124,10 @@ export default function AdminMarcasPage() {
       ? await supabase.from("marcas").update(payload).eq("id", editId)
       : await supabase.from("marcas").insert(payload);
 
-    if (error) return alert(error.message);
+    if (error) {
+      await showAlert({ title: "Error", message: error.message, variant: "danger" });
+      return;
+    }
 
     setSuccessMsg(editId ? "Marca actualizada correctamente" : "Marca creada correctamente");
     setTimeout(() => setSuccessMsg(""), 3000);
@@ -137,7 +149,8 @@ export default function AdminMarcasPage() {
   }
 
   async function onDelete(id: number) {
-    if (!confirm("¿Eliminar marca?")) return;
+    const _del = await confirm({ title: "¿Eliminar marca?", message: "Esta acción no se puede deshacer.", confirmText: "Eliminar", cancelText: "Cancelar", variant: "danger" });
+    if (!_del) return;
     await supabase.from("marcas").delete().eq("id", id);
     await load();
   }
