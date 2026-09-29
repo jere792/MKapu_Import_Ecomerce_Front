@@ -13,7 +13,7 @@ const contentSecurityPolicy = [
   "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  `img-src 'self' data: blob: https://res.cloudinary.com https://${supabaseHost} https://img.youtube.com`,
+  `img-src 'self' data: blob: https://res.cloudinary.com https://${supabaseHost} https://img.youtube.com https://i.postimg.cc`,
   `connect-src 'self' https://${supabaseHost} https://turnstile-siteverify-mkapu.solvegrades.workers.dev`,
   `media-src 'self' blob: https://res.cloudinary.com https://${supabaseHost}`,
   "frame-src 'self' https://www.youtube.com https://www.tiktok.com https://maps.google.com https://www.google.com https://challenges.cloudflare.com",
@@ -46,6 +46,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.postimg.cc",
       },
     ],
   },

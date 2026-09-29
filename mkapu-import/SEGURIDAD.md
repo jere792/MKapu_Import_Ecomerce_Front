@@ -105,7 +105,7 @@
 
 **Pendientes (sin fix):**
 
-1. **Security headers** ✅ **Resuelto** en `next.config.ts`: `Content-Security-Policy` (allowlist de orígenes: Supabase, Cloudinary, fuentes de Google, YouTube/TikTok/Maps en iframes, Turnstile), `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` y `poweredByHeader: false`. Verificado con `curl` en `/`, `/login` y `/api/empresa`.
+1. **Security headers** ✅ **Resuelto** en `next.config.ts`: `Content-Security-Policy` (allowlist de orígenes: Supabase, Cloudinary, `i.postimg.cc` — imágenes de banners ya cargadas en la BD —, fuentes de Google, YouTube/TikTok/Maps en iframes, Turnstile), `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` y `poweredByHeader: false`. Verificado con `curl` en `/`, `/login` y `/api/empresa`.
 2. **Abuso de correo** ⏳ **Parcial**: Cloudflare Turnstile agregado a los dos formularios (`/contacto` y Libro de Reclamaciones) y validado server-side contra el Worker `turnstile-siteverify-mkapu.solvegrades.workers.dev` (widget `0x4AAAAAAFI31bbZvPagKLUR`, dominios `mkapu.com`, `www.mkapu.com`, `mkapuecomercefront.solvegrades.workers.dev`, `localhost`, `127.0.0.1`; validación del Worker: `{"status":"ok"}`).
    - **Falta (usuario):** WAF → Rate limiting rule: `(http.request.uri.path in {"/api/notificar-contacto" "/api/notificar-ticket"} and http.request.method eq "POST")`, 5 req/60 s por IP, mitigation 600 s, acción *Managed Challenge*.
    - **Falta (código):** escapar HTML de `nombre`/`mensaje` y sanitizar `subject` en ambos endpoints.
@@ -131,6 +131,7 @@
 | `239d5992` | Upsert de empresa con cliente autenticado |
 | `464becc8` | Security headers + CSP |
 | `c21bc809` | Turnstile en `/contacto` y Libro de Reclamaciones |
-| `32c270e2` (actual) | Credenciales de Cloudinary como secrets del Worker (upload de banners restaurado) |
+| `32c270e2` | Credenciales de Cloudinary como secrets del Worker (upload de banners restaurado) |
+| `ab24c3b6` (actual) | `img-src` + `images.remotePatterns` aceptan `i.postimg.cc` (banners existentes) |
 
 Última verificación: probes de producción OK sobre `https://mkapuecomercefront.solvegrades.workers.dev`.
