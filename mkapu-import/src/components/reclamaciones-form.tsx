@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useEmpresa } from "@/context/EmpresaContext";
 import { normalizeWhatsAppNumber } from "@/app/lib/whatsapp";
+import TurnstileField, { verifyTurnstile } from "@/components/TurnstileField";
 
 type FormState = {
   nombres: string;
@@ -53,6 +54,13 @@ export default function ReclamacionesForm() {
     e.preventDefault();
     setStatus("loading");
     setErrorMsg("");
+
+    const captchaOk = await verifyTurnstile();
+    if (!captchaOk) {
+      setStatus("error");
+      setErrorMsg("La verificación anti-spam falló. Intenta de nuevo.");
+      return;
+    }
 
     try {
       if (
@@ -284,6 +292,8 @@ export default function ReclamacionesForm() {
             </div>
           </div>
         </div>
+
+        <TurnstileField />
 
         <button type="submit" className="flex items-center justify-center gap-2 bg-brand text-white rounded-xl px-8 py-3.5 text-[0.95rem] font-[Sora,sans-serif] font-bold w-full transition-all hover:bg-[#d98e14] hover:-translate-y-px active:scale-[0.98] disabled:opacity-55 disabled:cursor-not-allowed" disabled={status === "loading"}>
           {status === "loading" ? (

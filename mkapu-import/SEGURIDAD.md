@@ -18,8 +18,8 @@
 | 6 | `POST /api/upload` sin autenticación (subida a Cloudinary) | **Alta** | ✅ Corregida |
 | 7 | Bucket `imagenes` con política de subida pública `{public}` | **Alta** | ✅ Corregida |
 | 8 | `GET /api/descargar-pdf` exponía PII por ticket sin sesión | **Media** | ✅ Corregida |
-| 9 | Sin security headers (CSP, HSTS, XFO, XCTO, Referrer-Policy) + `x-powered-by` | **Media** | ⏳ Pendiente |
-| 10 | Sin rate limiting en envío de correos (`notificar-contacto`/`notificar-ticket`) + HTML inyectado en el correo | **Media** | ⏳ Pendiente |
+| 9 | Sin security headers (CSP, HSTS, XFO, XCTO, Referrer-Policy) + `x-powered-by` | **Media** | ✅ Corregida |
+| 10 | Sin rate limiting en envío de correos (`notificar-contacto`/`notificar-ticket`) + HTML inyectado en el correo | **Media** | ⏳ Parcial (CAPTCHA listo, falta WAF rule y escape de HTML) |
 | 11 | Columna `password` de `empleados` legible con sesión admin | **Baja** | ⏳ Pendiente |
 | 12 | CORS de Supabase refleja cualquier origen (por diseño de la anon key) | **Baja** | ℹ️ Informativo |
 | 13 | Datos de contacto (WhatsApp/email) hardcodeados en el código | **Baja** (integridad) | ✅ Corregida (ahora BD) |
@@ -105,10 +105,10 @@
 
 **Pendientes (sin fix):**
 
-1. **Security headers** (Media): no hay `Strict-Transport-Security`, `X-Frame-Options`/`frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`, `Content-Security-Policy`; se expone `x-powered-by: Next.js`.
-   - *Fix:* `poweredByHeader: false` en `next.config.ts` + CSP/HSTS vía Cloudflare Transform Rules en el worker.
-2. **Rate limiting / abuso de correo** (Media): `POST /api/notificar-contacto` y `POST /api/notificar-ticket` no tienen límite de tasa ni CAPTCHA → un bot puede disparar envíos ilimitados a Resend (costo/cuota) y usar el asunto/cuerpo con entradas del usuario sin escapar (inyección de HTML en el correo).
-   - *Fix:* CAPTCHA (Turnstile) + límite por IP (Cloudflare WAF o rule) + escapar HTML y sanitizar `subject`.
+1. **Security headers** ✅ **Resuelto** en `next.config.ts`: `Content-Security-Policy` (allowlist de orígenes: Supabase, Cloudinary, fuentes de Google, YouTube/TikTok/Maps en iframes, Turnstile), `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` y `poweredByHeader: false`. Verificado con `curl` en `/`, `/login` y `/api/empresa`.
+2. **Abuso de correo** ⏳ **Parcial**: Cloudflare Turnstile agregado a los dos formularios (`/contacto` y Libro de Reclamaciones) y validado server-side contra el Worker `turnstile-siteverify-mkapu.solvegrades.workers.dev` (widget `0x4AAAAAAFI31bbZvPagKLUR`, dominios `mkapu.com`, `www.mkapu.com`, `mkapuecomercefront.solvegrades.workers.dev`, `localhost`, `127.0.0.1`; validación del Worker: `{"status":"ok"}`).
+   - **Falta (usuario):** WAF → Rate limiting rule: `(http.request.uri.path in {"/api/notificar-contacto" "/api/notificar-ticket"} and http.request.method eq "POST")`, 5 req/60 s por IP, mitigation 600 s, acción *Managed Challenge*.
+   - **Falta (código):** escapar HTML de `nombre`/`mensaje` y sanitizar `subject` en ambos endpoints.
 3. **Columna `password` de `empleados`** (Baja): sigue siendo legible con sesión admin (el login ya no la usa).
    - *Fix:* `revoke select(password) on public.empleados from authenticated;` o eliminar la columna una vez migrados los usuarios a Supabase Auth.
 4. **Usuario Auth sin rol**: ✅ confirmado con SQL — `admin_all.qual = is_admin()`, así que un usuario autenticado sin `app_metadata.role='admin'` no obtiene ningún permiso (solo `anon_read` de contenido público). `anon_read.qual = true` aplica a `roles={public}`: lectura de contenido público para anon y autenticados, aceptable.
@@ -125,9 +125,11 @@
 
 ## 5. Estado de despliegue
 
-| Commit/versión | Contenido |
+| Versión | Contenido |
 |---|---|
 | `9a2ee56a` | Login con Supabase Auth, middleware, rutas API protegidas |
-| `239d5992` (actual) | Upsert de empresa con cliente autenticado |
+| `239d5992` | Upsert de empresa con cliente autenticado |
+| `464becc8` | Security headers + CSP |
+| `c21bc809` (actual) | Turnstile en `/contacto` y Libro de Reclamaciones |
 
 Última verificación: probes de producción OK sobre `https://mkapuecomercefront.solvegrades.workers.dev`.

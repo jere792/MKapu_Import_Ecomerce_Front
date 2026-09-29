@@ -4,6 +4,7 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useEmpresa } from "@/context/EmpresaContext";
 import { normalizeWhatsAppNumber } from "@/app/lib/whatsapp";
+import TurnstileField, { verifyTurnstile } from "@/components/TurnstileField";
 
 type BannerConfig = {
   titulo: string;
@@ -131,6 +132,14 @@ export default function ContactoPage() {
     e.preventDefault();
     setEnviando(true);
     setErrorMsg("");
+
+    const captchaOk = await verifyTurnstile();
+    if (!captchaOk) {
+      setEnviando(false);
+      setErrorMsg("La verificación anti-spam falló. Intenta de nuevo.");
+      return;
+    }
+
     try {
       const res = await fetch("/api/notificar-contacto", {
         method: "POST",
@@ -229,6 +238,8 @@ export default function ContactoPage() {
                   <label className="text-[0.8rem] font-bold text-[#444] tracking-[0.02em]">Mensaje *</label>
                   <textarea required name="mensaje" value={form.mensaje} onChange={handleChange} placeholder="Escribe tu mensaje aquí..." rows={5} className="w-full px-4 py-3 text-base border-[1.5px] border-[#ddd] rounded-[10px] outline-none bg-[#fafafa] text-[#1a1a1a] font-inherit transition-colors focus:border-brand focus:shadow-[0_0_0_3px_rgba(245,166,35,0.12)] resize-y min-h-[120px]" />
                 </div>
+
+                <TurnstileField />
 
                 <button type="submit" disabled={enviando} className={`w-full py-4 bg-brand text-white border-0 rounded-xl text-[0.95rem] font-black cursor-pointer transition-all tracking-[0.02em] hover:bg-[#d4891a] hover:-translate-y-px shadow-[0_8px_20px_rgba(245,166,35,0.3)] ${enviando ? "bg-[#ccc] cursor-not-allowed !translate-y-0 !shadow-none" : ""}`}>
                   {enviando ? "Enviando..." : "Enviar mensaje →"}
