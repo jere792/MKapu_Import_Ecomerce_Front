@@ -92,21 +92,41 @@ export default function Navbar({ categories = [] }: NavbarProps) {
     prevCount.current = count;
   }, [count]);
 
-  // ✅ FIX: useEffect que faltaba para verificar auth desde localStorage
   useEffect(() => {
-    const adminId = localStorage.getItem("admin_id");
-    const adminNombre = localStorage.getItem("admin_nombre");
+    let mounted = true;
 
-    if (adminId && adminNombre) {
-      setIsLogged(true);
-      setIsAdmin(true);
-    } else {
-      setIsLogged(false);
-      setIsAdmin(false);
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
 
-    // Marca que ya se verificó — esto desbloquea el render del candado/panel
-    setAuthChecked(true);
+      const meta = (session?.user?.app_metadata ?? {}) as Record<
+        string,
+        unknown
+      >;
+
+      if (session && meta.role === "admin") {
+        localStorage.setItem("admin_id", String(meta.empleado_id ?? ""));
+        localStorage.setItem(
+          "admin_nombre",
+          (session.user.user_metadata?.nombre as string) ||
+            session.user.email ||
+            "Administrador"
+        );
+        setIsLogged(true);
+        setIsAdmin(true);
+      } else {
+        localStorage.removeItem("admin_id");
+        localStorage.removeItem("admin_nombre");
+        setIsLogged(false);
+        setIsAdmin(false);
+      }
+
+      // Marca que ya se verificó — esto desbloquea el render del candado/panel
+      setAuthChecked(true);
+    });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -190,12 +210,14 @@ export default function Navbar({ categories = [] }: NavbarProps) {
   }
 
   function handleLogout() {
-    localStorage.removeItem("admin_id");
-    localStorage.removeItem("admin_nombre");
-    setIsLogged(false);
-    setIsAdmin(false);
-    setMobileOpen(false);
-    router.push("/");
+    supabase.auth.signOut().finally(() => {
+      localStorage.removeItem("admin_id");
+      localStorage.removeItem("admin_nombre");
+      setIsLogged(false);
+      setIsAdmin(false);
+      setMobileOpen(false);
+      router.push("/");
+    });
   }
 
   function openMega() {

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 export interface Producto {
   id: number;
@@ -83,7 +84,10 @@ if (!supabaseUrl || !supabaseKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase =
+  typeof window === "undefined"
+    ? createClient(supabaseUrl, supabaseKey)
+    : createBrowserClient(supabaseUrl, supabaseKey);
 
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export const supabaseAdmin = typeof window === "undefined" && serviceRoleKey

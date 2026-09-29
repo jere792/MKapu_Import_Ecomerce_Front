@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { supabase } from "@/lib/supabase";
+import { getEmpresa } from "@/lib/get-empresa";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return new NextResponse("No autorizado", { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const ticket = searchParams.get("ticket");
 
@@ -11,7 +17,7 @@ export async function GET(req: NextRequest) {
       return new NextResponse("Ticket no proporcionado", { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await admin.supabase
       .from("reclamaciones")
       .select("*")
       .eq("ticket", ticket)
@@ -39,6 +45,8 @@ export async function GET(req: NextRequest) {
       });
     };
 
+    const empresa = await getEmpresa();
+
     const fechaRegistro = data.created_at ? new Date(data.created_at) : new Date();
     const fechaRespuesta = new Date(fechaRegistro);
     fechaRespuesta.setDate(fechaRespuesta.getDate() + 15);
@@ -47,9 +55,9 @@ export async function GET(req: NextRequest) {
     drawText(`FECHA: ${fechaRegistro.toLocaleDateString('es-PE')}`, 50, 70, false);
     drawText(`N° TICKET: ${data.ticket}`, 400, 70, true);
 
-    drawText('PROVEEDOR: MKAPU IMPORT S.A.C.', 50, 100, true);
-    drawText('RUC: 20613016946', 50, 115, false);
-    drawText('DOMICILIO: AV. LAS FLORES DE LA PRIMAVERA NRO. 1838...', 50, 130, false);
+    drawText(`PROVEEDOR: ${empresa?.razon_social || empresa?.nombre || 'MKAPU IMPORT S.A.C.'}`, 50, 100, true);
+    drawText(`RUC: ${empresa?.ruc || '20613016946'}`, 50, 115, false);
+    drawText(`DOMICILIO: ${empresa?.direccion || 'AV. LAS FLORES DE LA PRIMAVERA NRO. 1838...'}`, 50, 130, false);
 
     drawText('1. IDENTIFICACIÓN DEL CONSUMIDOR RECLAMANTE', 50, 160, true);
     drawText(`NOMBRE: ${data.nombres} ${data.apellidos}`, 50, 180);

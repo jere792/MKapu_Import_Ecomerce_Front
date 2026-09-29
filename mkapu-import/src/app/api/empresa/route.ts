@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
   const { data, error } = await supabaseAdmin
@@ -17,9 +18,14 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
     const body = await req.json();
 
-    const { error } = await supabaseAdmin.from("empresa").upsert({
+    const { error } = await admin.supabase.from("empresa").upsert({
       id: 1,
       ...body,
     });

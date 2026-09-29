@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
@@ -18,37 +17,32 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    // Paso 1: buscar empleado por email
-    const { data: empleado, error: dbError } = await supabase
-      .from("empleados")
-      .select("id, nombre, activo, password")
-      .eq("email", email.trim())
-      .single();
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
 
-    if (dbError || !empleado) {
+    if (authError || !data.user) {
       setError("Credenciales incorrectas.");
       setLoading(false);
       return;
     }
 
-    // Paso 2: verificar password con bcrypt
-    const passwordValido = await bcrypt.compare(password, empleado.password);
+    const user = data.user;
+    const meta = (user.app_metadata ?? {}) as Record<string, unknown>;
 
-    if (!passwordValido) {
-      setError("Credenciales incorrectas.");
+    if (meta.role !== "admin") {
+      await supabase.auth.signOut();
+      setError("Tu cuenta no tiene permisos de administrador.");
       setLoading(false);
       return;
     }
 
-    if (!empleado.activo) {
-      setError("Tu cuenta está desactivada. Contacta soporte.");
-      setLoading(false);
-      return;
-    }
-
-    // Paso 3: guardar sesión
-    localStorage.setItem("admin_id", String(empleado.id));
-    localStorage.setItem("admin_nombre", empleado.nombre);
+    localStorage.setItem("admin_id", String(meta.empleado_id ?? ""));
+    localStorage.setItem(
+      "admin_nombre",
+      (user.user_metadata?.nombre as string) || user.email || "Administrador"
+    );
     router.push("/admin/productos");
   }
 

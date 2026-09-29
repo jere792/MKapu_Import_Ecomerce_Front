@@ -39,26 +39,33 @@ export default function AdminLayout({
     let isMounted = true;
 
     async function checkAuth() {
-      const adminId = localStorage.getItem("admin_id");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      if (!adminId) {
+      if (!isMounted) return;
+
+      const meta = (session?.user?.app_metadata ?? {}) as Record<
+        string,
+        unknown
+      >;
+
+      if (!session || meta.role !== "admin") {
+        localStorage.removeItem("admin_id");
+        localStorage.removeItem("admin_nombre");
+        if (session) await supabase.auth.signOut();
         if (isMounted) router.push("/login");
         return;
       }
 
-      const { data: empleado } = await supabase
-        .from("empleados")
-        .select("id, activo")
-        .eq("id", Number(adminId))
-        .single();
-
-      if (!isMounted) return;
-
-      if (!empleado || !empleado.activo) {
-        localStorage.removeItem("admin_id");
-        localStorage.removeItem("admin_nombre");
-        router.push("/login");
-        return;
+      if (!localStorage.getItem("admin_id")) {
+        localStorage.setItem("admin_id", String(meta.empleado_id ?? ""));
+        localStorage.setItem(
+          "admin_nombre",
+          (session.user.user_metadata?.nombre as string) ||
+            session.user.email ||
+            "Administrador"
+        );
       }
 
       setIsAuthenticated(true);

@@ -20,6 +20,7 @@ import {
   Building2,
   X,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const MENU_ITEMS = [
   { name: "Productos", icon: Package, href: "/admin/productos" },
@@ -72,9 +73,11 @@ export default function AdminSidebar({
   }, []);
 
   function logout() {
-    localStorage.removeItem("admin_id");
-    localStorage.removeItem("admin_nombre");
-    router.push("/login");
+    supabase.auth.signOut().finally(() => {
+      localStorage.removeItem("admin_id");
+      localStorage.removeItem("admin_nombre");
+      router.push("/login");
+    });
   }
 
   return (

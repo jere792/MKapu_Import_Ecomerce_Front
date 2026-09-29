@@ -1,10 +1,19 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import type { User } from "@supabase/supabase-js";
 
-export async function getServerSession() {
+type ServerClient = Awaited<ReturnType<typeof createServerSupabase>>;
+
+type AuthResult = {
+  user: User | null;
+  isAdmin: boolean;
+  supabase: ServerClient;
+};
+
+export async function createServerSupabase() {
   const cookieStore = await cookies();
 
-  const supabase = createServerClient(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -24,21 +33,30 @@ export async function getServerSession() {
       },
     }
   );
+}
+
+export async function getServerSession(): Promise<AuthResult> {
+  const supabase = await createServerSupabase();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { user: null, isAdmin: false };
+  if (!user) return { user: null, isAdmin: false, supabase };
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const meta = (user.app_metadata ?? {}) as Record<string, unknown>;
 
   return {
     user,
-    isAdmin: profile?.role === "admin",
+    isAdmin: meta.role === "admin",
+    supabase,
   };
+}
+
+export async function requireAdmin(): Promise<AuthResult | null> {
+  const session = await getServerSession();
+
+  if (!session.user || !session.isAdmin) return null;
+
+  return session;
 }
