@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 import { requireAdmin } from "@/lib/auth";
 
 cloudinary.config({
@@ -15,6 +15,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
+      return NextResponse.json(
+        { error: "Falta la configuracion de Cloudinary en el servidor" },
+        { status: 500 }
+      );
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const folder = (formData.get("folder") as string) || "banners/carousel";
@@ -26,7 +42,7 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const result = await new Promise<any>((resolve, reject) => {
+    const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
           {
@@ -37,9 +53,9 @@ export async function POST(req: NextRequest) {
               { fetch_format: "auto" },   
             ],
           },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
+          (error, uploaded) => {
+            if (error || !uploaded) reject(error ?? new Error("Upload failed"));
+            else resolve(uploaded);
           }
         )
         .end(buffer);
@@ -48,6 +64,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: result.secure_url });
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    const detail = error instanceof Error ? error.message : "Upload failed";
+    return NextResponse.json({ error: detail }, { status: 500 });
   }
 }

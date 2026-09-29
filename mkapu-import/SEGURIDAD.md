@@ -132,6 +132,7 @@
 | `464becc8` | Security headers + CSP |
 | `c21bc809` | Turnstile en `/contacto` y Libro de Reclamaciones |
 | `32c270e2` | Credenciales de Cloudinary como secrets del Worker (upload de banners restaurado) |
-| `ab24c3b6` (actual) | `img-src` + `images.remotePatterns` aceptan `i.postimg.cc` (banners existentes) |
+| `ab24c3b6` | `img-src` + `images.remotePatterns` aceptan `i.postimg.cc` (banners existentes) |
+| `2f0d1b3e` (actual) | `/api/upload`: config de Cloudinary leída en cada request con chequeo explícito; detalle de error solo para admin |
 
 Última verificación: probes de producción OK sobre `https://mkapuecomercefront.solvegrades.workers.dev`.
