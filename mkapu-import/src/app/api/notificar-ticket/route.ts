@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { getEmpresa } from "@/lib/get-empresa";
+
+const FALLBACK_EMAIL = "mkapuperu@gmail.com";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +16,9 @@ export async function POST(req: NextRequest) {
     if (!email || !nombres) {
       return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 });
     }
+
+    const empresa = await getEmpresa();
+    const destinatario = empresa?.email || FALLBACK_EMAIL;
 
     const fechaActual = new Date();
     const fechaRespuesta = new Date();
@@ -40,9 +46,9 @@ export async function POST(req: NextRequest) {
     drawText(`FECHA: ${fechaActual.toLocaleDateString('es-PE')}`, 50, 70, false);
     drawText(`N° TICKET: ${ticket}`, 400, 70, true);
 
-    drawText('PROVEEDOR: MKAPU IMPORT S.A.C.', 50, 100, true);
-    drawText('RUC: 20613016946', 50, 115, false);
-    drawText('DOMICILIO: AV. LAS FLORES DE LA PRIMAVERA NRO. 1838...', 50, 130, false);
+    drawText(`PROVEEDOR: ${empresa?.razon_social || empresa?.nombre || 'MKAPU IMPORT S.A.C.'}`, 50, 100, true);
+    drawText(`RUC: ${empresa?.ruc || '20613016946'}`, 50, 115, false);
+    drawText(`DOMICILIO: ${empresa?.direccion || 'AV. LAS FLORES DE LA PRIMAVERA NRO. 1838...'}`, 50, 130, false);
 
     drawText('1. IDENTIFICACIÓN DEL CONSUMIDOR RECLAMANTE', 50, 160, true);
     drawText(`NOMBRE: ${nombres} ${apellidos}`, 50, 180);
@@ -122,7 +128,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         from: 'Notificaciones Web <onboarding@resend.dev>',
-        to: ['mkapuperu@gmail.com'], 
+        to: [destinatario], 
         subject: `🚨 ALERTA: Nuevo ${tipo} - Ticket ${ticket}`,
         html: htmlInterno,
         attachments: [

@@ -2,9 +2,13 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import { useEmpresa } from "@/context/EmpresaContext";
+import { normalizeWhatsAppNumber } from "@/app/lib/whatsapp";
 
 export default function Footer() {
   const { empresa } = useEmpresa();
+  const wspNumber =
+    normalizeWhatsAppNumber(empresa?.whatsapp) ||
+    normalizeWhatsAppNumber(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER);
 
   return (
     <footer className="bg-[#1a1a1a] text-[#ccc] mt-auto">
@@ -45,7 +49,7 @@ export default function Footer() {
           <div className="flex flex-col gap-2">
             <h4 className="text-xs font-bold text-white uppercase tracking-[0.08em] mb-1">Contacto</h4>
             <a
-              href={`https://wa.me/${empresa?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
+              href={`https://wa.me/${wspNumber}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white hover:[color:#25d366]"
@@ -65,6 +69,14 @@ export default function Footer() {
               <Mail size={14} />
               Email
             </Link>
+            {empresa?.email && (
+              <a
+                href={`mailto:${empresa.email}`}
+                className="text-sm text-[#aaa] no-underline transition-colors flex items-center gap-1.5 hover:text-white break-all"
+              >
+                {empresa.email}
+              </a>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">

@@ -1,4 +1,5 @@
 import LegalSection from "@/components/LegalSection";
+import CompanyEmailLink from "@/components/CompanyEmailLink";
 
 export default function TerminosYCondiciones() {
   return (
@@ -12,9 +13,7 @@ export default function TerminosYCondiciones() {
             El presente sitio web es operado por <strong>Mkapu Import</strong>,
             empresa debidamente registrada en el Perú con RUC activo. Para
             cualquier consulta puedes contactarnos a través de{" "}
-            <a href="mailto:marlomauriciop1@gmail.com">
-              marlomauriciop1@gmail.com
-            </a>{" "}
+            <CompanyEmailLink />{" "}
             o por WhatsApp.
           </p>
         </LegalSection>

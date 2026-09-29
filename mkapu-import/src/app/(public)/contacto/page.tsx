@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useEmpresa } from "@/context/EmpresaContext";
+import { normalizeWhatsAppNumber } from "@/app/lib/whatsapp";
 
 type BannerConfig = {
   titulo: string;
@@ -14,6 +15,7 @@ type BannerConfig = {
 type EmpresaData = {
   direccion: string | null;
   whatsapp_soporte: string | null;
+  numero_reclamos: string | null;
   email: string | null;
   horario_atencion: string | null;
   instagram_url: string | null;
@@ -47,6 +49,7 @@ const contactIcons = {
 const contactFields: { key: keyof EmpresaData; label: string; iconKey: keyof typeof contactIcons }[] = [
   { key: "direccion", label: "Dirección", iconKey: "direccion" },
   { key: "whatsapp_soporte", label: "Teléfono / WhatsApp", iconKey: "whatsapp" },
+  { key: "numero_reclamos", label: "Teléfono de reclamos", iconKey: "whatsapp" },
   { key: "email", label: "Email", iconKey: "email" },
   { key: "horario_atencion", label: "Horario", iconKey: "horario" },
 ];
@@ -235,9 +238,9 @@ export default function ContactoPage() {
           </div>
 
           <div className="flex flex-col gap-6">
-            {loaded && (empresa?.whatsapp_soporte ?? "").replace(/\D/g, "") && (
+            {loaded && normalizeWhatsAppNumber(empresa?.whatsapp_soporte) && (
               <a
-                href={`https://wa.me/${(empresa?.whatsapp_soporte ?? "").replace(/\D/g, "")}`}
+                href={`https://wa.me/${normalizeWhatsAppNumber(empresa?.whatsapp_soporte)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="relative overflow-hidden rounded-[24px] bg-[#1a1a1a] text-white p-7 border border-[#2a2a2a] no-underline transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.25)]"

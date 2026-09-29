@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useEmpresa } from "@/context/EmpresaContext";
+import { normalizeWhatsAppNumber } from "@/app/lib/whatsapp";
 
 type FormState = {
   nombres: string;
@@ -38,6 +40,7 @@ export default function ReclamacionesForm() {
   const [form, setForm] = useState<FormState>(INITIAL);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const { empresa } = useEmpresa();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -150,6 +153,31 @@ export default function ReclamacionesForm() {
         <p className="text-[0.88rem] text-[#666] leading-[1.6]">
           Completa el formulario y nos comunicaremos dentro de los plazos establecidos por la norma peruana.
         </p>
+        {(empresa?.numero_reclamos || empresa?.email) && (
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1.5 text-[0.8rem] text-[#555]">
+            {empresa?.numero_reclamos && (
+              <span className="flex items-center gap-1.5">
+                <strong className="text-[#1a1a1a]">Teléfono de reclamos:</strong>
+                <a
+                  href={`https://wa.me/${normalizeWhatsAppNumber(empresa.numero_reclamos)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand font-semibold no-underline hover:underline"
+                >
+                  {empresa.numero_reclamos}
+                </a>
+              </span>
+            )}
+            {empresa?.email && (
+              <span className="flex items-center gap-1.5">
+                <strong className="text-[#1a1a1a]">Email:</strong>
+                <a href={`mailto:${empresa.email}`} className="text-brand font-semibold no-underline hover:underline">
+                  {empresa.email}
+                </a>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {status === "error" && (

@@ -1,4 +1,5 @@
 import LegalSection from "@/components/LegalSection";
+import CompanyEmailLink from "@/components/CompanyEmailLink";
 
 export default function PoliticaDePrivacidad() {
   return (
@@ -17,9 +18,7 @@ export default function PoliticaDePrivacidad() {
           </p>
           <p>
             Contacto:{" "}
-            <a href="mailto:marlomauriciop1@gmail.com">
-              marlomauriciop1@gmail.com
-            </a>
+            <CompanyEmailLink />
           </p>
         </LegalSection>
 
@@ -121,9 +120,7 @@ export default function PoliticaDePrivacidad() {
           </ul>
           <p>
             Para ejercer cualquiera de estos derechos, escríbenos a{" "}
-            <a href="mailto:marlomauriciop1@gmail.com">
-              marlomauriciop1@gmail.com
-            </a>{" "}
+            <CompanyEmailLink />{" "}
             indicando tu nombre completo, el derecho que deseas ejercer y
             adjuntando una copia de tu DNI. Responderemos en un plazo máximo de
             20 días hábiles.

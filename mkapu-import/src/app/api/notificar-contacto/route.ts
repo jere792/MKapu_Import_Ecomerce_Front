@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getEmpresa } from "@/lib/get-empresa";
+
+const FALLBACK_EMAIL = "mkapuperu@gmail.com";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +14,9 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+
+    const empresa = await getEmpresa();
+    const destinatario = empresa?.email || FALLBACK_EMAIL;
 
      const htmlInterno = `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px 20px; background-color: #f8f7f4;">
@@ -78,7 +84,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         from: "Contacto Web <onboarding@resend.dev>",
-        to: ["mkapuperu@gmail.com"],
+        to: [destinatario],
         subject: `Nuevo mensaje web de: ${nombre}`,
         html: htmlInterno,
       }),

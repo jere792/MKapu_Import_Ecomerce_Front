@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { sendToWhatsApp } from "@/app/lib/whatsapp";
+import { useEmpresa } from "@/context/EmpresaContext";
 
 interface Props {
   open: boolean;
@@ -11,6 +12,7 @@ interface Props {
 
 export default function CartDrawer({ open, onClose }: Props) {
   const { items, updateQty, removeItem, total, count, setIsOpen } = useCart();
+  const { empresa } = useEmpresa();
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   // Sincroniza el estado del contexto con la prop open
@@ -141,7 +143,7 @@ export default function CartDrawer({ open, onClose }: Props) {
               </div>
               <button
                 className="w-full py-3.5 bg-whatsapp text-white border-0 rounded-xl text-[15px] font-bold cursor-pointer flex items-center justify-center gap-2.5 transition-colors hover:bg-whatsapp-dark"
-                onClick={() => sendToWhatsApp(items)}
+                onClick={() => sendToWhatsApp(items, empresa?.whatsapp)}
               >
                 <WspIcon />
                 Enviar pedido por WhatsApp
