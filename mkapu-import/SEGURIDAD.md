@@ -130,6 +130,7 @@
 | `9a2ee56a` | Login con Supabase Auth, middleware, rutas API protegidas |
 | `239d5992` | Upsert de empresa con cliente autenticado |
 | `464becc8` | Security headers + CSP |
-| `c21bc809` (actual) | Turnstile en `/contacto` y Libro de Reclamaciones |
+| `c21bc809` | Turnstile en `/contacto` y Libro de Reclamaciones |
+| `32c270e2` (actual) | Credenciales de Cloudinary como secrets del Worker (upload de banners restaurado) |
 
 Última verificación: probes de producción OK sobre `https://mkapuecomercefront.solvegrades.workers.dev`.
